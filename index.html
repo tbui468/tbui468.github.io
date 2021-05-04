@@ -17,7 +17,7 @@
         data we want the classifier to tell us the color of the point (red, yellow, or blue).  Two common classifiers are the support vector classifier 
         and the softmax classifier. We'll use the softmax classifier here. <br><br>
 
-        The softmax classifier interprets all outputs predictions as unnormalized log probabilities.  We only want the probability part, so we'll need to 
+        The softmax classifie interprets all outputs predictions as unnormalized log probabilities.  We only want the probability part, so we'll need to 
         normalize it (make the sum of probabilities equal to 1) and exponentiate it with the natural number e to get rid of the log.  Any other base would 
         work fine but using e seems to be convention, and it makes differentiation (which we'll need later) easier.  Note: the softmax function takes in a 
         vector (it could take in a scalar, but a prediction of 100% probability on one possible output is silly).<br><br>
