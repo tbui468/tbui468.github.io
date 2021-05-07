@@ -32,7 +32,7 @@ function testing_tensorflow() {
   console.timeEnd('mathjs');*/
 }
 
-testing_tensorflow()
+//testing_tensorflow()
 
 function testing() {
   let matrixA = math.matrix([[0, 1], [2, 3], [4, 5]]);
@@ -98,30 +98,13 @@ function get_cursor_position(canvas, event) {
 
 function draw_circle(x, y, color) {
   context.beginPath();
-  context.arc(x, y, 8, 0, 2 * Math.PI);
+  context.arc(x, y, 4, 0, 2 * Math.PI);
   context.fillStyle = color;
   context.fill();
   context.strokeStyle = "black";
   context.stroke();
 }
 
-function affine(x, W, b) {
-  const linear = tf.matMul(x, W);
-  /*
-  let biases = b;
-  for (let i = 0; i < math.column(x, 0).length - 1; i++) {
-    biases = math.concat(biases, b, 0); 
-  }
-
-  return math.add(linear, biases);*/
-  return linear;
-}
-
-function relu(z) {
-  const zeros = math.zeros(math.size(z));
-  const zeros_map = math.number(math.larger(z, zeros));
-  return math.dotMultiply(z, zeros_map);
-}
 /*
 function update_weights(points, lr) {
   //forward pass
@@ -140,38 +123,35 @@ function update_weights(points, lr) {
 }*/
 
 function classify_coords(coords) {
-  let W1 = tf.randomNormal([2, 8])
-  let b1 = tf.zeros([1, 8]);
-  let W2 = tf.randomNormal([8, 2])
-  let b2 = tf.zeros([1, 2]);
-  const z1 = affine(coords, W1, b1);
+
+  //temp jus to test changing weights
+  W1 = tf.add(W1, tf.randomNormal(W1.shape, stdDev=0.0001));
+  W2 = tf.add(W2, tf.randomNormal(W2.shape, stdDev=0.0001));
+
+  const z1 = tf.add(tf.matMul(coords, W1), b1);
   const a1 = tf.relu(z1);
-  const z2 = affine(a1, W2, b2);
+  const z2 = tf.add(tf.matMul(a1, W2), b2);
   return z2;
 }
 
 
 function drawContours(){
   const preds = classify_coords(coords).arraySync();
+  const c = coords.arraySync();
 
-  console.log('hi')
 
   context.beginPath();
-  for (let x = 0; x < 32; x += 1) {
-    for (let y = 0; y < 32; y += 1) {
-      if (preds[y, 0] > preds[y, 1])
-        context.rect(x*10, y*10, 10, 10);
-    }
+  for (let s = 0; s < (bh/bs)*(bh/bs); s++) {
+      if (preds[s][0] > preds[s][1]) 
+        context.rect(c[s][0] + 256, c[s][1] + 256, 8, 8);
   }
   context.fillStyle = "lime";
   context.fill()
 
   context.beginPath();
-  for (let x = 0; x < 32; x += 1) {
-    for (let y = 0; y < 32; y += 1) {
-      if (preds[y, 0] <= preds[y, 1])
-        context.rect(x*10, y*10, 10, 10);
-    }
+  for (let s = 0; s < (bh/bs)*(bh/bs); s++) {
+      if (preds[s][0] <= preds[s][1]) 
+        context.rect(c[s][0] + 256, c[s][1] + 256, 8, 8);
   }
   context.fillStyle = "deepskyblue";
   context.fill()
@@ -191,24 +171,28 @@ function update() {
 }
 
 
-const bw = 400;
-const bh = 400;
+const bw = 512;
+const bh = 512;
+const bs = 4;
 const points = [{x: 10, y: 20, c: 'g'}, {x: 23, y: 89, c: 'g'}, {x: 43.2, y: 200.3, c: 'b'}]
 let arr = []
-for (let row = 0; row < 32; row += 1) {
-  for (let col = 0; col < 32; col += 1) {
-    arr.push(row);
-    arr.push(col);
+for (let row = 0; row < bh / bs; row += 1) {
+  for (let col = 0; col < bw / bs; col += 1) {
+    arr.push(row*bs - 256);
+    arr.push(col*bs - 256);
   }
 }
-const coords = tf.tensor2d(arr, [1024, 2]);
-coords.print();
+const coords = tf.tensor2d(arr, [(bh/bs)*(bh/bs), 2]);
+coords.print()
+let W1 = tf.randomNormal([2, 8])
+let b1 = tf.zeros([1, 8]);
+let W2 = tf.randomNormal([8, 2])
+let b2 = tf.zeros([1, 2]);
 //using math.matrix causes wierd type problems
 const canvas = document.getElementById("canvas");
 canvas.addEventListener('mousedown', function(e) {
   get_cursor_position(canvas, e);
 });
 const context = canvas.getContext("2d");
-const box_size = 4;
 
-let t = setInterval(update, 1000);
+let t = setInterval(update, 100);
