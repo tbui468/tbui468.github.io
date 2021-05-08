@@ -1,63 +1,3 @@
-function testing_tensorflow() {
-  const a = tf.tensor([[1, 2], [3, 4]]);
-  console.log('shape', a.shape);
-  a.print();
-
-  let x = tf.fill([1024, 2], 1.1)
-  let W1 = tf.fill([2, 8], -1.1);
-  let W2 = tf.fill([8, 2], 1.1)
-  console.time('tensorflowjs1');
-  let z1 = tf.matMul(x, W1);
-  let z2 = tf.matMul(z1, W2);
-  console.timeEnd('tensorflowjs1');
-/*
-  tf.setBackend('wasm');
-  tf.ready()
-    .then(() => {
-      let x1 = tf.fill([1000, 100], 1.1)
-      let y1 = tf.fill([100, 1000], -1.1);
-      console.time('tensorflowjs');
-      let z1 = tf.matMul(x1, y1)
-      console.timeEnd('tensorflowjs');
-    })
-    .catch((e) => {
-      console.log('yep');
-    });*/
-/*
-  //mathjs
-  let x = math.random([1000, 100], -1, 1);
-  let y = math.random([100, 1000], -1, 1);
-  console.time('mathjs');
-  let z = math.multiply(x, y)
-  console.timeEnd('mathjs');*/
-}
-
-//testing_tensorflow()
-
-function testing() {
-  let matrixA = math.matrix([[0, 1], [2, 3], [4, 5]]);
-  let matrixZ = math.random([2, 2], -1, 1)
-  let matrixY = math.matrix([[2, 2], [3, 2]]);
-  //console.log(math.multiply(matrixA, matrixZ));
-  //console.log(math.multiply(matrixA, matrixY));
-  const matrixB = math.matrix([[2, 4], [6, 2]]);
-  const matrixC = math.multiply(matrixA, matrixB);
-  //console.log(math.column(matrixA, 0));
-  //console.log(math.column(matrixA, 1));
-  matrixA = math.subset(matrixA, math.index(0, 0), 10);
-  //console.log(matrixA.get([0, 0]))
-
-  let W1 = math.random([2, 4], -1, 1);
-  let b1 = math.ones([1, 4]);
-  let W2 = math.random([4, 2], -1, 1);
-  let b2 = math.ones([1, 2]);
-
-  //how to get elements in each of the datatypes
-  console.log(math.column(W1, 0).length);
-  console.log(math.column(b1, 0).length);
-}
-
-
 
 function distance_squared(x1, y1, x2, y2) {
   let dy = y1 - y2;
@@ -71,128 +11,249 @@ function get_cursor_position(canvas, event) {
   const ypos = event.clientY - rect.top;
 
   if (event.ctrlKey) {
-    if (points.length > 0) {
+    if (predictors.length > 0) {
       let closest_idx = 0;
-      let closest_dis = distance_squared(xpos, ypos, points[closest_idx].x, points[closest_idx].y);
-      for (let i = 1; i < points.length; i++) {
-        let new_dis = distance_squared(xpos, ypos, points[i].x, points[i].y);
+      let closest_dis = distance_squared(xpos, ypos, predictors[closest_idx][0], predictors[closest_idx][1]);
+      for (let i = 1; i < predictors.length; i++) {
+        let new_dis = distance_squared(xpos, ypos, predictors[i][0], predictors[i][1]);
         if (new_dis < closest_dis) {
           closest_idx = i;
           closest_dis = new_dis;
         }
       }
-      points.splice(closest_idx, 1);
+      predictors.splice(closest_idx, 1);
+      labels.splice(closest_idx, 1);
     }
-    update();
-    return;
+  } else if (event.shiftKey) {
+    predictors.push([xpos, ypos]);
+    labels.push([0, 1]);
+  } else {
+    predictors.push([xpos, ypos]);
+    labels.push([1, 0]);
   }
 
-  if (event.shiftKey)
-    points.push({x: xpos, y: ypos, c: 'b'});
-  else
-    points.push({x: xpos, y: ypos, c: 'g'});
-
-  update();
+  draw();
 }
 
 
-function draw_circle(x, y, color) {
-  context.beginPath();
-  context.arc(x, y, 4, 0, 2 * Math.PI);
-  context.fillStyle = color;
-  context.fill();
-  context.strokeStyle = "black";
-  context.stroke();
-}
+function update(x, y, lr) {
+  
+  [dW1, db1, dW2, db2] = tf.tidy(() => {
+    const sample_count = x.length;
+    //forward pass
+    let n_x = tf.sub(tf.div(x, 256.), 1.0);
+    const z1 = tf.add(tf.matMul(n_x, W1), b1);
+    const a1 = tf.relu(z1);
+    const z2 = tf.add(tf.matMul(a1, W2), b2);
+    const probs = tf.softmax(z2, axis=1)
+    const loss = tf.sum(tf.mul(tf.neg(tf.log(probs)), tf.step(y)));
+    //tf.equal(tf.argMax(y, axis=1), tf.argMax(z2, axis=1)).print()
+    //tf.losses.softmaxCrossEntropy(z2, y).print();
 
+    //backproping over neg. log softmax as a single unit - dl/dprobs is (p) for negative labels, and (p-1) for positive labels
+    const dprobs = tf.mul(tf.add(probs, tf.neg(y)), 1.0/sample_count);
+    const dW2 = tf.mul(-lr, tf.matMul(a1.transpose(), dprobs));
+    const db2 = tf.mul(-lr, tf.mean(dprobs, axis=0))
+    const dz2 = tf.matMul(dprobs, W2.transpose());
+
+    //const sig = tf.sigmoid(z1)
+    //const dsig = tf.mul(tf.sub(1, sig), sig)
+    //const da1 = tf.mul(dz2, dsig);
+    const da1 = tf.mul(dz2, tf.step(z1));
+    const dW1 = tf.mul(-lr, tf.matMul(n_x.transpose(), da1));
+    const db1 = tf.mul(-lr, tf.mean(da1, axis=0))
+
+    return [dW1, db1, dW2, db2]
+  });
+
+
+  W1 = tf.add(W1, dW1);
+  b1 = tf.add(b1, db1);
+  W2 = tf.add(W2, dW2);
+  b2 = tf.add(b2, db2);
 /*
-function update_weights(points, lr) {
-  //forward pass
-  let inputs = math.zeros([points.length, 2])
-  for (let i = 0; i < points.length; i++) {
-    inputs = math.subset(inputs, math.index(i, 0), points[i].x);
-    inputs = math.subset(inputs, math.index(i, 1), points[i].y);
-  }
+  //numerically compute gradient to see what problem is
+  [W1, b1, W2, b2] = tf.tidy(() => {
+    //W2 is 8x2, b2 is 1x2
+    let h = 0.0001;
+    const f = tf.losses.softmaxCrossEntropy(y, evaluate(x, [W1, W2], [b1, b2])).arraySync();
+    console.log("loss: ", f);
+    //W2 and b2
+    let W2_arr = W2.arraySync();
+    let W2_check = tf.zeros([h_layers, 2]).arraySync();
+    for (let row = 0; row < h_layers; row++) {
+      for(let col = 0; col < 2; col++) {
+        let old_w = W2_arr[row][col];
+        W2_arr[row][col] = old_w + h;
+        let fh = tf.losses.softmaxCrossEntropy(y, evaluate(x, [W1, W2_arr], [b1, b2])).arraySync();
+        W2_arr[row][col] = old_w;
+        W2_check[row][col] = (fh - f) / h;
+      }
+    }
 
-  const z1 = affine(inputs, W1, b1);
-  //const a1 = relu(z1);
-  const z2 = affine(z1, W2, b2);
+    let b2_arr = b2.arraySync();
+    let b2_check = tf.zeros([1, 2]).arraySync();
+    for (let row = 0; row < 1; row++) {
+      for(let col = 0; col < 2; col++) {
+        let old_w = b2_arr[row][col];
+        b2_arr[row][col] = old_w + h;
+        let fh = tf.losses.softmaxCrossEntropy(y, evaluate(x, [W1, W2], [b1, b2_arr])).arraySync();
+        b2_arr[row][col] = old_w;
+        b2_check[row][col] = (fh - f) / h;
+      }
+    }
 
-  //backward pass
-  //update weights
-}*/
+    //W1 and b1
+    let W1_arr = W1.arraySync();
+    let W1_check = tf.zeros([2, h_layers]).arraySync();
+    for (let row = 0; row < 2; row++) {
+      for(let col = 0; col < h_layers; col++) {
+        let old_w = W1_arr[row][col];
+        W1_arr[row][col] = old_w + h;
+        let fh = tf.losses.softmaxCrossEntropy(y, evaluate(x, [W1_arr, W2], [b1, b2])).arraySync();
+        W1_arr[row][col] = old_w;
+        W1_check[row][col] = (fh - f) / h;
+      }
+    }
 
-function classify_coords(coords) {
+    let b1_arr = b1.arraySync();
+    let b1_check = tf.zeros([1, h_layers]).arraySync();
+    for (let row = 0; row < 1; row++) {
+      for(let col = 0; col < h_layers; col++) {
+        let old_w = b1_arr[row][col];
+        b1_arr[row][col] = old_w + h;
+        let fh = tf.losses.softmaxCrossEntropy(y, evaluate(x, [W1, W2], [b1_arr, b2])).arraySync();
+        b1_arr[row][col] = old_w;
+        b1_check[row][col] = (fh - f) / h;
+      }
+    }
 
-  //temp jus to test changing weights
-  W1 = tf.add(W1, tf.randomNormal(W1.shape, stdDev=0.0001));
-  W2 = tf.add(W2, tf.randomNormal(W2.shape, stdDev=0.0001));
+    console.log(W1_check)
+    console.log(W2_check);
 
-  const z1 = tf.add(tf.matMul(coords, W1), b1);
-  const a1 = tf.relu(z1);
-  const z2 = tf.add(tf.matMul(a1, W2), b2);
-  return z2;
+    W1 = tf.add(W1, tf.mul(tf.tensor(W1_check), -lr));
+    b1 = tf.add(b1, tf.mul(tf.tensor(b1_check), -lr));
+    W2 = tf.add(W2, tf.mul(tf.tensor(W2_check), -lr));
+    b2 = tf.add(b2, tf.mul(tf.tensor(b2_check), -lr));
+
+    return [W1, b1, W2, b2];
+
+  });*/
+
+
+
+  //tf.equal(tf.argMax(y_arr, axis=1), tf.argMax(evaluate(x, [W1, W2], [b1, b2]), axis=1)).print()
+
 }
 
 
-function drawContours(){
-  const preds = classify_coords(coords).arraySync();
-  const c = coords.arraySync();
+function evaluate(x, weights, biases) {
+  return tf.tidy(() => {
+    let n_x = tf.sub(tf.div(x, 256.), 1.0);
+    const z1 = tf.add(tf.matMul(n_x, weights[0]), biases[0]);
+    const a1 = tf.relu(z1);
+    return tf.add(tf.matMul(a1, weights[1]), biases[1]);
+  });
 
+}
+
+function draw() {
+  const preds = evaluate(coords, [W1, W2], [b1, b2]).arraySync();
+
+  const offset = 0;
 
   context.beginPath();
-  for (let s = 0; s < (bh/bs)*(bh/bs); s++) {
-      if (preds[s][0] > preds[s][1]) 
-        context.rect(c[s][0] + 256, c[s][1] + 256, 8, 8);
-  }
   context.fillStyle = "lime";
+  for (let s = 0; s < (bh/bs)*(bh/bs); s++) {
+      if (preds[s][0] > preds[s][1]) {
+        context.rect(coords_array[s][0] + offset, coords_array[s][1] + offset, bs, bs);
+      }
+  }
   context.fill()
 
   context.beginPath();
-  for (let s = 0; s < (bh/bs)*(bh/bs); s++) {
-      if (preds[s][0] <= preds[s][1]) 
-        context.rect(c[s][0] + 256, c[s][1] + 256, 8, 8);
-  }
   context.fillStyle = "deepskyblue";
+  for (let s = 0; s < (bh/bs)*(bh/bs); s++) {
+      if (preds[s][0] <= preds[s][1]) {
+        context.rect(coords_array[s][0] + offset, coords_array[s][1] + offset, bs, bs);
+      }
+  }
   context.fill()
 
+
+  //draw blue circles
+  context.fillStyle = 'dodgerblue'
+  context.strokeStyle = "black";
+  for (let i = 0; i < predictors.length; i++) {
+    if (labels[i][1] == 1) {
+      context.beginPath();
+      context.arc(predictors[i][0], predictors[i][1], 4, 0, 2 * Math.PI);
+      context.fill();
+      context.stroke();
+    }
+  }
+
+  //draw green circles
+  context.fillStyle = 'limegreen'
+  context.strokeStyle = "black";
+  for (let i = 0; i < predictors.length; i++) {
+    if (labels[i][0] == 1) {
+      context.beginPath();
+      context.arc(predictors[i][0], predictors[i][1], 4, 0, 2 * Math.PI);
+      context.fill();
+      context.stroke();
+    }
+  }
 }
 
-function update() {
-  drawContours();
-  for (let i = 0; i < points.length; i++) {
-    if (points[i].c == 'b') 
-      draw_circle(points[i].x, points[i].y, 'dodgerblue');
+function update_and_draw() {
+  for(let i = 0; i < 1; i++) {
+    update(predictors, labels, 1.0);
   }
-  for (let i = 0; i < points.length; i++) {
-    if (points[i].c == 'g')
-      draw_circle(points[i].x, points[i].y, 'limegreen');
-  }
+  draw();
 }
 
+//////////////////////SHOULD CLEAN UP CODE BELOW////////////////////
+///problem with neural network always being linear???
+//not enough datapoints?
+//ReLUs are also dying really fast
+////////////////prefix global variables with 'g_'
 
 const bw = 512;
 const bh = 512;
-const bs = 4;
-const points = [{x: 10, y: 20, c: 'g'}, {x: 23, y: 89, c: 'g'}, {x: 43.2, y: 200.3, c: 'b'}]
-let arr = []
-for (let row = 0; row < bh / bs; row += 1) {
-  for (let col = 0; col < bw / bs; col += 1) {
-    arr.push(row*bs - 256);
-    arr.push(col*bs - 256);
+const bs = 16;
+
+const predictors = [
+                    [240, 240], [240, 270], [270, 240], [270, 270],
+                    [56, 56], [56, 456], [456, 56], [456, 456]
+                   ]
+//[green, blue]
+const labels = [
+                [1, 0], [1, 0], [1, 0], [1, 0],
+                [0, 1], [0, 1], [0, 1], [0, 1]
+               ];
+
+
+let arr = [];
+for (let row = 0; row < bh; row += bs) {
+  for (let col = 0; col < bw; col += bs) {
+    arr.push([row, col])
   }
 }
+
+tf.setBackend('cpu');
 const coords = tf.tensor2d(arr, [(bh/bs)*(bh/bs), 2]);
-coords.print()
-let W1 = tf.randomNormal([2, 8])
-let b1 = tf.zeros([1, 8]);
-let W2 = tf.randomNormal([8, 2])
+const coords_array = coords.arraySync();
+const h_layers = 16;
+let W1 = tf.mul(tf.randomNormal([2, h_layers]), 0.01);
+let b1 = tf.zeros([1, h_layers]);
+let W2 = tf.mul(tf.randomNormal([h_layers, 2]), 0.01);
 let b2 = tf.zeros([1, 2]);
-//using math.matrix causes wierd type problems
 const canvas = document.getElementById("canvas");
 canvas.addEventListener('mousedown', function(e) {
   get_cursor_position(canvas, e);
 });
 const context = canvas.getContext("2d");
 
-let t = setInterval(update, 100);
+//update_and_draw();
+let t = setInterval(update_and_draw, 200);
