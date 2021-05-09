@@ -107,6 +107,11 @@ function draw() {
     draw_circle(1, 'limegreen');
     draw_circle(2, 'dodgerblue');
   });
+
+  loss_context.beginPath();
+  loss_context.fillStyle = "grey";
+  loss_context.rect(0, 0, 256, 256);
+  loss_context.fill();
 }
 
 function draw_contour(classes, hot_index, color) {
@@ -174,6 +179,18 @@ function spiral_data(point_total) {
   return [predictors, labels];
 }
 
+function basic_data() {
+  const predictors = [];
+  const labels = [];
+
+  predictors.push([256, 200, 1]);
+  labels.push([1, 0, 0]);
+  predictors.push([200, 300, 1]);
+  labels.push([0, 1, 0]);
+  predictors.push([300, 300, 1]);
+  labels.push([0, 0, 1]);
+  return [predictors, labels];
+}
 
 function random_data(points) {
   const predictors = [];
@@ -215,7 +232,6 @@ function circle_data(points) {
   return [predictors, labels];
 }
 
-const [predictors, labels] = spiral_data(128);
 
 function gaussian_init(input_layers) {
   return 1.
@@ -273,6 +289,25 @@ function reset_weights() {
 
 }
 
+function generate_data() {
+  const data_type = document.getElementById("data_type").value;
+  switch(data_type) {
+    case "basic_data":
+      [predictors, labels] = basic_data();
+      break;
+    case "random_data":
+      [predictors, labels] = random_data(32);
+      break;
+    case "circle_data":
+      [predictors, labels] = circle_data(128);
+      break;
+    case "spiral_data":
+      [predictors, labels] = spiral_data(128);
+      break;
+  }
+}
+
+let [predictors, labels] = basic_data();
 //init weights
 let W1 = tf.mul(tf.randomNormal([2 + 1, h_layers]), 1.0);
 let W2 = tf.mul(tf.randomNormal([h_layers, h2_layers]), kaiming_init(h_layers));
@@ -286,5 +321,8 @@ canvas.addEventListener('mousedown', function(e) {
   handle_click(canvas, e);
 });
 const context = canvas.getContext("2d");
+
+const loss_canvas = document.getElementById("loss_canvas");
+const loss_context = loss_canvas.getContext("2d");
 
 const t = setInterval(update_and_draw, 50);
