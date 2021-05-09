@@ -5,6 +5,38 @@
   </head>
   <body style=" background: white;">
     <canvas id="canvas" width="512px" height="512px" style="background: #fff; margin: 50px;"></canvas>
+    <br>
     <script src="grid_script.js" type="text/javascript" language="javascript"></script>
+
+    <label for="lr">Learning Rate</label>
+    <input type="number" id="lr" name="lr" value="0.01" step="0.01">
+    <br>
+    <label for="wd">L2 Weight Decay</label>
+    <input type="number" id="wd" name="wd" value="0.0001" step="0.01">
+    <br>
+    <label for="batch">Batch Size (not implemented)</label>
+    <input type="number" id="batch" name="batch" value="8" step="1">
+    <br>
+    <label for="momentum">Momentum (not implemented)</label>
+    <input type="number" id="momentum" name="momentum" value="0.9" step="1">
+    <br>
+    <label for="activation">Activation Function (not implemented - currently all ReLUs)</label>
+    <select name="activation" id="activation">
+      <option value="gaussian">Sigmoid</option>
+      <option value="xavier">Tanh</option>
+      <option value="kaiming">ReLU</option>
+      <option value="kaiming">Leaky ReLU</option>
+      <option value="kaiming">ELU</option>
+    </select>
+    <br>
+    <label for="w_init">Weight Initialization</label>
+    <select name="w_init" id="w_init">
+      <option value="gaussian">Gaussian Distribution</option>
+      <option value="xavier">Xavier Initialization</option>
+      <option value="kaiming">Kaiming Initialization</option>
+    </select>
+    <br>
+    <button onclick="reset_weights()">Restart Network</button>
+    <br>
   </body>
 </html>
