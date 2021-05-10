@@ -127,8 +127,8 @@ function draw() {
     loss_context.strokeStyle = "blue";
     loss_context.stroke();
     loss_context.beginPath();
-    loss_context.moveTo((epoch - 10)/2, 255-train_accs[l-2]);
-    loss_context.lineTo((epoch)/2, 255-train_accs[l-1]);
+    loss_context.moveTo((epoch - 10)/2, 255-2*train_accs[l-2]);
+    loss_context.lineTo((epoch)/2, 255-2*train_accs[l-1]);
     loss_context.strokeStyle = "red";
     loss_context.stroke();
   }
