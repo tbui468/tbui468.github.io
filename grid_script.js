@@ -2,7 +2,7 @@
 //add a training loss graph that updates with updates (epochs vs loss)
 //graph gradients in each layer (use colors to show different layers - 3 different gradients layers)
 //what else is interesting to observe? Affine transformations, and non-linear activations on those affine transformations in higher dimensional space
-//  either of one layer or all layers
+//either of one layer or all layers
 
 function distance_squared(x1, y1, x2, y2) {
   let dy = y1 - y2;
@@ -57,9 +57,12 @@ function update(x, y, lr, reg) {
     const a2 = tf.relu(z2);
     const z3 = tf.matMul(a2, W3);
     const probs = tf.softmax(z3, axis=1)
-
-    //const loss = tf.sum(tf.mul(tf.neg(tf.log(probs)), tf.step(y)));
-    //tf.equal(tf.argMax(y, axis=1), tf.argMax(z2, axis=1)).print()
+   
+    epoch += 1;
+    if(epoch % 10 == 0) {
+      train_losses.push(tf.mean(tf.mul(tf.neg(tf.log(probs)), tf.step(y))).arraySync());
+      train_accs.push(tf.sum(tf.equal(tf.argMax(y, axis=1), tf.argMax(z3, axis=1))).arraySync() / y.length * 100)
+    }
     //tf.losses.softmaxCrossEntropy(z2, y).print();
 
     //backproping over neg. log softmax as a single unit - dl/dprobs is (p) for negative labels, and (p-1) for positive labels
@@ -108,10 +111,32 @@ function draw() {
     draw_circle(2, 'dodgerblue');
   });
 
+  //drawing loss plot (need to only draw once)
   loss_context.beginPath();
-  loss_context.fillStyle = "grey";
-  loss_context.rect(0, 0, 256, 256);
-  loss_context.fill();
+  loss_context.strokeStyle = "grey";
+  loss_context.moveTo(0, 0);
+  loss_context.lineTo(0, 255);
+  loss_context.moveTo(0, 255);
+  loss_context.lineTo(511, 255);
+  loss_context.stroke();
+  let l = train_losses.length
+  if (l > 1 && epoch % 10 == 0) {
+    loss_context.beginPath();
+    loss_context.moveTo((epoch - 10)/2, 255-500*train_losses[l-2]);
+    loss_context.lineTo((epoch)/2, 255-500*train_losses[l-1]);
+    loss_context.strokeStyle = "blue";
+    loss_context.stroke();
+    loss_context.beginPath();
+    loss_context.moveTo((epoch - 10)/2, 255-train_accs[l-2]);
+    loss_context.lineTo((epoch)/2, 255-train_accs[l-1]);
+    loss_context.strokeStyle = "red";
+    loss_context.stroke();
+  }
+
+}
+
+function clear_plot() {
+  loss_context.clearRect(0, 0, loss_canvas.width, loss_canvas.height);
 }
 
 function draw_contour(classes, hot_index, color) {
@@ -131,7 +156,7 @@ function draw_circle(hot_index, color) {
   for (let i = 0; i < predictors.length; i++) {
     if (labels[i][hot_index] == 1) {
       context.beginPath();
-      context.arc(predictors[i][0], predictors[i][1], 8, 0, 2 * Math.PI);
+      context.arc(predictors[i][0], predictors[i][1], 4, 0, 2 * Math.PI);
       context.fill();
       context.stroke();
     }
@@ -154,9 +179,9 @@ tf.setBackend('cpu');
 function spiral_data(point_total) {
   const point_count = point_total / 2
   const r = Array.from({length: point_count}, (x, i) => i/point_count * 210 + 10); //making spirals start a little way from the center
-  const t0 = Array.from({length: point_count}, (x, i) => i/point_count * 4 + Math.random()*0.5); //~1/3 of circle
-  const t1 = Array.from({length: point_count}, (x, i) => i/point_count * 4 + 2.1 + Math.random()*0.5); //~1/3 of circle
-  const t2 = Array.from({length: point_count}, (x, i) => i/point_count * 4 + 4.2 + Math.random()*0.5); //~1/3 of circle
+  const t0 = Array.from({length: point_count}, (x, i) => i/point_count * 4 + Math.random()*1.0); //~1/3 of circle
+  const t1 = Array.from({length: point_count}, (x, i) => i/point_count * 4 + 2.1 + Math.random()*1.0); //~1/3 of circle
+  const t2 = Array.from({length: point_count}, (x, i) => i/point_count * 4 + 4.2 + Math.random()*1.0); //~1/3 of circle
   const predictors = [];
   const labels = []
   for (let i = 0; i < point_count; i++) {
@@ -263,7 +288,16 @@ for (let row = 0; row < bh; row += bs) {
 const h_layers = 12;
 const h2_layers = 12;
 
+function set_lr() {
+  lr = parseFloat(document.getElementById("lr").value);
+}
+
+function set_wd() {
+  wd = parseFloat(document.getElementById("wd").value);
+}
+
 function reset_weights() {
+  epoch = 1;
   lr = parseFloat(document.getElementById("lr").value);
   wd = parseFloat(document.getElementById("wd").value);
   w_init_name = document.getElementById("w_init").value;
@@ -315,6 +349,11 @@ let W3 = tf.mul(tf.randomNormal([h2_layers, 3]), kaiming_init(h2_layers));
 
 let lr = 0.001;
 let wd = 0.001;
+let epoch = 1;
+let train_losses = [];
+let train_accs = [];
+let valid_losses = [];
+let valid_accs = [];
 
 const canvas = document.getElementById("canvas");
 canvas.addEventListener('mousedown', function(e) {
