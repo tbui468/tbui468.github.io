@@ -35,9 +35,11 @@ function handle_click(canvas, event) {
       }
       predictors.splice(closest_idx, 1);
       labels.splice(closest_idx, 1);
+      train_idc.splice(closest_idx, 1);
     }
   } else { //add point (color based on modification keys pressed)
     predictors.push([xpos, ypos, 1]);
+    train_idc.push(1); //making all new points training points for now
     if (event.shiftKey) labels.push([0, 1, 0]);
     else if (event.ctrlKey) labels.push([0, 0, 1]);
     else labels.push([1, 0, 0]);
@@ -102,42 +104,31 @@ function draw() {
     //console.timeEnd('eval');
     const classes = tf.argMax(preds, axis=1).arraySync();
 
-    draw_contour(classes, 0, 'tomato');
-    draw_contour(classes, 1, 'lime');
-    draw_contour(classes, 2, 'deepskyblue');
+    draw_contour(classes, 0, c_red);
+    draw_contour(classes, 1, c_green);
+    draw_contour(classes, 2, c_blue);
 
-    draw_circle(0, 'red');
-    draw_circle(1, 'limegreen');
-    draw_circle(2, 'dodgerblue');
+    draw_circle(0, c_red);
+    draw_circle(1, c_green);
+    draw_circle(2, c_blue);
   });
 
   //drawing loss plot (need to only draw once)
-  loss_context.beginPath();
-  loss_context.strokeStyle = "grey";
-  loss_context.moveTo(0, 0);
-  loss_context.lineTo(0, 255);
-  loss_context.moveTo(0, 255);
-  loss_context.lineTo(511, 255);
-  loss_context.stroke();
   let l = train_losses.length
   if (l > 1 && epoch % 10 == 0) {
-    loss_context.beginPath();
-    loss_context.moveTo((epoch - 10)/2, 255-500*train_losses[l-2]);
-    loss_context.lineTo((epoch)/2, 255-500*train_losses[l-1]);
-    loss_context.strokeStyle = "blue";
-    loss_context.stroke();
-    loss_context.beginPath();
-    loss_context.moveTo((epoch - 10)/2, 255-2*train_accs[l-2]);
-    loss_context.lineTo((epoch)/2, 255-2*train_accs[l-1]);
-    loss_context.strokeStyle = "red";
-    loss_context.stroke();
+    if(train_loss_cb.checked) plot_data(train_losses, l-2, l, c_orange, 500);
+    if(train_acc_cb.checked) plot_data(train_accs, l-2, l, c_magenta, 2);
   }
 
 }
 
-function clear_plot() {
-  loss_context.clearRect(0, 0, loss_canvas.width, loss_canvas.height);
+
+function redraw_plot() {
+  clear_plot();
+  if(train_loss_cb.checked) plot_data(train_losses, 0, train_losses.length, c_orange, 500)
+  if(train_acc_cb.checked) plot_data(train_accs, 0, train_accs.length, c_magenta, 2)
 }
+
 
 function draw_contour(classes, hot_index, color) {
   context.beginPath();
@@ -152,21 +143,33 @@ function draw_contour(classes, hot_index, color) {
 
 function draw_circle(hot_index, color) {
   context.fillStyle = color;
-  context.strokeStyle = "black";
+  context.strokeStyle = c_base2;
   for (let i = 0; i < predictors.length; i++) {
     if (labels[i][hot_index] == 1) {
       context.beginPath();
-      context.arc(predictors[i][0], predictors[i][1], 4, 0, 2 * Math.PI);
+      if(train_idc[i] == 1) {
+        context.arc(predictors[i][0], predictors[i][1], 4, 0, 2 * Math.PI);
+      }else{
+        context.fillRect(predictors[i][0], predictors[i][1], 8, 8);
+        context.rect(predictors[i][0], predictors[i][1], 8, 8);
+      }
       context.fill();
       context.stroke();
     }
   }
 }
 
+
 function update_and_draw() {
-  for(let i = 0; i < 1; i++) {
-    update(normalize(predictors), labels, lr, wd);
+  let x = [];
+  let y = [];
+  for (let i = 0; i < predictors.length; i++) {
+    if(train_idc[i] == 1) {
+      x.push(predictors[i]);
+      y.push(labels[i]);
+    }
   }
+  update(normalize(x), y, lr, wd);
   draw();
 }
 
@@ -297,30 +300,40 @@ function set_wd() {
 }
 
 function reset_weights() {
-  epoch = 1;
+  reset_plot();
   lr = parseFloat(document.getElementById("lr").value);
-  wd = parseFloat(document.getElementById("wd").value);
-  w_init_name = document.getElementById("w_init").value;
-  w_init_fn = gaussian_init;
-  switch(w_init_name) {
-    case "gaussian":
-      w_init_fn = gaussian_init;
-      break;
-    case "xavier":
-      w_init_fn = xavier_init;
-      break;
-    case "kaiming":
-      w_init_fn = kaiming_init;
-      break;
-  }
 
   [W1, W2, W3] = tf.tidy(() => {
     let w1 = tf.mul(tf.randomNormal([2 + 1, h_layers]), 1.0);
-    let w2 = tf.mul(tf.randomNormal([h_layers, h2_layers]), w_init_fn(h_layers));
-    let w3 = tf.mul(tf.randomNormal([h2_layers, 3]), w_init_fn(h2_layers));
+    let w2 = tf.mul(tf.randomNormal([h_layers, h2_layers]), kaiming_init(h_layers));
+    let w3 = tf.mul(tf.randomNormal([h2_layers, 3]), kaiming_init(h2_layers));
     return [w1, w2, w3];
   });
 
+}
+
+
+function clear_plot() {
+  loss_context.clearRect(1, 0, loss_canvas.width, loss_canvas.height-1);
+}
+
+function reset_plot() {
+  clear_plot();
+  epoch = 1;
+  train_losses = [];
+  train_accs = [];
+  valid_losses = [];
+  valid_accs = [];
+}
+
+function plot_data(data, start_idx, end_idx, color, scale) {
+    loss_context.beginPath();
+    for (let epoch = start_idx; epoch < end_idx - 1; epoch++) {
+      loss_context.moveTo(10*(epoch)/2 + 2, 255-scale*data[epoch] - 1);
+      loss_context.lineTo(10*(epoch + 1)/2 + 2, 255-scale*data[epoch+1] - 1);
+    }
+    loss_context.strokeStyle = color;
+    loss_context.stroke();
 }
 
 function generate_data() {
@@ -341,7 +354,23 @@ function generate_data() {
   }
 }
 
-let [predictors, labels] = basic_data();
+function split_data(data, labels, train_prob) {
+  let train_idc = []
+  for(let i = 0; i < data.length; i++) {
+    let n = Math.random();
+    if (n < train_prob) {
+      train_idc.push(1);
+    } else {
+      train_idc.push(0);
+    }
+  }
+
+  return train_idc;
+}
+
+let [predictors, labels] = circle_data(128);
+let train_idc = split_data(predictors, labels, .8);
+
 //init weights
 let W1 = tf.mul(tf.randomNormal([2 + 1, h_layers]), 1.0);
 let W2 = tf.mul(tf.randomNormal([h_layers, h2_layers]), kaiming_init(h_layers));
@@ -362,6 +391,29 @@ canvas.addEventListener('mousedown', function(e) {
 const context = canvas.getContext("2d");
 
 const loss_canvas = document.getElementById("loss_canvas");
+const train_loss_cb = document.getElementById("train_loss_cb");
+const train_acc_cb = document.getElementById("train_acc_cb");
 const loss_context = loss_canvas.getContext("2d");
+
+const c_base3 = "#022b36";
+const c_base2 = "#073642";
+const c_base1 = "#586e75";
+const c_base0 = "#657b83";
+const c_yellow = "#b58900";
+const c_orange = "#cb4b16";
+const c_red = "#dc322f";
+const c_magenta = "#d33682";
+const c_violet = "#6c71c4";
+const c_blue = "#268bd2";
+const c_cyan = "#2aa198";
+const c_green = "#859900";
+
+loss_context.beginPath();
+loss_context.strokeStyle = c_base0;
+loss_context.moveTo(0, 0);
+loss_context.lineTo(0, 255);
+loss_context.moveTo(0, 255);
+loss_context.lineTo(511, 255);
+loss_context.stroke();
 
 const t = setInterval(update_and_draw, 50);

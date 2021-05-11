@@ -32,6 +32,7 @@ footer, header, hgroup, menu, nav, section {
 }
 body {
   line-height: 1;
+  background-color: rgb(7, 54, 66)
 }
 ol, ul {
   list-style: none;
@@ -73,3 +74,20 @@ table {
   padding-right: 0px;
 }
 
+input[type='checkbox'] {
+  height: 12px;
+  width: 12px;
+  appearance: none;
+  background-color: gray;
+}
+
+input[type='checkbox']:checked {
+  background-color: black;
+  content: '\2713';
+}
+
+
+#canvas {
+  border: 3px solid rgb(88, 110, 117);
+  border-radius: 2%;
+}
