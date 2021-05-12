@@ -32,7 +32,7 @@ footer, header, hgroup, menu, nav, section {
 }
 body {
   line-height: 1;
-  background-color: rgb(7, 54, 66)
+  background-color: rgb(0, 43, 54)
 }
 ol, ul {
   list-style: none;
@@ -48,6 +48,27 @@ q:before, q:after {
 table {
   border-collapse: collapse;
   border-spacing: 0;
+}
+
+h1 {
+  color: rgb(101, 123, 131);
+  font-family: Helvetica, Arial, sans-serif;
+  font-size: 24px;
+  padding: 12px;
+  font-weight: bold;
+}
+h2 {
+  color: rgb(101, 123, 131);
+  font-family: Helvetica, Arial, sans-serif;
+  font-size: 18px;
+  padding: 12px;
+  font-weight: bold;
+}
+
+label {
+  color: rgb(101, 123, 131);
+  font-family: Helvetica, Arial, sans-serif;
+  font-size: 16px;
 }
 
 .container {
@@ -74,20 +95,36 @@ table {
   padding-right: 0px;
 }
 
-input[type='checkbox'] {
-  height: 12px;
-  width: 12px;
+
+input[type=checkbox] {
+  height: 16px;
+  width: 16px;
   appearance: none;
-  background-color: gray;
+  background-color: rgb(88, 110, 117);
 }
 
-input[type='checkbox']:checked {
-  background-color: black;
+input[type=checkbox]:checked {
   content: '\2713';
 }
 
+#train_loss_cb:checked {
+  background-color: #cb4b16;
+}
+#train_acc_cb:checked {
+  background-color: #d33682;
+}
+#valid_loss_cb:checked {
+  background-color: #6c71c4;
+}
+#valid_acc_cb:checked {
+  background-color: #2aa198;
+}
+
+#plot {
+  text-align: center;
+}
 
 #canvas {
   border: 3px solid rgb(88, 110, 117);
-  border-radius: 2%;
+  border-radius: 1%;
 }

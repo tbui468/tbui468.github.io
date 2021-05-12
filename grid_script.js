@@ -51,7 +51,7 @@ function handle_click(canvas, event) {
 
 function update(x, y, lr, reg) {
   
-  [W1, W2, W3] = tf.tidy(() => {
+  [W1, W2, W3, z] = tf.tidy(() => {
     
     const z1 = tf.matMul(x, W1);
     const a1 = tf.relu(z1);
@@ -60,11 +60,11 @@ function update(x, y, lr, reg) {
     const z3 = tf.matMul(a2, W3);
     const probs = tf.softmax(z3, axis=1)
    
-    epoch += 1;
+    /*epoch += 1;
     if(epoch % 10 == 0) {
       train_losses.push(tf.mean(tf.mul(tf.neg(tf.log(probs)), tf.step(y))).arraySync());
       train_accs.push(tf.sum(tf.equal(tf.argMax(y, axis=1), tf.argMax(z3, axis=1))).arraySync() / y.length * 100)
-    }
+    }*/
     //tf.losses.softmaxCrossEntropy(z2, y).print();
 
     //backproping over neg. log softmax as a single unit - dl/dprobs is (p) for negative labels, and (p-1) for positive labels
@@ -82,9 +82,12 @@ function update(x, y, lr, reg) {
     return [
               tf.add(W1, tf.add(dW1, tf.mul(reg, W1))), 
               tf.add(W2, tf.add(dW2, tf.mul(reg, W2))),
-              tf.add(W3, tf.add(dW3, tf.mul(reg, W3)))
+              tf.add(W3, tf.add(dW3, tf.mul(reg, W3))),
+              z3
            ]
   });
+
+  return z;
 
 }
 
@@ -118,6 +121,8 @@ function draw() {
   if (l > 1 && epoch % 10 == 0) {
     if(train_loss_cb.checked) plot_data(train_losses, l-2, l, c_orange, 500);
     if(train_acc_cb.checked) plot_data(train_accs, l-2, l, c_magenta, 2);
+    if(valid_loss_cb.checked) plot_data(valid_losses, l-2, l, c_violet, 500);
+    if(valid_acc_cb.checked) plot_data(valid_accs, l-2, l, c_cyan, 2);
   }
 
 }
@@ -127,6 +132,8 @@ function redraw_plot() {
   clear_plot();
   if(train_loss_cb.checked) plot_data(train_losses, 0, train_losses.length, c_orange, 500)
   if(train_acc_cb.checked) plot_data(train_accs, 0, train_accs.length, c_magenta, 2)
+  if(valid_loss_cb.checked) plot_data(valid_losses, 0, valid_losses.length, c_violet, 500)
+  if(valid_acc_cb.checked) plot_data(valid_accs, 0, valid_accs.length, c_cyan, 2)
 }
 
 
@@ -150,8 +157,8 @@ function draw_circle(hot_index, color) {
       if(train_idc[i] == 1) {
         context.arc(predictors[i][0], predictors[i][1], 4, 0, 2 * Math.PI);
       }else{
-        context.fillRect(predictors[i][0], predictors[i][1], 8, 8);
-        context.rect(predictors[i][0], predictors[i][1], 8, 8);
+        context.fillRect(predictors[i][0] - 4, predictors[i][1] - 4, 8, 8);
+        context.rect(predictors[i][0] - 4, predictors[i][1] - 4, 8, 8);
       }
       context.fill();
       context.stroke();
@@ -163,13 +170,46 @@ function draw_circle(hot_index, color) {
 function update_and_draw() {
   let x = [];
   let y = [];
+  let valid_x = [];
+  let valid_y = [];
   for (let i = 0; i < predictors.length; i++) {
     if(train_idc[i] == 1) {
       x.push(predictors[i]);
       y.push(labels[i]);
+    }else{
+      valid_x.push(predictors[i]);
+      valid_y.push(labels[i]);
     }
   }
-  update(normalize(x), y, lr, wd);
+
+  if (x.length > 0) {
+    const z_train = update(normalize(x), y, lr, wd);
+    const probs_train = tf.softmax(z_train, axis=1)
+    if(epoch % 10 == 0) {
+      train_losses.push(tf.mean(tf.mul(tf.neg(tf.log(probs_train)), tf.step(y))).arraySync());
+      train_accs.push(tf.sum(tf.equal(tf.argMax(y, axis=1), tf.argMax(z_train, axis=1))).arraySync() / y.length * 100)
+    }
+  }else{
+    if(epoch % 10 == 0) {
+      train_losses.push(0);
+      train_accs.push(0);
+    }
+  }
+
+  if (valid_x.length > 0) {
+    const z_valid = evaluate(normalize(valid_x), [W1, W2, W3]);
+    const probs_valid = tf.softmax(z_valid, axis=1)
+    if(epoch % 10 == 0) {
+      valid_losses.push(tf.mean(tf.mul(tf.neg(tf.log(probs_valid)), tf.step(valid_y))).arraySync());
+      valid_accs.push(tf.sum(tf.equal(tf.argMax(valid_y, axis=1), tf.argMax(z_valid, axis=1))).arraySync() / valid_y.length * 100)
+    }
+  }else{
+    if(epoch % 10 == 0) {
+      valid_losses.push(0);
+      valid_accs.push(0);
+    }
+  }
+  epoch += 1;
   draw();
 }
 
@@ -324,12 +364,14 @@ function reset_plot() {
   train_accs = [];
   valid_losses = [];
   valid_accs = [];
+  draw_axis();
 }
 
 function plot_data(data, start_idx, end_idx, color, scale) {
     loss_context.beginPath();
     for (let epoch = start_idx; epoch < end_idx - 1; epoch++) {
       loss_context.moveTo(10*(epoch)/2 + 2, 255-scale*data[epoch] - 1);
+      loss_context.lineWidth = 3;
       loss_context.lineTo(10*(epoch + 1)/2 + 2, 255-scale*data[epoch+1] - 1);
     }
     loss_context.strokeStyle = color;
@@ -341,18 +383,27 @@ function generate_data() {
   switch(data_type) {
     case "basic_data":
       [predictors, labels] = basic_data();
+      train_idc = split_data(predictors, labels, train_prob);
       break;
     case "random_data":
       [predictors, labels] = random_data(32);
+      train_idc = split_data(predictors, labels, train_prob);
       break;
     case "circle_data":
       [predictors, labels] = circle_data(128);
+      train_idc = split_data(predictors, labels, train_prob);
       break;
     case "spiral_data":
       [predictors, labels] = spiral_data(128);
+      train_idc = split_data(predictors, labels, train_prob);
       break;
   }
 }
+
+const train_prob = 0.8;
+
+let [predictors, labels] = circle_data(128);
+let train_idc = split_data(predictors, labels, train_prob);
 
 function split_data(data, labels, train_prob) {
   let train_idc = []
@@ -368,8 +419,6 @@ function split_data(data, labels, train_prob) {
   return train_idc;
 }
 
-let [predictors, labels] = circle_data(128);
-let train_idc = split_data(predictors, labels, .8);
 
 //init weights
 let W1 = tf.mul(tf.randomNormal([2 + 1, h_layers]), 1.0);
@@ -408,12 +457,17 @@ const c_blue = "#268bd2";
 const c_cyan = "#2aa198";
 const c_green = "#859900";
 
-loss_context.beginPath();
-loss_context.strokeStyle = c_base0;
-loss_context.moveTo(0, 0);
-loss_context.lineTo(0, 255);
-loss_context.moveTo(0, 255);
-loss_context.lineTo(511, 255);
-loss_context.stroke();
+function draw_axis() {
+  loss_context.beginPath();
+  loss_context.strokeStyle = c_base1;
+  loss_context.lineWidth = 4;
+  loss_context.moveTo(0, 0);
+  loss_context.lineTo(0, 255);
+  loss_context.moveTo(0, 255);
+  loss_context.lineTo(511, 255);
+  loss_context.stroke();
+}
+
+draw_axis();
 
 const t = setInterval(update_and_draw, 50);
