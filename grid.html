@@ -5,19 +5,18 @@
   </head>
   <body>
     <section class="title">
-      <h1>Neural Network Training Monitoring System</h1>
+      <h1>Interactive Neural Networks</h1>
     </section>
     <section class="grid">
       <div class="col-1-2" id="plot">
-        <canvas id="canvas" width="512px" height="512px"></canvas>
+        <canvas id="canvas" width="256px" height="256px"></canvas>
         <br>
         <input type="number" id="lr" name="lr" value="0.01" step="0.01">
         <button onclick="html_set_lr()">Set Learning Rate</button>
         <br>
-        <button onclick="html_restart_network()">Restart Network</button>
+        <button onclick="html_restart_network()">Restart Networks</button>
         <br>
         <select name="data_type" id="data_type">
-          <option value="basic_data">Basic</option>
           <option value="random_data">Random</option>
           <option value="circle_data">Circular</option>
           <option value="spiral_data">Spiral</option>
@@ -26,6 +25,10 @@
         <br>
         <input type="number" id="split" name="split" value="0.9" step="0.01">
         <br>
+        <canvas id="canvas2" width="256px" height="256px"></canvas>
+        <br>
+        <input type="number" id="lr_2" name="lr_2" value="0.01" step="0.01">
+        <button onclick="html_set_lr2()">Set Learning Rate</button>
       </div><!--
       --><div class="col-1-2">
         <section>

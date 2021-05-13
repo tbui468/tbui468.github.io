@@ -145,3 +145,7 @@ input[type=checkbox]:checked {
   border: 3px solid var(--c_dark);
   border-radius: 1%;
 }
+#canvas2 {
+  border: 3px solid var(--c_dark);
+  border-radius: 1%;
+}
