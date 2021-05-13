@@ -1,8 +1,4 @@
-//add a choose data button (set number of points to a fixed number 64 or so)
-//add a training loss graph that updates with updates (epochs vs loss)
-//graph gradients in each layer (use colors to show different layers - 3 different gradients layers)
-//what else is interesting to observe? Affine transformations, and non-linear activations on those affine transformations in higher dimensional space
-//either of one layer or all layers
+//have html document queries only inside functions prepended with 'html'
 
 function distance_squared(x1, y1, x2, y2) {
   let dy = y1 - y2;
@@ -49,7 +45,7 @@ function handle_click(canvas, event) {
 }
 
 
-function update(x, y, lr, reg) {
+function train(x, y, lr, reg) {
   
   [W1, W2, W3, z] = tf.tidy(() => {
     
@@ -60,13 +56,6 @@ function update(x, y, lr, reg) {
     const z3 = tf.matMul(a2, W3);
     const probs = tf.softmax(z3, axis=1)
    
-    /*epoch += 1;
-    if(epoch % 10 == 0) {
-      train_losses.push(tf.mean(tf.mul(tf.neg(tf.log(probs)), tf.step(y))).arraySync());
-      train_accs.push(tf.sum(tf.equal(tf.argMax(y, axis=1), tf.argMax(z3, axis=1))).arraySync() / y.length * 100)
-    }*/
-    //tf.losses.softmaxCrossEntropy(z2, y).print();
-
     //backproping over neg. log softmax as a single unit - dl/dprobs is (p) for negative labels, and (p-1) for positive labels
     const dprobs = tf.mul(tf.add(probs, tf.neg(y)), 1.0/x.shape[0]);
     const dW3 = tf.mul(-lr, tf.matMul(a2.transpose(), dprobs));
@@ -119,10 +108,10 @@ function draw() {
   //drawing loss plot (need to only draw once)
   let l = train_losses.length
   if (l > 1 && epoch % 10 == 0) {
-    if(train_loss_cb.checked) plot_data(train_losses, l-2, l, c_orange, 500);
-    if(train_acc_cb.checked) plot_data(train_accs, l-2, l, c_magenta, 2);
-    if(valid_loss_cb.checked) plot_data(valid_losses, l-2, l, c_violet, 500);
-    if(valid_acc_cb.checked) plot_data(valid_accs, l-2, l, c_cyan, 2);
+    if(train_loss_cb.checked) plot_data(train_losses, l-2, l, c_orange, 500, plot_hoffset, plot_voffset);
+    if(train_acc_cb.checked) plot_data(train_accs, l-2, l, c_magenta, 2, plot_hoffset, plot_voffset);
+    if(valid_loss_cb.checked) plot_data(valid_losses, l-2, l, c_violet, 500, plot_hoffset, plot_voffset);
+    if(valid_acc_cb.checked) plot_data(valid_accs, l-2, l, c_cyan, 2, plot_hoffset, plot_voffset);
   }
 
 }
@@ -130,10 +119,10 @@ function draw() {
 
 function redraw_plot() {
   clear_plot();
-  if(train_loss_cb.checked) plot_data(train_losses, 0, train_losses.length, c_orange, 500)
-  if(train_acc_cb.checked) plot_data(train_accs, 0, train_accs.length, c_magenta, 2)
-  if(valid_loss_cb.checked) plot_data(valid_losses, 0, valid_losses.length, c_violet, 500)
-  if(valid_acc_cb.checked) plot_data(valid_accs, 0, valid_accs.length, c_cyan, 2)
+  if(train_loss_cb.checked) plot_data(train_losses, 0, train_losses.length, c_orange, 500, plot_hoffset, plot_voffset)
+  if(train_acc_cb.checked) plot_data(train_accs, 0, train_accs.length, c_magenta, 2, plot_hoffset, plot_voffset)
+  if(valid_loss_cb.checked) plot_data(valid_losses, 0, valid_losses.length, c_violet, 500, plot_hoffset, plot_voffset)
+  if(valid_acc_cb.checked) plot_data(valid_accs, 0, valid_accs.length, c_cyan, 2, plot_hoffset, plot_voffset)
 }
 
 
@@ -150,7 +139,7 @@ function draw_contour(classes, hot_index, color) {
 
 function draw_circle(hot_index, color) {
   context.fillStyle = color;
-  context.strokeStyle = c_base2;
+  context.strokeStyle = c_dark;
   for (let i = 0; i < predictors.length; i++) {
     if (labels[i][hot_index] == 1) {
       context.beginPath();
@@ -183,7 +172,7 @@ function update_and_draw() {
   }
 
   if (x.length > 0) {
-    const z_train = update(normalize(x), y, lr, wd);
+    const z_train = train(normalize(x), y, lr, wd);
     const probs_train = tf.softmax(z_train, axis=1)
     if(epoch % 10 == 0) {
       train_losses.push(tf.mean(tf.mul(tf.neg(tf.log(probs_train)), tf.step(y))).arraySync());
@@ -213,11 +202,6 @@ function update_and_draw() {
   draw();
 }
 
-const bw = 512;
-const bh = 512;
-const bs = 8;
-
-tf.setBackend('cpu');
 
 function spiral_data(point_total) {
   const point_count = point_total / 2
@@ -319,7 +303,129 @@ function normalize(tensor) {
   });
 }
 
-//setting up counter plot coordinates
+
+function html_set_lr() {
+  lr = parseFloat(document.getElementById("lr").value);
+}
+
+function restart_network(lr) {
+  return tf.tidy(() => {
+    let w1 = tf.mul(tf.randomNormal([2 + 1, h_layers]), 1.0);
+    let w2 = tf.mul(tf.randomNormal([h_layers, h2_layers]), kaiming_init(h_layers));
+    let w3 = tf.mul(tf.randomNormal([h2_layers, 3]), kaiming_init(h2_layers));
+    return [w1, w2, w3];
+  });
+}
+
+function html_restart_network() {
+  let lr = parseFloat(document.getElementById("lr").value);
+  reset_plot();
+  [W1, W2, W3] = restart_network(lr);
+}
+
+
+function clear_plot() {
+  loss_context.clearRect(1, 0, loss_canvas.width, loss_canvas.height-1);
+  draw_axis(loss_canvas, plot_hoffset, plot_voffset);
+}
+
+function reset_plot() {
+  clear_plot();
+  epoch = 1;
+  train_losses = [];
+  train_accs = [];
+  valid_losses = [];
+  valid_accs = [];
+}
+
+function plot_data(data, start_idx, end_idx, color, scale, hoffset, voffset) {
+    loss_context.beginPath();
+    for (let epoch = start_idx; epoch < end_idx - 1; epoch++) {
+      loss_context.moveTo(10*(epoch)/2 + hoffset, 255-scale*data[epoch] - voffset);
+      loss_context.lineWidth = 1;
+      loss_context.lineTo(10*(epoch + 1)/2 + hoffset, 255-scale*data[epoch+1] - voffset);
+    }
+    loss_context.strokeStyle = color;
+    loss_context.stroke();
+}
+
+function generate_data(data_type, prob) {
+  let x = []
+  let y = []
+  if (prob < 0) prob = 0
+  if (prob > 1) prob = 1
+  switch(data_type) {
+    case "basic_data":
+      [x, y] = basic_data();
+      break;
+    case "random_data":
+      [x, y] = random_data(32);
+      break;
+    case "circle_data":
+      [x, y] = circle_data(128);
+      break;
+    case "spiral_data":
+      [x, y] = spiral_data(128);
+      break;
+  }
+  const i = split_indices(x.length, prob);
+
+  return [x, y, i];
+}
+
+function html_generate_data() {
+  const data_type = document.getElementById("data_type").value;
+  const prob = document.getElementById("split").value;
+  [predictors, labels, train_idc] = generate_data(data_type, prob);
+}
+
+
+function split_indices(l, p) {
+  idc = []
+  for(let i = 0; i < l; i++) {
+    let n = Math.random();
+    if (n < p) {
+      idc.push(1);
+    } else {
+      idc.push(0);
+    }
+  }
+  return idc;
+}
+
+
+function draw_axis(canvas, hoffset, voffset) {
+  const context = canvas.getContext("2d");
+  const width = canvas.width;
+  const height = canvas.height;
+
+  //draw axes
+  context.beginPath();
+  context.strokeStyle = c_dark;
+  context.lineWidth = 1;
+  context.moveTo(hoffset, 0);
+  context.lineTo(hoffset, height - voffset);
+  context.moveTo(hoffset, height - voffset);
+  context.lineTo(width, height - voffset);
+  context.stroke();
+
+  //draw grid lines
+  context.beginPath();
+  context.strokeStyle = c_dark_alt;
+  context.lineWidth = 1;
+  for(let i = 0; i < height; i+=40) {
+    context.moveTo(hoffset, height - voffset -i);
+    context.lineTo(width, height- voffset -i);
+    context.fillText((i/40 * 20) + "%", 0, height - voffset - i);
+  }
+  context.stroke();
+}
+
+const bw = 512;
+const bh = 512;
+const bs = 8;
+
+//setting up contour plot coordinates
 let coords = [];
 for (let row = 0; row < bh; row += bs) {
   for (let col = 0; col < bw; col += bs) {
@@ -331,94 +437,12 @@ for (let row = 0; row < bh; row += bs) {
 const h_layers = 12;
 const h2_layers = 12;
 
-function set_lr() {
-  lr = parseFloat(document.getElementById("lr").value);
-}
+let predictors = [];
+let labels = [];
+let train_idc = [];
+html_generate_data();
 
-function set_wd() {
-  wd = parseFloat(document.getElementById("wd").value);
-}
-
-function reset_weights() {
-  reset_plot();
-  lr = parseFloat(document.getElementById("lr").value);
-
-  [W1, W2, W3] = tf.tidy(() => {
-    let w1 = tf.mul(tf.randomNormal([2 + 1, h_layers]), 1.0);
-    let w2 = tf.mul(tf.randomNormal([h_layers, h2_layers]), kaiming_init(h_layers));
-    let w3 = tf.mul(tf.randomNormal([h2_layers, 3]), kaiming_init(h2_layers));
-    return [w1, w2, w3];
-  });
-
-}
-
-
-function clear_plot() {
-  loss_context.clearRect(1, 0, loss_canvas.width, loss_canvas.height-1);
-}
-
-function reset_plot() {
-  clear_plot();
-  epoch = 1;
-  train_losses = [];
-  train_accs = [];
-  valid_losses = [];
-  valid_accs = [];
-  draw_axis();
-}
-
-function plot_data(data, start_idx, end_idx, color, scale) {
-    loss_context.beginPath();
-    for (let epoch = start_idx; epoch < end_idx - 1; epoch++) {
-      loss_context.moveTo(10*(epoch)/2 + 2, 255-scale*data[epoch] - 1);
-      loss_context.lineWidth = 3;
-      loss_context.lineTo(10*(epoch + 1)/2 + 2, 255-scale*data[epoch+1] - 1);
-    }
-    loss_context.strokeStyle = color;
-    loss_context.stroke();
-}
-
-function generate_data() {
-  const data_type = document.getElementById("data_type").value;
-  switch(data_type) {
-    case "basic_data":
-      [predictors, labels] = basic_data();
-      train_idc = split_data(predictors, labels, train_prob);
-      break;
-    case "random_data":
-      [predictors, labels] = random_data(32);
-      train_idc = split_data(predictors, labels, train_prob);
-      break;
-    case "circle_data":
-      [predictors, labels] = circle_data(128);
-      train_idc = split_data(predictors, labels, train_prob);
-      break;
-    case "spiral_data":
-      [predictors, labels] = spiral_data(128);
-      train_idc = split_data(predictors, labels, train_prob);
-      break;
-  }
-}
-
-const train_prob = 0.8;
-
-let [predictors, labels] = circle_data(128);
-let train_idc = split_data(predictors, labels, train_prob);
-
-function split_data(data, labels, train_prob) {
-  let train_idc = []
-  for(let i = 0; i < data.length; i++) {
-    let n = Math.random();
-    if (n < train_prob) {
-      train_idc.push(1);
-    } else {
-      train_idc.push(0);
-    }
-  }
-
-  return train_idc;
-}
-
+tf.setBackend('cpu');
 
 //init weights
 let W1 = tf.mul(tf.randomNormal([2 + 1, h_layers]), 1.0);
@@ -444,10 +468,13 @@ const train_loss_cb = document.getElementById("train_loss_cb");
 const train_acc_cb = document.getElementById("train_acc_cb");
 const loss_context = loss_canvas.getContext("2d");
 
-const c_base3 = "#022b36";
-const c_base2 = "#073642";
-const c_base1 = "#586e75";
-const c_base0 = "#657b83";
+const plot_hoffset = 30;
+const plot_voffset = 30;
+
+const c_light = "white";
+const c_light_alt = "lightgray";
+const c_dark = "black";
+const c_dark_alt = "darkgray";
 const c_yellow = "#b58900";
 const c_orange = "#cb4b16";
 const c_red = "#dc322f";
@@ -457,17 +484,7 @@ const c_blue = "#268bd2";
 const c_cyan = "#2aa198";
 const c_green = "#859900";
 
-function draw_axis() {
-  loss_context.beginPath();
-  loss_context.strokeStyle = c_base1;
-  loss_context.lineWidth = 4;
-  loss_context.moveTo(0, 0);
-  loss_context.lineTo(0, 255);
-  loss_context.moveTo(0, 255);
-  loss_context.lineTo(511, 255);
-  loss_context.stroke();
-}
 
-draw_axis();
+clear_plot();
 
 const t = setInterval(update_and_draw, 50);

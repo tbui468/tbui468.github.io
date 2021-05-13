@@ -32,9 +32,9 @@
           </div>
         </section>
         <input type="number" id="lr" name="lr" value="0.01" step="0.01">
-        <button onclick="set_lr()">Set Learning Rate</button>
+        <button onclick="html_set_lr()">Set Learning Rate</button>
         <br>
-        <button onclick="reset_weights()">Reset Weights</button>
+        <button onclick="html_restart_network()">Restart Network</button>
         <br>
         <select name="data_type" id="data_type">
           <option value="basic_data">Basic</option>
@@ -42,7 +42,9 @@
           <option value="circle_data">Circular</option>
           <option value="spiral_data">Spiral</option>
         </select>
-        <button onclick="generate_data()">Generate Data</button>
+        <button onclick="html_generate_data()">Generate Data</button>
+        <br>
+        <input type="number" id="split" name="split" value="0.9" step="0.01">
         <br>
       </div>
     </section>

@@ -1,9 +1,21 @@
-/*look at Shay Howe website for formatting css*/
-
 /* http://meyerweb.com/eric/tools/css/reset/ 
  *    v2.0 | 20110126
  *       License: none (public domain)
  *       */
+
+:root {
+  --c_light: white;
+  --c_dark: black;
+  --c_yellow: #b58900;
+  --c_orange: #cb4b16;
+  --c_red: #dc322f;
+  --c_magenta: #d33682;
+  --c_violet: #6c71c4;
+  --c_blue: #268bd2;
+  --c_cyan: #2aa198;
+  --c_green: #859900;
+}
+
 
 html, body, div, span, applet, object, iframe,
 h1, h2, h3, h4, h5, h6, p, blockquote, pre,
@@ -32,7 +44,7 @@ footer, header, hgroup, menu, nav, section {
 }
 body {
   line-height: 1;
-  background-color: rgb(0, 43, 54)
+  background-color: var(--c_light);
 }
 ol, ul {
   list-style: none;
@@ -50,24 +62,25 @@ table {
   border-spacing: 0;
 }
 
+
 h1 {
-  color: rgb(101, 123, 131);
-  font-family: Helvetica, Arial, sans-serif;
+  color: var(--c_dark);
+  font-family: Arial, sans-serif;
   font-size: 24px;
   padding: 12px;
   font-weight: bold;
 }
 h2 {
-  color: rgb(101, 123, 131);
-  font-family: Helvetica, Arial, sans-serif;
+  color: var(--c_dark);
+  font-family: Arial, sans-serif;
   font-size: 18px;
   padding: 12px;
   font-weight: bold;
 }
 
 label {
-  color: rgb(101, 123, 131);
-  font-family: Helvetica, Arial, sans-serif;
+  color: var(--c_dark);
+  font-family: Arial, sans-serif;
   font-size: 16px;
 }
 
@@ -100,7 +113,8 @@ input[type=checkbox] {
   height: 16px;
   width: 16px;
   appearance: none;
-  background-color: rgb(88, 110, 117);
+  background-color: var(--c_light);
+  border: 1px solid var(--c_dark);
 }
 
 input[type=checkbox]:checked {
@@ -108,16 +122,16 @@ input[type=checkbox]:checked {
 }
 
 #train_loss_cb:checked {
-  background-color: #cb4b16;
+  background-color: var(--c_orange);
 }
 #train_acc_cb:checked {
-  background-color: #d33682;
+  background-color: var(--c_magenta);
 }
 #valid_loss_cb:checked {
-  background-color: #6c71c4;
+  background-color: var(--c_violet);
 }
 #valid_acc_cb:checked {
-  background-color: #2aa198;
+  background-color: var(--c_cyan);
 }
 
 #plot {
@@ -125,6 +139,6 @@ input[type=checkbox]:checked {
 }
 
 #canvas {
-  border: 3px solid rgb(88, 110, 117);
+  border: 3px solid var(--c_dark);
   border-radius: 1%;
 }
