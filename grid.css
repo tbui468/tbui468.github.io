@@ -68,14 +68,11 @@ h1 {
   font-family: Arial, sans-serif;
   font-size: 24px;
   padding: 12px;
-  font-weight: bold;
 }
 h2 {
   color: var(--c_dark);
   font-family: Arial, sans-serif;
   font-size: 18px;
-  padding: 12px;
-  font-weight: bold;
 }
 
 label {
@@ -106,8 +103,17 @@ label {
   vertical-align: top;
   padding-left: 0px;
   padding-right: 0px;
+  text-align: center;
 }
 
+
+#loss_plot, #acc_plot {
+  margin-left: -100px;
+}
+
+.title {
+  text-align: center;
+}
 
 input[type=checkbox] {
   height: 16px;
@@ -121,6 +127,7 @@ input[type=checkbox]:checked {
   content: '\2713';
 }
 
+
 #train_loss_cb:checked {
   background-color: var(--c_orange);
 }
@@ -132,10 +139,6 @@ input[type=checkbox]:checked {
 }
 #valid_acc_cb:checked {
   background-color: var(--c_cyan);
-}
-
-#plot {
-  text-align: center;
 }
 
 #canvas {

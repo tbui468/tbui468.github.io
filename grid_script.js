@@ -96,37 +96,28 @@ function draw() {
     //console.timeEnd('eval');
     const classes = tf.argMax(preds, axis=1).arraySync();
 
-    draw_contour(classes, 0, c_red);
-    draw_contour(classes, 1, c_green);
-    draw_contour(classes, 2, c_blue);
+    draw_contour(contour_plot, classes, 0, c_red);
+    draw_contour(contour_plot, classes, 1, c_green);
+    draw_contour(contour_plot, classes, 2, c_blue);
 
-    draw_circle(0, c_red);
-    draw_circle(1, c_green);
-    draw_circle(2, c_blue);
+    draw_point(contour_plot, 0, c_red);
+    draw_point(contour_plot, 1, c_green);
+    draw_point(contour_plot, 2, c_blue);
   });
 
-  //drawing loss plot (need to only draw once)
   let l = train_losses.length
   if (l > 1 && epoch % 10 == 0) {
-    if(train_loss_cb.checked) plot_data(train_losses, l-2, l, c_orange, 500, plot_hoffset, plot_voffset);
-    if(train_acc_cb.checked) plot_data(train_accs, l-2, l, c_magenta, 2, plot_hoffset, plot_voffset);
-    if(valid_loss_cb.checked) plot_data(valid_losses, l-2, l, c_violet, 500, plot_hoffset, plot_voffset);
-    if(valid_acc_cb.checked) plot_data(valid_accs, l-2, l, c_cyan, 2, plot_hoffset, plot_voffset);
+    if(train_loss_cb.checked) plot_data(loss_plot, train_losses, l-2, l, c_orange, 250, plot_hoffset, plot_voffset);
+    if(valid_loss_cb.checked) plot_data(loss_plot, valid_losses, l-2, l, c_violet, 250, plot_hoffset, plot_voffset);
+    if(train_acc_cb.checked) plot_data(loss_plot, train_accs, l-2, l, c_magenta, 2, plot_hoffset, plot_voffset);
+    if(valid_acc_cb.checked) plot_data(loss_plot, valid_accs, l-2, l, c_cyan, 2, plot_hoffset, plot_voffset);
   }
 
 }
 
 
-function redraw_plot() {
-  clear_plot();
-  if(train_loss_cb.checked) plot_data(train_losses, 0, train_losses.length, c_orange, 500, plot_hoffset, plot_voffset)
-  if(train_acc_cb.checked) plot_data(train_accs, 0, train_accs.length, c_magenta, 2, plot_hoffset, plot_voffset)
-  if(valid_loss_cb.checked) plot_data(valid_losses, 0, valid_losses.length, c_violet, 500, plot_hoffset, plot_voffset)
-  if(valid_acc_cb.checked) plot_data(valid_accs, 0, valid_accs.length, c_cyan, 2, plot_hoffset, plot_voffset)
-}
-
-
-function draw_contour(classes, hot_index, color) {
+function draw_contour(canvas, classes, hot_index, color) {
+  const context = canvas.getContext("2d");
   context.beginPath();
   context.fillStyle = color;
   for (let s = 0; s < (bh/bs)*(bh/bs); s++) {
@@ -137,7 +128,8 @@ function draw_contour(classes, hot_index, color) {
   context.fill()
 }
 
-function draw_circle(hot_index, color) {
+function draw_point(canvas, hot_index, color) {
+  const context = canvas.getContext("2d");
   context.fillStyle = color;
   context.strokeStyle = c_dark;
   for (let i = 0; i < predictors.length; i++) {
@@ -319,34 +311,77 @@ function restart_network(lr) {
 
 function html_restart_network() {
   let lr = parseFloat(document.getElementById("lr").value);
-  reset_plot();
-  [W1, W2, W3] = restart_network(lr);
-}
-
-
-function clear_plot() {
-  loss_context.clearRect(1, 0, loss_canvas.width, loss_canvas.height-1);
-  draw_axis(loss_canvas, plot_hoffset, plot_voffset);
-}
-
-function reset_plot() {
-  clear_plot();
   epoch = 1;
   train_losses = [];
   train_accs = [];
   valid_losses = [];
   valid_accs = [];
+  html_redraw_plot();
+  [W1, W2, W3] = restart_network(lr);
 }
 
-function plot_data(data, start_idx, end_idx, color, scale, hoffset, voffset) {
-    loss_context.beginPath();
+function html_redraw_plot() {
+  draw_plot(loss_plot, plot_hoffset, plot_voffset, 
+            [0, 200, 400, 600, 800, 1000], 
+            [["0.00", "0.16", "0.32", "0.48", "0.64", "0.80"], ["0%", "20%", "40%", "60%", "80%", "100%"]]);
+  if(train_loss_cb.checked) plot_data(loss_plot, train_losses, 0, train_losses.length, c_orange, 250, plot_hoffset, plot_voffset);
+  if(valid_loss_cb.checked) plot_data(loss_plot, valid_losses, 0, valid_losses.length, c_violet, 250, plot_hoffset, plot_voffset);
+  if(train_acc_cb.checked) plot_data(loss_plot, train_accs, 0, train_accs.length, c_magenta, 2, plot_hoffset, plot_voffset);
+  if(valid_acc_cb.checked) plot_data(loss_plot, valid_accs, 0, valid_accs.length, c_cyan, 2, plot_hoffset, plot_voffset);
+}
+
+
+function draw_plot(plot, h_offset, v_offset, h_values, v_values) {
+  const context = plot.getContext("2d");
+  context.clearRect(1, 0, plot.width, plot.height);
+  const width = plot.width;
+  const height = plot.height;
+
+  //draw axes
+  context.beginPath();
+  context.strokeStyle = c_dark;
+  context.lineWidth = 1;
+  context.moveTo(h_offset, 0);
+  context.lineTo(h_offset, height - v_offset);
+  context.moveTo(h_offset, height - v_offset);
+  context.lineTo(width, height - v_offset);
+  context.stroke();
+
+  //draw grid lines and labels
+  context.beginPath();
+  context.strokeStyle = c_dark_alt;
+  context.lineWidth = 1;
+  context.font = "12px Arial";
+  for(let i = 0; i < height; i+=40) {
+    context.moveTo(h_offset, height - v_offset -i);
+    context.lineTo(width, height- v_offset -i);
+    context.fillText(v_values[0][i/40], 0, height - v_offset - i);
+    context.fillText(v_values[1][i/40], 35, height - v_offset - i);
+  }
+
+  context.fillText("Loss", 0, 10);
+  context.fillText("Acc", 35, 10);
+
+  for(let i = 0; i < h_values.length; i++) {
+    context.fillText(h_values[i], h_offset + i * 80, height - v_offset + 12); 
+    context.moveTo(h_offset + i * 80, height - v_offset);
+    context.lineTo(h_offset + i * 80, 0);
+  }
+  context.fillText("Epochs", width/2, height - 4);
+  context.stroke();
+}
+
+
+function plot_data(plot, data, start_idx, end_idx, color, scale, hoffset, voffset) {
+    const context = plot.getContext("2d");
+    context.beginPath();
     for (let epoch = start_idx; epoch < end_idx - 1; epoch++) {
-      loss_context.moveTo(10*(epoch)/2 + hoffset, 255-scale*data[epoch] - voffset);
-      loss_context.lineWidth = 1;
-      loss_context.lineTo(10*(epoch + 1)/2 + hoffset, 255-scale*data[epoch+1] - voffset);
+      context.moveTo(4*(epoch) + hoffset, 255-scale*data[epoch] - voffset);
+      context.lineWidth = 2;
+      context.lineTo(4*(epoch + 1) + hoffset, 255-scale*data[epoch+1] - voffset);
     }
-    loss_context.strokeStyle = color;
-    loss_context.stroke();
+    context.strokeStyle = color;
+    context.stroke();
 }
 
 function generate_data(data_type, prob) {
@@ -394,32 +429,6 @@ function split_indices(l, p) {
 }
 
 
-function draw_axis(canvas, hoffset, voffset) {
-  const context = canvas.getContext("2d");
-  const width = canvas.width;
-  const height = canvas.height;
-
-  //draw axes
-  context.beginPath();
-  context.strokeStyle = c_dark;
-  context.lineWidth = 1;
-  context.moveTo(hoffset, 0);
-  context.lineTo(hoffset, height - voffset);
-  context.moveTo(hoffset, height - voffset);
-  context.lineTo(width, height - voffset);
-  context.stroke();
-
-  //draw grid lines
-  context.beginPath();
-  context.strokeStyle = c_dark_alt;
-  context.lineWidth = 1;
-  for(let i = 0; i < height; i+=40) {
-    context.moveTo(hoffset, height - voffset -i);
-    context.lineTo(width, height- voffset -i);
-    context.fillText((i/40 * 20) + "%", 0, height - voffset - i);
-  }
-  context.stroke();
-}
 
 const bw = 512;
 const bh = 512;
@@ -457,18 +466,19 @@ let train_accs = [];
 let valid_losses = [];
 let valid_accs = [];
 
-const canvas = document.getElementById("canvas");
-canvas.addEventListener('mousedown', function(e) {
-  handle_click(canvas, e);
+const contour_plot = document.getElementById("canvas");
+contour_plot.addEventListener('mousedown', function(e) {
+  handle_click(contour_plot, e);
 });
-const context = canvas.getContext("2d");
 
-const loss_canvas = document.getElementById("loss_canvas");
+const loss_plot = document.getElementById("loss_plot");
+const acc_plot = document.getElementById("acc_plot");
 const train_loss_cb = document.getElementById("train_loss_cb");
 const train_acc_cb = document.getElementById("train_acc_cb");
-const loss_context = loss_canvas.getContext("2d");
+const valid_loss_cb = document.getElementById("valid_loss_cb");
+const valid_acc_cb = document.getElementById("valid_acc_cb");
 
-const plot_hoffset = 30;
+const plot_hoffset = 70;
 const plot_voffset = 30;
 
 const c_light = "white";
@@ -484,7 +494,6 @@ const c_blue = "#268bd2";
 const c_cyan = "#2aa198";
 const c_green = "#859900";
 
-
-clear_plot();
+html_redraw_plot();
 
 const t = setInterval(update_and_draw, 50);
