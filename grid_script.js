@@ -120,6 +120,11 @@ function draw() {
     if(valid_loss_cb.checked) plot_data(loss_plot, valid_losses, l-2, l, c_violet, 250, plot_hoffset, plot_voffset);
     if(train_acc_cb.checked) plot_data(loss_plot, train_accs, l-2, l, c_magenta, 2, plot_hoffset, plot_voffset);
     if(valid_acc_cb.checked) plot_data(loss_plot, valid_accs, l-2, l, c_cyan, 2, plot_hoffset, plot_voffset);
+
+    if(train_loss_cb_2.checked) plot_data(loss_plot_2, train_losses_2, l-2, l, c_orange, 250, plot_hoffset, plot_voffset);
+    if(valid_loss_cb_2.checked) plot_data(loss_plot_2, valid_losses_2, l-2, l, c_violet, 250, plot_hoffset, plot_voffset);
+    if(train_acc_cb_2.checked) plot_data(loss_plot_2, train_accs_2, l-2, l, c_magenta, 2, plot_hoffset, plot_voffset);
+    if(valid_acc_cb_2.checked) plot_data(loss_plot_2, valid_accs_2, l-2, l, c_cyan, 2, plot_hoffset, plot_voffset);
   }
 
 }
@@ -351,7 +356,16 @@ function html_redraw_plot() {
   if(valid_loss_cb.checked) plot_data(loss_plot, valid_losses, 0, valid_losses.length, c_violet, 250, plot_hoffset, plot_voffset);
   if(train_acc_cb.checked) plot_data(loss_plot, train_accs, 0, train_accs.length, c_magenta, 2, plot_hoffset, plot_voffset);
   if(valid_acc_cb.checked) plot_data(loss_plot, valid_accs, 0, valid_accs.length, c_cyan, 2, plot_hoffset, plot_voffset);
+
+  draw_plot(loss_plot_2, plot_hoffset, plot_voffset, 
+            [0, 200, 400, 600, 800, 1000], 
+            [["0.00", "0.16", "0.32", "0.48", "0.64", "0.80"], ["0%", "20%", "40%", "60%", "80%", "100%"]]);
+  if(train_loss_cb_2.checked) plot_data(loss_plot_2, train_losses_2, 0, train_losses_2.length, c_orange, 250, plot_hoffset, plot_voffset);
+  if(valid_loss_cb_2.checked) plot_data(loss_plot_2, valid_losses_2, 0, valid_losses_2.length, c_violet, 250, plot_hoffset, plot_voffset);
+  if(train_acc_cb_2.checked) plot_data(loss_plot_2, train_accs_2, 0, train_accs_2.length, c_magenta, 2, plot_hoffset, plot_voffset);
+  if(valid_acc_cb_2.checked) plot_data(loss_plot_2, valid_accs_2, 0, valid_accs_2.length, c_cyan, 2, plot_hoffset, plot_voffset);
 }
+
 
 
 function draw_plot(plot, h_offset, v_offset, h_values, v_values) {
@@ -417,10 +431,10 @@ function generate_data(data_type, prob) {
       [x, y] = random_data(8, canvas.width, canvas.height);
       break;
     case "circle_data":
-      [x, y] = circle_data(64, canvas.width, canvas.height);
+      [x, y] = circle_data(128, canvas.width, canvas.height);
       break;
     case "spiral_data":
-      [x, y] = spiral_data(64, canvas.width, canvas.height);
+      [x, y] = spiral_data(128, canvas.width, canvas.height);
       break;
   }
   const i = split_indices(x.length, prob);
@@ -503,11 +517,15 @@ for (let row = 0; row < contour_plot.height; row += bs) {
 }
 
 const loss_plot = document.getElementById("loss_plot");
-const acc_plot = document.getElementById("acc_plot");
+const loss_plot_2 = document.getElementById("loss_plot_2");
 const train_loss_cb = document.getElementById("train_loss_cb");
 const train_acc_cb = document.getElementById("train_acc_cb");
 const valid_loss_cb = document.getElementById("valid_loss_cb");
 const valid_acc_cb = document.getElementById("valid_acc_cb");
+const train_loss_cb_2 = document.getElementById("train_loss_cb_2");
+const train_acc_cb_2 = document.getElementById("train_acc_cb_2");
+const valid_loss_cb_2 = document.getElementById("valid_loss_cb_2");
+const valid_acc_cb_2 = document.getElementById("valid_acc_cb_2");
 
 const plot_hoffset = 70;
 const plot_voffset = 30;

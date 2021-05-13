@@ -97,6 +97,15 @@ label {
   padding-top: 20px;
 }
 
+.col-1-4 {
+  width: 25%;
+  display: inline-block;
+  vertical-align: top;
+  padding-left: 0px;
+  padding-right: 0px;
+  text-align: center;
+}
+
 .col-1-2 {
   width: 50%;
   display: inline-block;
@@ -107,7 +116,7 @@ label {
 }
 
 
-#loss_plot, #acc_plot {
+#loss_plot, #loss_plot_2 {
   margin-left: -100px;
 }
 
@@ -128,16 +137,16 @@ input[type=checkbox]:checked {
 }
 
 
-#train_loss_cb:checked {
+.train_loss_cb:checked {
   background-color: var(--c_orange);
 }
-#train_acc_cb:checked {
+.train_acc_cb:checked {
   background-color: var(--c_magenta);
 }
-#valid_loss_cb:checked {
+.valid_loss_cb:checked {
   background-color: var(--c_violet);
 }
-#valid_acc_cb:checked {
+.valid_acc_cb:checked {
   background-color: var(--c_cyan);
 }
 
