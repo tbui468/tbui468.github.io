@@ -479,7 +479,7 @@ function generate_data(data_type, prob) {
       [x, y] = random_data(8, canvas.width, canvas.height);
       break;
     case "circle_data":
-      [x, y] = circle_data(128, canvas.width, canvas.height);
+      [x, y] = circle_data(64, canvas.width, canvas.height);
       break;
     case "spiral_data":
       [x, y] = spiral_data(64, canvas.width, canvas.height);
@@ -560,7 +560,7 @@ contour_plot2.addEventListener('mousedown', function(e) {
   handle_click(contour_plot2, e);
 });
 
-const bs = 4;
+const bs = 8;
 
 let coords = [];
 for (let row = 0; row < contour_plot.height; row += bs) {
