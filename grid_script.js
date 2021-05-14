@@ -7,15 +7,15 @@ function distance_squared(x1, y1, x2, y2) {
 }
 
 function get_cursor_position(canvas) {
-  const rect = canvas.getBoundingClientRect();
-  const xpos = event.clientX - rect.left;
-  const ypos = event.clientY - rect.top;
+  let rect = canvas.getBoundingClientRect();
+  let xpos = event.clientX - rect.left;
+  let ypos = event.clientY - rect.top;
 
   return [xpos, ypos];
 }
 
 function handle_click(canvas, event) {
-  const [xpos, ypos] = get_cursor_position(canvas);
+  let [xpos, ypos] = get_cursor_position(canvas);
 
   //delete closest point
   if (event.altKey) {
@@ -183,7 +183,7 @@ function update_and_draw() {
   if (x.length > 0) {
     let z_train = 0;
     let z_train_2 = 0;
-    [W1, W2, W3, z_train] = train_network(normalize(x), y, lr, wd, [W1, W2, W3]);
+    [W1, W2, W3, z_train] = train_network(normalize(x), y, lr, wd_1, [W1, W2, W3]);
     [W1_2, W2_2, W3_2, z_train_2] = train_network(normalize(x), y, lr_2, wd_2, [W1_2, W2_2, W3_2]);
     const probs_train = tf.softmax(z_train, axis=1)
     const probs_train_2 = tf.softmax(z_train_2, axis=1)
@@ -228,7 +228,7 @@ function update_and_draw() {
 
 function spiral_data(point_total, cw, ch) {
   const point_count = point_total / 2
-  const r = Array.from({length: point_count}, (x, i) => i/point_count * (cw * .4)); //making spirals start a little way from the center
+  const r = Array.from({length: point_count}, (x, i) => i/point_count * (cw * .4) + 5); //making spirals start a little way from the center
   const t0 = Array.from({length: point_count}, (x, i) => i/point_count * 4 + Math.random()*1.0); //~1/3 of circle
   const t1 = Array.from({length: point_count}, (x, i) => i/point_count * 4 + 2.1 + Math.random()*1.0); //~1/3 of circle
   const t2 = Array.from({length: point_count}, (x, i) => i/point_count * 4 + 4.2 + Math.random()*1.0); //~1/3 of circle
@@ -281,13 +281,13 @@ function circle_data(points, cw, ch) {
     let x = Math.random() * cw;
     let y = Math.random() * ch;
     let rs = Math.pow(x-(cw/2), 2) + Math.pow(y-(ch/2), 2);
-    if (rs > Math.pow(cw/2 - 15, 2)) {
+    if (rs > Math.pow(118, 2)) {
       labels.push([1, 0, 0]);
       predictors.push([x, y, 1]);
-    }else if (rs > Math.pow(cw/2-50, 2)) {
+    }else if (rs < Math.pow(100, 2) && rs > Math.pow(70, 2)) {
       labels.push([0, 1, 0]);
       predictors.push([x, y, 1]);
-    }else{
+    }else if (rs < Math.pow(50, 2)){
       labels.push([0, 0, 1]);
       predictors.push([x, y, 1]);
     }
@@ -314,6 +314,12 @@ function normalize(tensor) {
   });
 }
 
+function html_set_wd1() {
+  wd_1 = parseFloat(document.getElementById("wd_1").value);
+}
+function html_set_wd2() {
+  wd_2 = parseFloat(document.getElementById("wd_2").value);
+}
 
 function html_set_lr() {
   lr = parseFloat(document.getElementById("lr").value);
@@ -322,18 +328,36 @@ function html_set_lr2() {
   lr_2 = parseFloat(document.getElementById("lr_2").value);
 }
 
-function restart_network() {
+function restart_network(fn) {
   return tf.tidy(() => {
     let w1 = tf.mul(tf.randomNormal([2 + 1, h_layers]), 1.0);
-    let w2 = tf.mul(tf.randomNormal([h_layers, h2_layers]), kaiming_init(h_layers));
-    let w3 = tf.mul(tf.randomNormal([h2_layers, 3]), kaiming_init(h2_layers));
+    let w2 = tf.mul(tf.randomNormal([h_layers, h2_layers]), fn(h_layers));
+    let w3 = tf.mul(tf.randomNormal([h2_layers, 3]), fn(h2_layers));
     return [w1, w2, w3];
   });
+}
+
+function get_init_fn(name) {
+  let f = gaussian_init;
+  switch(name) {
+    case "xavier":
+      f = xavier_init;
+      break;
+    case "kaiming":
+      f = kaiming_init;
+      break;
+    default: 
+      f = gaussian_init;
+      break;
+  }
+  return f;
 }
 
 function html_restart_network() {
   html_set_lr();
   html_set_lr2();
+  html_set_wd1();
+  html_set_wd2();
   epoch = 1;
   train_losses = [];
   train_accs = [];
@@ -344,8 +368,32 @@ function html_restart_network() {
   valid_losses_2 = [];
   valid_accs_2 = [];
   html_redraw_plot();
-  [W1, W2, W3] = restart_network();
-  [W1_2, W2_2, W3_2] = restart_network();
+  let fn_name_1 = document.getElementById("w_init_1").value;
+  let fn_name_2 = document.getElementById("w_init_2").value;
+  let same_init_cb = document.getElementById("same_init_cb"); 
+  [W1, W2, W3] = restart_network(get_init_fn(fn_name_1));
+  if(same_init_cb.checked){
+    W1_2 = W1;
+    W2_2 = W2;
+    W3_2 = W3;
+    console.log('same');
+  }else{
+    [W1_2, W2_2, W3_2] = restart_network(get_init_fn(fn_name_2));
+    console.log('different');
+  }
+
+  W1.print()
+  W1_2.print()
+}
+
+function html_same_init() {
+  let same_init_cb = document.getElementById("same_init_cb"); 
+  let w_init_2 = document.getElementById("w_init_2");
+  if (same_init_cb.checked) {
+    w_init_2.disabled = true;
+  }else{
+    w_init_2.disabled = false;
+  }
 }
 
 function html_redraw_plot() {
@@ -434,7 +482,7 @@ function generate_data(data_type, prob) {
       [x, y] = circle_data(128, canvas.width, canvas.height);
       break;
     case "spiral_data":
-      [x, y] = spiral_data(128, canvas.width, canvas.height);
+      [x, y] = spiral_data(64, canvas.width, canvas.height);
       break;
   }
   const i = split_indices(x.length, prob);
@@ -446,6 +494,11 @@ function html_generate_data() {
   const data_type = document.getElementById("data_type").value;
   const prob = document.getElementById("split").value;
   [predictors, labels, train_idc] = generate_data(data_type, prob);
+}
+
+function html_split_indices() {
+  const prob = document.getElementById("split").value;
+  train_idc = split_indices(predictors.length, prob);
 }
 
 
@@ -485,7 +538,7 @@ let W2_2 = tf.mul(tf.randomNormal([h_layers, h2_layers]), kaiming_init(h_layers)
 let W3_2 = tf.mul(tf.randomNormal([h2_layers, 3]), kaiming_init(h2_layers));
 
 let lr = 0.001;
-let wd = 0.001;
+let wd_1 = 0.001;
 let lr_2 = 0.001;
 let wd_2 = 0.001;
 let epoch = 1;
