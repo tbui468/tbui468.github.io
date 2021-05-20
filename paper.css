@@ -44,6 +44,7 @@ q:before, q:after {
   content: '';
   content: none;
 }
+
 table {
   border-collapse: collapse;
   border-spacing: 0;
@@ -54,33 +55,31 @@ b {
 }
 
 h1 {
-  font-size: 26px;
-  font-weight: bold;
-  font-family: Helvetica, Arial, sans-serif;
+  font-size: 22px;
+  font-family: serif;
   padding-bottom: 8px;
 }
 
 h2 {
-  font-size: 22px;
-  font-weight: bold;
-  font-family: Helvetica, Arial, sans-serif;
+  font-size: 18px;
+  font-family: serif;
   padding-bottom: 8px;
 }
 
 h3 {
-  font-size: 20px;
-  font-weight: bold;
-  font-family: Helvetica, Arial, sans-serif;
+  font-size: 16px;
+  font-family: serif;
   padding-bottom: 6px;
 }
 
 h5 {
-  font-size: 17px;
-  font-family: Calibri, Garamond, Helvetica, Arial, sans-serif;
+  font-weight: bold;
+  font-size: 14px;
+  font-family: sans-serif;
 }
 
 p {
-  font-size: 16px;
+  font-size: 14px;
   font-family: Calibri, Garamond, Helvetica, Arial, sans-serif;
 }
 
@@ -100,27 +99,42 @@ li {
   padding: 22px 0 22px 0;
 }
 
-.container {
-  margin: 0 auto;
-  width: 960px;
+.narrow {
+  margin: 10px auto;
+  width: 660px;
   padding-left: 0px;
   padding-right: 0px;
   padding-top: 20px;
+  text-align: justify;
 }
 
-.block {
-  width: fill;
-  padding-left: 40px;
+.center {
+  text-align: center;
+}
+
+.container {
+  margin: 10px auto;
+  width: 860px;
+  padding-left: 0px;
   padding-right: 0px;
-  padding-top: 0px;
+  padding-top: 20px;
+  text-align: justify;
 }
 
 .grid {
   margin: 0 auto;
-  width: 960px;
+  width: 860px;
   padding-left: 0px;
   padding-right: 0px;
   padding-top: 20px;
+}
+
+.col-1-4 {
+  width: 25%;
+  display: inline-block;
+  vertical-align: top;
+  padding-left: 0px;
+  padding-right: 0px;
 }
 
 .col-1-5 {
@@ -152,4 +166,22 @@ li {
 img {
   width: 90%;
 /*  height: 90%; this makes wkhtml not work*/
+}
+
+th, td {
+  text-align: center;
+  padding: 0 20px;
+}
+
+th, td {
+  text-align: center;
+  padding: 0 20px;
+}
+table{
+  margin: 0 auto;
+}
+
+.table-categories {
+  border-bottom: 1px solid black;
+  font-weight: bold;
 }

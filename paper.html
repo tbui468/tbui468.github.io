@@ -3,25 +3,162 @@
   <head>
     <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-    <title>Vision Transformers for Fine Grain Plant Disease Detection</title>
+    <link rel="stylesheet" href="paper.css">
+    <title>Plant Disease Detection using pretrained vision models</title>
   </head>
   <body>
-    <h2>Abstract</h2>
-      Efficiency of training vision transformers from scratch for specific fine-grain classification
-      instead of using a pretrained model.  
-    <h2>Introduction</h2>
-        What about learning from scratch for a small number of training images?  18k images, and six labels.
-    <h2>Related Work</h2>
-      <p>
-        Transformers have revolutionized NLP, and there is evidence that it can take the place of convnets in 
-        image recognition problems too.  
-        Research shows that vision transformers (ViT) perform better with larger datasets for transfer learning.
-      </p>
-    <h2>Method</h2>
-    <h2>Experiments</h2>
-    <h2>Conclusion</h2>
-    <h2>References</h2>
-      alexnet paper for introduction on neural networks/convnets
-      16x16 images prerelease paper from google
+    <section class="container">
+      <h1>DISEASE DETECTION IN APPLE LEAVES USING PRE-TRAINED VISION TRANSFORMERS</h1>
+      <br>
+      <div class="center">
+        <h5>Thomas Bui</h5>
+        <p>thomasthienbui@gmail.com</p>
+      </div>
+    </section>
+    <section class="narrow">
+      <div class="center">
+        <h2>ABSTRACT</h2>
+          We fine-tune a vision transformer to detect diseases in apples leaf photographs.  
+      </div>
+    </section>
+    <section class="container">
+      <h2>1 INTRODUCTION</h2>
+        Food production is becoming more important as the population grows in developing countries.  As such, detecting diseases in plants 
+        if becoming an important tool in keeping food supplies healthy and readily available.  There are not enough experts to inspect
+        all produce, so the burden must be passed onto others.  Automatic disease detection using artificial neural networks is one possible
+        solution to this problem.  In addition to the costs savings from not requiring opinions of an expert, using an artificial neural network
+        allows detection of diseases in a quick, and accurate manner.
+
+    </section>
+    <section class="container">
+      <h2>2 RELATED WORK</h2>
+        The Transformer has revolutionized natural language processing (NLP) since being introduced in 2017, analogous to how convolutional networks
+        changed how image processing first by Yan Lecun paper in 1996? and then again by AlexNet in 2012.  Although the use of transformers
+        for image classification is still early compared to its use in NLP, early results suggest that transformers perform just as well
+        as convolutional networks at many different tasks.
+
+        As is common in industry, transfer learning is used to reduce the time needed to train a network for a specific task.  
+        One current state-of-the-art convolutional network is Big Transfer (BiT) from Kolesnikov et al. 2020.  
+
+        Transformers are currently not commonly used for vision tasks, but the Vision Transformer (ViT) from Dosovitskiy et al. 2020
+        suggest that transformers can produce results comparable to modern convolutional networks.  
+
+    </section>
+    <section class="container">
+      <h2>3 METHODS</h2>
+      <h3>3.1 DATA</h3>
+        The training data provided consists of 18,632 images and their corresponding labels.  
+        The image is labeled by experts with up to the 6 different labels: healthy, frog eye leaf spot, powdery mildew, rust, scab,
+        and complex.  The label complex is applied to any specimen with too many diseases to easily classify.  In the case that an image is labeled complex, 
+        a subset of the diseases may also be labeled.  Table 1 shows the distribution of the labels.
+        <br>
+        <br>
+      <div class="center">
+        <table>
+          <tr class="table-categories">
+            <th>Label</th>
+            <th>Count</th>
+          </tr>
+          <tr>
+            <td>Complex</td>
+            <td>2151</td>
+          </tr>
+          <tr>
+            <td>Frog Eye Leaf Spot</td>
+            <td>4352</td>
+          </tr>
+          <tr>
+            <td>Healthy</td>
+            <td>4624</td>
+          </tr>
+          <tr>
+            <td>Powdery Mildew</td>
+            <td>1271</td>
+          </tr>
+          <tr>
+            <td>Rust</td>
+            <td>2077</td>
+          </tr>
+          <tr>
+            <td>Scab</td>
+            <td>5712</td>
+          </tr>
+        </table>
+        <br>
+        Table 1: Label distribution of the 18,632 images.  Aside from images labeled 'healthy', some images are assigned multiple labels.  
+      </div>
+      <br>
+        All the jpeg images contain 3 color channels (rgb), and have widths between 2592 and 5184 pixels, and heights between 1728 and 4032 pixels.
+        Reading images multiple large images from disk becomes the main bottleneck during training, therefore all 18632 images
+        were converted to pytorch tensors and saved as a single file on disk.  
+        The images are first scaled down so that the smallest spacial dimension is equal to 384, and then centercropped to give a final size of 384x384.
+        The labels are also processed and saved as pytorch tensors. 
+      <div class="center">
+        <img src="image_grid.png"><br>
+        Figure 1: Sample images with single labels from each category.  Labels from top row: complex, frog eye leaf spot, healthy, powdery mildew, rust, scab.
+      </div>
+      <br>
+      <div class="center">
+        <img src="multilabel.png"><br>
+        Figure 2: Sample images with multiple labels.
+      </div>
+      <br>
+      <h3>3.3 MODEL</h3>
+        The ViT weights are publicly available for all three ViT sizes: Base, Large and Huge.  All models were pre-trained on ImageNet21k, with variants
+        also further fine-tuned on ImageNet2012.  Figure 3 shows the architecture of ViT.  
+
+        The authors of ViT pre-trained the network at a resolution of 224x224, and then fine-tuned at a higher resolution of 384x384.  Experimental evidence
+        suggests that fine-tuning at a higher resolution than that of pre-training results in improved performance.  We haved followed this procedure
+        and fine-tuned the model on images with an input resolution of 384x384.
+
+        <div class="center">
+          <img src="model.png"><br>
+          Figure 3: Vision Transformer (ViT) architecture.  The image was taken directly from "An Image is Worth 16x16 Words: Transformers for Image
+          Recognition at Scale".  
+        </div>
+        <br>
+        <br>
+    </section>
+    <section class="container">
+      <h2>4 EXPERIMENT</h2>
+      <h3>4.1 SETUP</h3>
+        We used the ViT Base model that was pre-trained on ImageNet21k at 224x224, and then fine-tuned on ImageNet2012 at 384x384.
+        Training was done using Google Cloud Compute, using a NVIDIA Tesla K80.  
+        The labeled data is randomly split 90:10, for training and validation.  
+        During each epoch the following transformations are applied randomly to each image: random crop from 80% to 100% of the image 
+        with aspect ratio between .75 and 1.33, vertical flip, horizontal flip, and color jitter. The resulting images
+        are then scaled to 3x384x384.
+
+        The 1000 output classifier is replace with a classifier with 6 outputs, one for each label.  
+        Only the classifier is trained for the first 10 epochs.  
+        The subsequent training epochs include the entire network.
+      <h3>4.2 METRICS</h3>
+        Binary cross entropy loss is used as the loss function, and F-score is used to measure the accuracy.  
+      <h3>4.4 RESULTS</h3>
+        plots go here
+    </section>
+    <section class="container">
+      <h2>5 FUTURE WORK</h2>
+        Weights for the vision transformer are available for three different model sizes.  The base model, large model and huge model each have
+        12, 24, and 32 transformer blocks, respectively.  
+        The pre-trained ViT-Base model was chosen for this experiment, but fine-tuning a larger model will likely result in some improvement.  
+    </section>
+    <section class="container">
+      <h2>6 CONCLUSION</h2>
+    </section>
+    <section class="container">
+      <h2>REFERENCES</h2>
+      Alex Krizhevsky, Ilya Sutskever and Geoffrey E. Hinton.  ImageNet Classification with Deep Convolutional 
+      Networks. (2012)
+      <br><br>
+      Kaiming He, Xiangyu Zhang, Shaoqing Ren and Jian Sun.  Deep Residual Learning for Image Recognition. (2015)
+      <br><br>
+      Alexey Dosovitskiy, Lucas Beyer, Alexander Kolesnikov, Dirk Weissenborn, Xiaohua Zhai, Thomas Unterthiner, 
+      Mostafa Dehghani, Mathias Minderer, Georg Heigold, Sylvain Gelly, Jakob Uszkoreit and Neil Houlsby.  
+      An Image Is Worth 16x16 Words: Transformers For Image Recognition at Scale. (2020)
+      <br><br>
+      Hugo Touvron, Andrea Vedaldi, Matthijs Douze and Herv&eacute; J&eacute;gou.
+      Fixing the Train-Test Resolution Discrepancy. (2020)
+    </section>
   </body>
 </html>
