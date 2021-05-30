@@ -4,11 +4,11 @@
     <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <link rel="stylesheet" href="paper.css">
-    <title>Plant Disease Detection using pretrained vision models</title>
+    <title>Plant Pathology 2021 - FGVC8 Kaggle Research Code Competition Using Vision Transformers</title>
   </head>
   <body>
     <section class="container">
-      <h1>DISEASE DETECTION IN APPLE LEAVES USING PRE-TRAINED VISION TRANSFORMERS</h1>
+      <h1>Plant Pathology 2021 - FGVC8 Kaggle Research Code Competition Using Vision Transformers</h1>
       <br>
       <div class="center">
         <h5>Thomas Bui</h5>
@@ -19,38 +19,52 @@
       <div class="center">
         <h2>ABSTRACT</h2>
           We fine-tune a vision transformer to detect diseases in apples leaf photographs.  
+          and comparing it to densenet (and other users using efficientnet/vit too)
+
+          Experiment
+            Setup (batch size, SGD, momentum, weight decay numbers)
+          Future Work
+          Conclusion
+          Referencences
+          Abstract
+          Title
+          Link code
+          Make code look nice and make sure it runs
       </div>
     </section>
     <section class="container">
       <h2>1 INTRODUCTION</h2>
-        Food production is becoming more important as the population grows in developing countries.  As such, detecting diseases in plants 
-        if becoming an important tool in keeping food supplies healthy and readily available.  There are not enough experts to inspect
-        all produce, so the burden must be passed onto others.  Automatic disease detection using artificial neural networks is one possible
-        solution to this problem.  In addition to the costs savings from not requiring opinions of an expert, using an artificial neural network
+        Apples are one of the most important fruit crops in the world.  As the world population grows and food demands increase, the cultivation of apple will continue
+        to be an essential part of the human food supply.  One major concern for apple production is foliar diseases.  Most current methods of apple disease detection
+        rely on human experts.  The use of human experts for disease detection is time consuming and expensive.  Automatic disease detection using artificial neural 
+        networks is one possible solution to this problem.  In addition to the costs savings from not requiring opinions of an expert, using an artificial neural network
         allows detection of diseases in a quick, and accurate manner.
 
     </section>
     <section class="container">
       <h2>2 RELATED WORK</h2>
-        The Transformer has revolutionized natural language processing (NLP) since being introduced in 2017, analogous to how convolutional networks
-        changed how image processing first by Yan Lecun paper in 1996? and then again by AlexNet in 2012.  Although the use of transformers
-        for image classification is still early compared to its use in NLP, early results suggest that transformers perform just as well
-        as convolutional networks at many different tasks.
+        Computer vision using articifial neural networks trained by gradient descent revolutionized image recognition first by Yan LeCun et al. (1989) and again
+        by Krizhevsky et al. (2012).  Since then the use of convolutional networks has become the mainstay in many computer vision tasks.  
+        <br><br>
 
-        As is common in industry, transfer learning is used to reduce the time needed to train a network for a specific task.  
-        One current state-of-the-art convolutional network is Big Transfer (BiT) from Kolesnikov et al. 2020.  
+        The Transformer has revolutionized natural language processing (NLP) since being introduced in 2017.  Using 'attention', transformers
+        processed inputs concurrently as opposed to sequentially at each time-step.  Along with speeding up the training process, the use of attention
+        allowed the network to keep track of longer term dependencies than RNNs. 
 
-        Transformers are currently not commonly used for vision tasks, but the Vision Transformer (ViT) from Dosovitskiy et al. 2020
-        suggest that transformers can produce results comparable to modern convolutional networks.  
+        The use of transformers in computer vision is still in its infancy.  Early results from Dosovitskiy et al. (2020) suggest that transformers perform 
+        just as well as convolutional networks on different vision-based tasks, and larger transformers have the potential to surpass convolutional networks.  
 
     </section>
     <section class="container">
       <h2>3 METHODS</h2>
       <h3>3.1 DATA</h3>
-        The training data provided consists of 18,632 images and their corresponding labels.  
+        The entire dataset consists of 23,000 images and labels.  
+        The training data provided consists of 18,632 images and their corresponding labels, and the remaining is set aside as the test data.
         The image is labeled by experts with up to the 6 different labels: healthy, frog eye leaf spot, powdery mildew, rust, scab,
-        and complex.  The label complex is applied to any specimen with too many diseases to easily classify.  In the case that an image is labeled complex, 
-        a subset of the diseases may also be labeled.  Table 1 shows the distribution of the labels.
+        and complex.  The label complex is applied to any specimen with too many diseases to easily classify.  In the case that an image is labeled 'complex', 
+        a subset of the diseases may also be labeled.  Table 1 shows the distribution of the labels.  The 'healthy' label is mutually exclusive, and will
+        only appear if no diseases are detected.  We've decided to allow the network to learn this rather than manually applying the 'healthy' label to
+        images with no detected diseases.
         <br>
         <br>
       <div class="center">
@@ -92,7 +106,7 @@
         Reading images multiple large images from disk becomes the main bottleneck during training, therefore all 18632 images
         were converted to pytorch tensors and saved as a single file on disk.  
         The images are first scaled down so that the smallest spacial dimension is equal to 384, and then centercropped to give a final size of 384x384.
-        The labels are also processed and saved as pytorch tensors. 
+        The labels are also processed and saved as pytorch tensors. <br><br>
       <div class="center">
         <img src="image_grid.png"><br>
         Figure 1: Sample images with single labels from each category.  Labels from top row: complex, frog eye leaf spot, healthy, powdery mildew, rust, scab.
@@ -108,8 +122,10 @@
         also further fine-tuned on ImageNet2012.  Figure 3 shows the architecture of ViT.  
 
         The authors of ViT pre-trained the network at a resolution of 224x224, and then fine-tuned at a higher resolution of 384x384.  Experimental evidence
-        suggests that fine-tuning at a higher resolution than that of pre-training results in improved performance.  We haved followed this procedure
+        suggests that fine-tuning at a higher resolution than the pre-training resolution results in improved performance.  We haved followed this procedure
         and fine-tuned the model on images with an input resolution of 384x384.
+
+        The results of the ViT will be compared to Densenet169 and EfficientNEt B7.
 
         <div class="center">
           <img src="model.png"><br>
@@ -125,23 +141,72 @@
         We used the ViT Base model that was pre-trained on ImageNet21k at 224x224, and then fine-tuned on ImageNet2012 at 384x384.
         Training was done using Google Cloud Compute, using a NVIDIA Tesla K80.  
         The labeled data is randomly split 90:10, for training and validation.  
-        During each epoch the following transformations are applied randomly to each image: random crop from 80% to 100% of the image 
-        with aspect ratio between .75 and 1.33, vertical flip, horizontal flip, and color jitter. The resulting images
-        are then scaled to 3x384x384.
-
-        The 1000 output classifier is replace with a classifier with 6 outputs, one for each label.  
-        Only the classifier is trained for the first 10 epochs.  
-        The subsequent training epochs include the entire network.
-      <h3>4.2 METRICS</h3>
-        Binary cross entropy loss is used as the loss function, and F-score is used to measure the accuracy.  
+        <br><br>
+        During each epoch the following augmentations are applied randomly to each image: random crop from 80% to 100% of the image 
+        with aspect ratio between 3:4 and 4:3, vertical flip, horizontal flip, and color jitter. The resulting images
+        are then scaled to 3x384x384.  
+        <br><br>
+        Batch size, momentum, learning rate, weight decay (none).  Stochastic gradient descent (TODO)
+        <br><br>
       <h3>4.4 RESULTS</h3>
-        plots go here
+        Binary cross entropy loss is used as the loss function, and F-score is used to evaluate the network.  
+        Figures 4 and 5 show the results after training for 25 epochs, 10 with only the classifier and the remaining epochs with
+        the entire network.
+        <div class="center">
+          <img src="loss_plot.png"><br>
+          Figure 4: Binary cross entropy loss for training and validation data sets.
+        </div>
+        <div class="center">
+          <img src="fscore_plot.png"><br>
+          Figure 5: F-score for training and validation data sets.
+        </div>
+        <br>
+        The three models with lowest validation loss are ensembled to create the final model used for inference on the test data.  Table 2 shows the
+        results of the vision transformer compared to the results of trained Densenet169 and EfficientNet B6.  The EfficientNet B6 results are obtained from the 
+        publicly available notebook on Kaggle from team 'OverFittingMaster'.
+        <br>
+        <br>
+
+        <div class="center">
+          <table>
+            <tr class="table-categories">
+              <th>Model</th>
+              <th>Test Set F-Score</th>
+            </tr>
+            <tr>
+              <td>Vision Transformer</td>
+              <td>80.4</td>
+            </tr>
+            <tr>
+              <td>DenseNet169</td>
+              <td>81.9</td>
+            </tr>
+            <tr>
+              <td>EfficientNet B6</td>
+              <td>84.8</td>
+            </tr>
+          </table>
+          <br>
+          Table 2: F-score of the vision transformer, Densenet169, and EfficientNet B6 on the test dataset.
+        </div>
+      <br>
+      <br>
+
+      <h3>4.4 CODE</h3>
+      <a href="#">Code for fine-tuning a pre-trained vision transformer.</a>
     </section>
     <section class="container">
       <h2>5 FUTURE WORK</h2>
         Weights for the vision transformer are available for three different model sizes.  The base model, large model and huge model each have
         12, 24, and 32 transformer blocks, respectively.  
         The pre-trained ViT-Base model was chosen for this experiment, but fine-tuning a larger model will likely result in some improvement.  
+
+        Two of the the publicly available code produced high (top 10% and top 14%) both use EfficientNet B7.  
+
+        Fine tuning on higher resolutions lead to better results.  SO try that
+
+        State of the art results of the vision transformer was using a network pretrained on googles internal image dataset 
+        which is not available to the public.
     </section>
     <section class="container">
       <h2>6 CONCLUSION</h2>
@@ -159,6 +224,8 @@
       <br><br>
       Hugo Touvron, Andrea Vedaldi, Matthijs Douze and Herv&eacute; J&eacute;gou.
       Fixing the Train-Test Resolution Discrepancy. (2020)
+      <br><br>
+      Zhiwei Ren, Allan and Mylon Song from team 'OverFittingMaster'.  Plant Pathology 2021 - FGVC8 Kaggle Research Code Competition.  (2021)
     </section>
   </body>
 </html>

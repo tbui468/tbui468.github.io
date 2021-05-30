@@ -58,6 +58,7 @@ h1 {
   font-size: 22px;
   font-family: serif;
   padding-bottom: 8px;
+  text-transform: uppercase;
 }
 
 h2 {
@@ -165,6 +166,8 @@ li {
 
 img {
   width: 90%;
+  margin-top: 20px;
+  margin-bottom: 10px;
 /*  height: 90%; this makes wkhtml not work*/
 }
 
