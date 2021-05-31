@@ -18,18 +18,10 @@
     <section class="narrow">
       <div class="center">
         <h2>ABSTRACT</h2>
-          We fine-tune a vision transformer to detect diseases in apples leaf photographs.  
-          and comparing it to densenet (and other users using efficientnet/vit too)
-
-          Experiment
-            Setup (batch size, SGD, momentum, weight decay numbers)
-          Future Work
-          Conclusion
-          Referencences
-          Abstract
-          Title
-          Link code
-          Make code look nice and make sure it runs
+          We fine-tune a vision transformer to detect foliar diseases in apple tree leaves.  The results are then compared to
+          two traditional convolutional networks.  Our results show that although transformers have the potential to
+          be used in computer vision, traditional convolutional networks still perform better in many cases.  Superior or comparable results
+          may be achieved with transformers, but they rely datasets and model weights not publicly released.
       </div>
     </section>
     <section class="container">
@@ -146,10 +138,14 @@
         with aspect ratio between 3:4 and 4:3, vertical flip, horizontal flip, and color jitter. The resulting images
         are then scaled to 3x384x384.  
         <br><br>
-        Batch size, momentum, learning rate, weight decay (none).  Stochastic gradient descent (TODO)
+        For training the classifier, stochastic gradient descent with a learning rate of 0.003 and a batch size of 32 is used.  Stochastic gradient
+        descent with a learning rate of 0.001 and batch size of 8 is used for fine-tuning the entire network.  The smaller batch size (and 
+        corresponding lower learning rate) is due to GPU memory limitations.  All hyperparameters were found using random search, with starting
+        ranges used by Dosovitskiy et al.(2020).
+        <br><br>
+        Binary cross entropy loss is used as the loss function, and F-score is used to evaluate the network.  
         <br><br>
       <h3>4.4 RESULTS</h3>
-        Binary cross entropy loss is used as the loss function, and F-score is used to evaluate the network.  
         Figures 4 and 5 show the results after training for 25 epochs, 10 with only the classifier and the remaining epochs with
         the entire network.
         <div class="center">
@@ -162,8 +158,14 @@
         </div>
         <br>
         The three models with lowest validation loss are ensembled to create the final model used for inference on the test data.  Table 2 shows the
-        results of the vision transformer compared to the results of trained Densenet169 and EfficientNet B6.  The EfficientNet B6 results are obtained from the 
-        publicly available notebook on Kaggle from team 'OverFittingMaster'.
+        results of the vision transformer compared to the results of trained Densenet169 and EfficientNet B6.  The Densenet169 results are achieved
+        using a model pretrained on ImageNet2012 at 224x224, and fine tuned on a resolution of 512x512.  The final result on the test set is achieved
+        by ensembling the top 3 densenet models.  The EfficientNet B6 results are obtained from the publicly available notebook on Kaggle from team 'OverFittingMaster'.
+        EfficientNet obtains significantly better results and even older architectures such as Densenet outperforms vision transformers in this case.
+        <br>
+        <br>
+        Among the 626 teams in the Kaggle competition, the Vision Transformer, Densenet169 and EfficientNet B6 achieved rankings in the top 27%, 24% and 10%, 
+        respectively.
         <br>
         <br>
 
@@ -193,23 +195,28 @@
       <br>
 
       <h3>4.4 CODE</h3>
-      <a href="#">Code for fine-tuning a pre-trained vision transformer.</a>
+      <a href="https://github.com/tbui468/kaggle-apple-leaf">Code for fine-tuning a pre-trained vision transformer.</a>
     </section>
     <section class="container">
-      <h2>5 FUTURE WORK</h2>
-        Weights for the vision transformer are available for three different model sizes.  The base model, large model and huge model each have
-        12, 24, and 32 transformer blocks, respectively.  
-        The pre-trained ViT-Base model was chosen for this experiment, but fine-tuning a larger model will likely result in some improvement.  
+      <h2>5 CONCLUSION</h2>
+        Although vision transformers have potential to equal or surpass convolutional neural networks for computer vision, traditional 
+        methods are still superior in many situations. 
 
-        Two of the the publicly available code produced high (top 10% and top 14%) both use EfficientNet B7.  
+        <br><br>
 
-        Fine tuning on higher resolutions lead to better results.  SO try that
+        One possible explaination for the lower performance is the size of the pretraining data.  Comparable state-of-the-art results from the vision 
+        transformer by Dosovitskiy et al. (2020) were obtained from pretraining on an internal Google image dataset (JFT).  The JFT dataset contains 
+        18k labels and 303M images.  This dwarfs the 14M images in ImageNet21k.  The weights of the model trained on JFT were not publicly released.  
+        <br><br>
 
-        State of the art results of the vision transformer was using a network pretrained on googles internal image dataset 
-        which is not available to the public.
-    </section>
-    <section class="container">
-      <h2>6 CONCLUSION</h2>
+        Due to computational limitations, the base model of the pre-trained vision trasnformer was used.  Using a larger model (Large or Huge vision
+        transformer models) will likely lead to better results. 
+        <br><br>
+
+        Using a larger resolution for fine-tuning also could be beneficial.  When training on densenet using resolutions of 224x224, 384x384 and 512x512, 
+        we consistently produced better results with larger image resolutions.  Modifying the vision transformer architecture to allow the use of
+        input resolutions greater than 384x384 is one possible way to improve performance.  
+
     </section>
     <section class="container">
       <h2>REFERENCES</h2>
