@@ -71,12 +71,20 @@ h3 {
   font-size: 20px;
   font-weight: bold;
   font-family: Helvetica, Arial, sans-serif;
-  padding-bottom: 6px;
+  padding-bottom: 10px;
+}
+
+h4 {
+  font-size: 14px;
+  font-weight: bold;
+  font-family: Helvetica, Arial, sans-serif;
+  padding-bottom: 2px;
 }
 
 h5 {
   font-size: 17px;
   font-family: Calibri, Garamond, Helvetica, Arial, sans-serif;
+  padding-bottom: 4px;
 }
 
 p {
@@ -84,8 +92,12 @@ p {
   font-family: Calibri, Garamond, Helvetica, Arial, sans-serif;
 }
 
+ul {
+  padding-left: 25px;
+}
+
 li {
-/*  list-style-type: disc;*/
+  list-style-type: disc;
 }
 
 .row {
