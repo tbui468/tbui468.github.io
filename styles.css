@@ -120,6 +120,14 @@ li {
   padding-top: 20px;
 }
 
+.container-a4 {
+  margin: 0 auto;
+  width: 595px; /*842*/
+  padding-left: 0px;
+  padding-right: 0px;
+  padding-top: 20px;
+}
+
 .block {
   width: fill;
   padding-left: 40px;
