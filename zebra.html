@@ -19,7 +19,7 @@
     </section>
     <section class="main">
         <div id="about" class="container">
-            TODO: Custom Types (Structs)
+            TODO: Control flow
             <h1>About</h1>
             <div class="mini">
                 <h2>Motivation</h2>
@@ -240,24 +240,98 @@
         <div id="structs" class="container">
             <h1>Custom Types</h1>
             <div class="mini">
-            <h2>What's a Struct?</h2>
-                <p>What about classes?  I want to stick closely to the simpleness of C (and
-                it's not because I'm too lazy to figure out how to integrate class functions :)</p>
+                <h2>What's a Struct?</h2>
+                <p>
+                    Structs can be used to groups related data together.  Structs can
+                    be composed of the built-in data types, or other structs.
+                </p>
             </div>
             <div class="mini">
                 <h2>Declaration</h2>
+                </p>To declare a new struct, follow the name with double colons and 
+                then the body.  All fields must be set to a default value.  </p>
+                <pre>
+                <code>
+                    Person :: {
+                        name: <span class="bl">string</span>        = <span class="re">"John"</span>;
+                        age: <span class="bl">int</span>            = <span class="gr">35</span>;
+                        hair_color: <span class="bl">string</span>  = <span class="re">"Brown"</span>;
+                        height: <span class="bl">float</span>       = <span class="gr">175.1</span>;
+                    }
+                </code>
+                </pre>
             </div>
             <div class="mini">
-                <h2>Instantiating</h2>
+                <h2>Instantiating and Assignment</h2>
+                <p>
+                    New structs can be created in three ways: using default data, using custom data, or 
+                    copying the data from a different struct instance.  Struct instances can also
+                    be assigned a different instance, overwriting their data fields.  <br><br>
+                    Note: a custom constructor must have the same number of arguments as datafields in the
+                    struct definition, and the order of appearance of the fields in the definition corresponds
+                    to the order of the arguments.
+                </p>
+                <pre>
+                <code>
+                    Dog :: {
+                        name: <span class="bl">string</span> = <span class="re">"Mittens"</span>;
+                        age: <span class="bl">int</span> = <span class="gr">3</span>;
+                    }
+
+                    <span class="gr">//creating three dogs</span>
+                    my_dog: Dog(); <span class="gr">//using default name "Mittens" and age 3</span>
+                    other_dog: Dog(<span class="re">"Puppers"</span>, <span class="gr">2</span>); <span class="gr">//with name "Puppers" and age 2</span>
+                    copy_dog: Dog(other_dog); <span class="gr">//a copy of other_dog (with name "Puppers" and age 2)</span>
+
+                    <span class="gr">//assigning my_dog to copy_dog</span>
+                    my_dog = copy_dog <span class="gr">//now all three dogs have the same name and age</span>
+                </code>
+                </pre>
             </div>
             <div class="mini">
-                <h2>Copying</h2>
+                <h2>Accessing and Setting Fields</h2>
+                <p>Fields on structs can be accessed and set using dot notation.</p>
+                <pre>
+                <code>
+                    Car :: {
+                        color: <span class="bl">string</span> = <span class="re">"red"</span>;
+                        age: <span class="bl">int</span> <span class="gr">20</span>;
+                    }
+
+                    my_car: Car(<span class="re">"blue"</span>, <span class="gr">5</span>);
+                    <span class="bl">print</span>(<span class="re">"My care is "</span> + my_car.color + <span class="re">"."</span>); <span class="gr">//"My car is blue."</span>
+
+                    my_car.color = <span class="re">"green"</span>;
+                    <span class="bl">print</span>(<span class="re">"Then I painted it "</span> + my_car.color + <span class="re">"."</span>); <span class="gr">//"Then I painted it green."</span>
+                </code>
+                </pre>
             </div>
             <div class="mini">
-                <h2>Accessing Fields</h2>
-            </div>
-            <div class="mini">
-                <h2>Setting Fields</h2>
+                <h2>Usage</h2>
+                <p>A struct can be used just like any build-in type.</p>
+                <pre>
+                <code>
+                    Cat :: {
+                        name: <span class="bl">string</span> = <span class="re">"Whiskers"</span>;
+                        age: <span class="bl">int</span> = <span class="gr">2</span>;
+                    }
+
+                    print_details :: (cat: Cat) {
+                        last_bit: <span class="bl">string</span> = <span class="re">" years old."</span>;
+                        <span class="bl">if</span> (cat.age == <span class="gr">1</span>) {
+                            last_bit = <span class="re">" year old."</span>; 
+                        }
+
+                        <span class="bl">print</span>(cat.name + <span class="re">" is "</span> + <span class="bl">string</span>(cat.age) + last_bit);
+                    }
+
+                    my_cat: Cat();
+                    other_cat: Cat(<span class="re">"Bubbles"</span>, <span class="gr">1</span>);
+
+                    print_details(my_cat); <span class="gr">//"Whiskers is 2 years old."</span>
+                    print_details(other_cat): <span class="gr">//"Bubbles is 1 year old."</span>;
+                </code>
+                </pre>
             </div>
         </div>
         <div id="control-flow" class="container">
