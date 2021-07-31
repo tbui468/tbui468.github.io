@@ -52,7 +52,7 @@ table {
 /* Fonts */
 
 h1 {
-  font-size: 22px;
+  font-size: 30px;
   font-weight: bold;
   font-family: Helvetica, Arial, sans-serif;
   padding-bottom: 8px;
@@ -63,6 +63,7 @@ h2 {
   font-family: Helvetica, Arial, sans-serif;
   padding-bottom: 8px;
 }
+
 
 span.bl {
     color: blue;
@@ -115,9 +116,13 @@ span.re {
 
 
 .container {
-  margin: 0 auto;
+  margin: 0 0 0 100px;
   width: 720px;
   padding-left: 0px;
   padding-right: 0px;
-  padding-top: 20px;
+  padding-top: 80px;
+}
+
+.mini {
+    padding-bottom: 40px;
 }

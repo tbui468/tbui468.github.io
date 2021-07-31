@@ -10,12 +10,12 @@
         <img src="">
         <a href="#about">About</a>
         <a href="#getting-started">Getting Started</a>
-        <a href="#types-and-operators">Built-In Types</a>
-        <a href="#structs">Custom Types</a>
+        <a href="#built-in-types">Built-In Types</a>
         <a href="#control-flow">Control Flow</a>
         <a href="#functions">Functions</a>
-        <a href="#scopes-and-closures">Scopes</a>
-        <a href="#libraries">Built-In Libraries</a>
+        <a href="#classes">Classes</a>
+        <a href="#anonymous-functions">Anonymous Functions</a>
+        <a href="#libraries">Libraries</a>
     </section>
     <section class="main">
         <div id="about" class="container">
@@ -70,12 +70,12 @@
             <div class="mini">
                 <h2>Code Example</h2>
                 <p>Here's some example code to get you started on the syntax.  We compute the 1st, 5th, and 10th fibonacci numbers
-                and initialize a struct of type ThreeNumbers using them.  Then we change our minds and 
+                and initialize a class called ThreeNumbers to hold them.  Then we change our minds and 
                 replace the second data field with the 6th fibonacci number.</p>
                 <pre>
                 <code>
                     <span class="gr">//Define a struct to hold three integers.</span>
-                    ThreeInts :: {
+                    ThreeInts :: <span class="bl">class</span> {
                         name: <span class="bl">string</span> = <span class="re">"default"</span>;
                         first: <span class="bl">int</span> = <span class="gr">0</span>;
                         second: <span class="bl">int</span> = <span class="gr">0</span>;
@@ -103,10 +103,10 @@
                 </pre>
             </div>
         </div>
-        <div id="types-and-operators" class="container">
+        <div id="built-in-types" class="container">
             <h1>Built-In Types</h1>
             <div class="mini">
-                <h2>Integer</h2>
+                <h2>Integers</h2>
                 <p>Declaration:</p>
                 <pre>
                 <code>
@@ -150,7 +150,7 @@
                 </pre>
             </div>
             <div class="mini">
-                <h2>Float</h2>
+                <h2>Floats</h2>
                 <p>Declaration:</p>
                 <pre>
                 <code>
@@ -173,7 +173,7 @@
                 </pre>
             </div>
             <div class="mini">
-                <h2>String</h2>
+                <h2>Strings</h2>
                 <p>Declaration:</p>
                 <pre>
                 <code>
@@ -203,7 +203,7 @@
                 </pre>
             </div>
             <div class="mini">
-                <h2>Bool</h2>
+                <h2>Booleans</h2>
                 <p>Declaration:</p>
                 <pre>
                 <code>
@@ -237,22 +237,96 @@
                 </pre>
             </div>
         </div>
-        <div id="structs" class="container">
-            <h1>Custom Types</h1>
+        <div id="control-flow" class="container">
+            <h1>Control Flow</h1>
             <div class="mini">
-                <h2>What's a Struct?</h2>
-                <p>
-                    Structs can be used to groups related data together.  Structs can
-                    be composed of the built-in data types, or other structs.
+                <h2>If / Else</h2>
+                <p>All control flow statement bodies must be surrounded by braces.</p>
+                <pre>
+                <code>
+                    a: <span class="bl">bool</span> = <span class="gr">true</span>;
+                    <span class="bl">if</span> (a) {
+                        <span class="bl">print</span>(<span class="re">"This will print"</span>);
+                    }
+
+                    b: <span class="bl">int</span> = <span class="gr">11</span>;
+                    <span class="bl">if</span> (b < <span class="gr">10</span>) {
+                        <span class="bl">print</span>(<span class="re">"This will not print"</span>);
+                    } <span class="bl">else</span> {
+                        <span class="bl">print</span>(<span class="re">"This will print"</span>);
+                    }
+                </code>
+                </pre>
+            </div> 
+            <div class="mini">
+                <h2>For Loops</h2>
+                <p>C-style syntax.  This likely will change in the future.  The initializer and update
+                   statements can be omitted.  The 'break' keyword is not implemented, so be careful with infinite loops.</p>
+                <pre>
+                <code>
+                    <span class="bl">for</span> (i: <span class="bl">int</span> = <span class="gr">0</span>; i < <span class="gr">3</span>; i = i + <span class="gr">1</span>) {
+                        <span class="bl">print</span>(i);
+                    }
+
+                    <span class="gr">//This will print:</span>
+                    <span class="gr">//0</span>
+                    <span class="gr">//1</span>
+                    <span class="gr">//2</span>
+
+                    <span class="bl">//omitting intializer and update</span>
+                    j: <span class="bl">int</span> = <span class="gr">5</span>;
+                    <span class="bl">for</span> (; j >= <span class="gr">0</span>;) {
+                        <span class="bl">print</span>(i);
+                        j = j - <span class="gr">2</span>;
+                    }
+
+                    <span class="gr">//This will print:</span>
+                    <span class="gr">//5</span>
+                    <span class="gr">//3</span>
+                    <span class="gr">//1</span>
+                </code>
+                </pre>
+            </div> 
+            <div class="mini">
+                <h2>While Loops</h2>
+                <pre>
+                <code>
+                    <span class="bl">while</span> (i: <span class="bl">int</span> = <span class="gr">0</span> <= <span class="gr">5</span>) {
+                        <span class="bl">if</span> (i % <span class="gr">2</span> == <span class="gr">1</span>) {
+                            <span class="bl">print</span>(i);
+                        }
+                        i = i + <span class="gr">1</span>;
+                    }
+
+                    <span class="gr">//This will print:
+                    <span class="gr">//1
+                    <span class="gr">//3
+                    <span class="gr">//5
+                </code>
+                </pre>
+            </div> 
+        </div>
+        <div id="functions" class="container">
+            <h1>Functions</h1>
+            <h2>Declarations</h2>
+            <div class="mini">
+                <h2>Calls</h2>
+                <p>Important: All arguments are passed as references, so that if
+                the object is modified in the function, it will also be modified when after 
+                the function returns to the outerscope.  
+                If you want a copy to be used in the function call, explicitly create a copy to use as the function argument.
                 </p>
             </div>
+        </div>
+        <div id="classes" class="container">
+            <h1>Classes</h1>
             <div class="mini">
                 <h2>Declaration</h2>
-                </p>To declare a new struct, follow the name with double colons and 
+                </p>To declare a new class, follow the name with double colons and 
                 then the body.  All fields must be set to a default value.  </p>
                 <pre>
                 <code>
-                    Person :: {
+                    Person :: <span class="bl">class</span> {
                         name: <span class="bl">string</span>        = <span class="re">"John"</span>;
                         age: <span class="bl">int</span>            = <span class="gr">35</span>;
                         hair_color: <span class="bl">string</span>  = <span class="re">"Brown"</span>;
@@ -264,16 +338,16 @@
             <div class="mini">
                 <h2>Instantiating and Assignment</h2>
                 <p>
-                    New structs can be created in three ways: using default data, using custom data, or 
-                    copying the data from a different struct instance.  Struct instances can also
+                    New classes can be created in three ways: using default data, using custom data, or 
+                    copying the data from a different struct instance.  Class instances can also
                     be assigned a different instance, overwriting their data fields.  <br><br>
                     Note: a custom constructor must have the same number of arguments as datafields in the
-                    struct definition, and the order of appearance of the fields in the definition corresponds
+                    class definition, and the order of appearance of the fields in the definition corresponds
                     to the order of the arguments.
                 </p>
                 <pre>
                 <code>
-                    Dog :: {
+                    Dog :: <span class="bl">class</span> {
                         name: <span class="bl">string</span> = <span class="re">"Mittens"</span>;
                         age: <span class="bl">int</span> = <span class="gr">3</span>;
                     }
@@ -290,10 +364,10 @@
             </div>
             <div class="mini">
                 <h2>Accessing and Setting Fields</h2>
-                <p>Fields on structs can be accessed and set using dot notation.</p>
+                <p>Fields on classes can be accessed and set using dot notation.</p>
                 <pre>
                 <code>
-                    Car :: {
+                    Car :: <span class="bl">class</span> {
                         color: <span class="bl">string</span> = <span class="re">"red"</span>;
                         age: <span class="bl">int</span> <span class="gr">20</span>;
                     }
@@ -307,11 +381,14 @@
                 </pre>
             </div>
             <div class="mini">
+                <h2>Class Functions (Methods)</h2>
+            </div>
+            <div class="mini">
                 <h2>Usage</h2>
                 <p>A struct can be used just like any build-in type.</p>
                 <pre>
                 <code>
-                    Cat :: {
+                    Cat :: <span class="bl">class</span> {
                         name: <span class="bl">string</span> = <span class="re">"Whiskers"</span>;
                         age: <span class="bl">int</span> = <span class="gr">2</span>;
                     }
@@ -334,32 +411,10 @@
                 </pre>
             </div>
         </div>
-        <div id="control-flow" class="container">
-            <h1>Control Flow</h1>
-            <h2>If / Else</h2>
-            <h2>For Loops</h2>
-            <h2>While Loops</h2>
-        </div>
-        <div id="functions" class="container">
-            <h1>Functions and Procedures</h1>
-            <h2>Procedures</h2>
-            <p>No return value</p>
-            <h2>Functions</h2>
-            <p>Return value?</p>
-            <h2>Declarations</h2>
-            <div class="mini">
-                <h2>Calls</h2>
-                <p>Important: All arguments are passed as references, so that if
-                the object is modified in the function, it will also be modified when after 
-                the function returns to the outerscope.  
-                If you want a copy to be used in the function call, explicitly create a copy to use as the function argument.
-                </p>
-            </div>
-            <h2>Anonymous Functions</h2>
-            <h2>Closures</h2>
-        </div>
-        <div id="scopes-and-closures" class="container">
-            <h1>Scopes</h1>
+        <div id="anonymous-functions" class="container">
+            <h1>Anonymous Functions</h1>
+            <h2>Declaration</h2>
+            <h2>Capturing Variables</h2>
         </div>
         <div id="libraries" class="container">
             <h1>Libraries</h1>
