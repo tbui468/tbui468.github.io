@@ -18,7 +18,6 @@
     </section>
     <section class="main">
         <div id="about" class="container">
-            TODO: Class Functions (methods) - also redo classes to fit current system (eg no constructors yet)
             TODO: Libraries
             <h1>About</h1>
             <div class="mini">
@@ -371,7 +370,7 @@
 
                     <span class="gr">//function takes three parameters: integers 'a' and 'b', and a function 'fn'</span>
                     <span class="gr">//that has one integer parameter and returns an integer</span>
-                    sum :: (a: <span class="bl">int</span>, b: <span class="bl">int</span>, fn: (k: <span class="bl">int</span>) -> <span class="bl">int</span>) -> {
+                    sum :: (a: <span class="bl">int</span>, b: <span class="bl">int</span>, fn: (<span class="bl">int</span>) -> <span class="bl">int</span>) -> {
                         <span class="bl">print</span>(fn(a) + fn(b))
                     }
 
@@ -415,13 +414,11 @@
                         age: <span class="bl">int</span> = <span class="gr">3</span>
                     }
 
-                    <span class="gr">//creating three dogs</span>
-                    my_dog: Dog() <span class="gr">//using default name "Mittens" and age 3</span>
-                    other_dog: Dog(<span class="re">"Puppers"</span>, <span class="gr">2</span>) <span class="gr">//with name "Puppers" and age 2</span>
-                    copy_dog: Dog(other_dog) <span class="gr">//a copy of other_dog (with name "Puppers" and age 2)</span>
-
-                    <span class="gr">//assigning my_dog to copy_dog</span>
-                    my_dog = copy_dog <span class="gr">//now all three dogs have the same name and age</span>
+                    my_dog: Dog = Dog() <span class="gr">//name "Mittens" and age 3</span>
+                    copy_dog: Dog = my_dog <span class="gr">//a copy of my_dog</span>
+                    
+                    other_dog: Dog = Dog()
+                    other_dog = my_dog <span class="gr">//assigning to my_dog</span>
                 </code>
                 </pre>
             </div>
@@ -430,13 +427,15 @@
                 <p>Fields on classes can be accessed and set using dot notation.</p>
                 <pre>
                 <code>
+                    <span class="bl">import</span> io
+
                     Car :: <span class="bl">class</span> {
                         color: <span class="bl">string</span> = <span class="re">"red"</span>
-                        age: <span class="bl">int</span> <span class="gr">20</span>
+                        age: <span class="bl">int</span> = <span class="gr">20</span>
                     }
 
-                    my_car: Car(<span class="re">"blue"</span>, <span class="gr">5</span>)
-                    <span class="bl">print</span>(<span class="re">"My care is "</span> + my_car.color + <span class="re">"."</span>) <span class="gr">//"My car is blue."</span>
+                    my_car: Car = Car()
+                    <span class="bl">print</span>(<span class="re">"My care is "</span> + my_car.color + <span class="re">"."</span>) <span class="gr">//"My car is red."</span>
 
                     my_car.color = <span class="re">"green"</span>
                     <span class="bl">print</span>(<span class="re">"Then I painted it "</span> + my_car.color + <span class="re">"."</span>) <span class="gr">//"Then I painted it green."</span>
@@ -444,32 +443,68 @@
                 </pre>
             </div>
             <div class="mini">
-                <h2>Class Functions (Methods)</h2>
-            </div>
-            <div class="mini">
-                <h2>Usage</h2>
-                <p>A struct can be used just like any build-in type.</p>
+                <h2>Class Functions</h2>
+                <p>
+                    Class functions can be declared just like any other function.  Class functions are called using
+                    dot notation.
+                </p>
                 <pre>
                 <code>
+                    <span class="bl">import</span> io
+
                     Cat :: <span class="bl">class</span> {
                         name: <span class="bl">string</span> = <span class="re">"Whiskers"</span>
                         age: <span class="bl">int</span> = <span class="gr">2</span>
-                    }
 
-                    print_details :: (cat: Cat) {
-                        last_bit: <span class="bl">string</span> = <span class="re">" years old."</span>
-                        <span class="bl">if</span> (cat.age == <span class="gr">1</span>) {
-                            last_bit = <span class="re">" year old."</span> 
+                        speak :: () -> {
+                            <span class="bl">print</span>(name)
                         }
 
-                        <span class="bl">print</span>(cat.name + <span class="re">" is "</span> + <span class="bl">string</span>(cat.age) + last_bit)
+                        multiply_age :: (n: <span class="bl">int</span>) -> <span class="bl">int</span> {
+                            -> n * age
+                        }
                     }
 
-                    my_cat: Cat()
-                    other_cat: Cat(<span class="re">"Bubbles"</span>, <span class="gr">1</span>)
+                    my_cat: Cat = Cat()
+                    my_cat.speak() <span class="gr">//"Whiskers"</span>
+                    <span class="bl">print</span>(my_cat.multiply_age(<span class="gr">5</span>)) <span class="gr">//10</span>
+                </code>
+                </pre>
+            </div>
+            <div class="mini">
+                <h2>Inheritance</h2>
+                <p>
+                    Single inheritance is currently supported.  Base class fields and methods can be
+                    overwritten by the derived class.
+                </p>
+                <pre>
+                <code>
+                    <span class="bl">import</span> io
 
-                    print_details(my_cat) <span class="gr">//"Whiskers is 2 years old."</span>
-                    print_details(other_cat): <span class="gr">//"Bubbles is 1 year old."</span>
+                    Animal :: <span class="bl">class</span> {
+                        classification: <span class="bl">string</span> = <span class="re">"mammalia"</span> 
+                        get_verb :: () -> <span class="bl">string</span> {
+                            -> <span class="re">"run"</span>
+                        }
+                    }
+
+                    Deer :: <span class="bl">class</span> < Animal {
+                    }
+
+                    Shark :: <span class="bl">class</span> < Animal {
+                        classification: <span class="bl">string</span> = <span class="re">"chondrichthyes"</span>
+                        get_verb :: () -> <span class="bl">string</span> {
+                            -> <span class="re">"swim"</span>
+                        }
+                    }
+
+                    my_deer: Deer = Deer()
+                    my_shark: Shark = Shark()
+
+                    <span class="bl">print</span>(my_deer.classification) <span class="gr">//"mammalia"</span>
+                    <span class="bl">print</span>(my_deer.get_verb()) <span class="gr">//"run"</span>
+                    <span class="bl">print</span>(my_shark.classification) <span class="gr">//"chondrichthyes"</span>
+                    <span class="bl">print</span>(my_deer.get_verb()) <span class="gr">//"swim"</span>
                 </code>
                 </pre>
             </div>
