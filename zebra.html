@@ -18,21 +18,15 @@
     </section>
     <section class="main">
         <div id="about" class="container">
-            TODO: Libraries
+            TODO: add more types - file, class, instance, function<br>
+            TODO: Add syntax for inferred types<br>
+            TODO: add enums<br>
+            TODO: Run all code snippets to make sure it all works<br>
             <h1>About</h1>
-            <div class="mini">
-                <h2>Motivation</h2>
-                Zebra is a strongly typed scripting language. Kind of like C without the memory management.  
-            </div>
-            <div class="mini">
-                <h2>Current Progress</h2>
-                <p>Very much a work in progress.  Variables and functions are implemented (along with type checking), but the code isn't robust -
-                there are a lot of edges cases that haven't been tested. Currently working on adding structs to group data.  Classes are
-                currently not a priority.</p>
-                <br>
-                <p>The current implementation runs the program by walking down each branch in the AST (a tree-walk interpreter), which is slow.  
-                My future plan is to compile the source text into bytecode, and then run that on a virtual machine.</p>
-            </div>
+            <p>
+                Zebra is a strongly typed scripting language. Kind of like Python, but with non-optional strong/static/inferred typing.  And 
+                required use of braces (no more counting line spacing).  And without (hard to read) Python list comprehensions.
+            </p>
         </div>
         <div id="getting-started" class="container">
             <h1>Getting Started</h1>
@@ -304,6 +298,59 @@
                 </code>
                 </pre>
             </div> 
+            <div class="mini">
+                <h2>When / Is</h2>
+                <p>
+                    When / Is statements are similar to switch statements in C.  Use '*' to break out of statements.
+                </p>
+                <pre>
+                <code>
+                    i: <span class="bl">int</span> = <span class="gr">1</span>
+
+                    <span class="bl">when</span> i {
+                        <span class="bl">is</span> <span class="gr">1</span>
+                        <span class="bl">is</span> <span class="gr">2</span>
+                            { <span class="bl">print</span>(<span class="re">"one or two"</span>) * }
+                        <span class="bl">is</span> <span class="gr">3</span> 
+                            { <span class="bl">print</span>(<span class="re">"three"</span>) * }
+                        <span class="bl">is</span> <span class="gr">4</span> 
+                            { <span class="bl">print</span>(<span class="re">"four"</span>) * }
+                    }
+
+                    <span class="gr">//Will print "one or two"</span>
+                </code>
+                </pre>
+            </div> 
+            <div class="mini">
+                <h2>Foreach / In</h2>
+                <pre>
+                <code>
+                    my_list: <span class="bl">List</span>(<span class="bl">string</span>) = <span class="bl">List</span>(<span class="bl">string</span>)
+                    my_list.<span class="bl">add</span>(<span class="re">"first"</span>)
+                    my_list.<span class="bl">add</span>(<span class="re">"second"</span>)
+                    my_list.<span class="bl">add</span>(<span class="re">"third"</span>)
+
+                    <span class="bl">foreach</span> word: <span class="bl">string</span> <span class="bl">in</span> my_list {
+                        <span class="bl">print</span>(word)
+                    }
+
+                    <span class="gr">//first</span>
+                    <span class="gr">//second</span>
+                    <span class="gr">//third</span>
+
+                    <span class="gr">//can be used with integer ranges</span>
+                    <span class="bl">foreach</span> i: <span class="bl">int</span> <span class="bl">in</span> <span class="gr">1</span>..<span class="gr">5</span> {
+                        <span class="bl">print</span>(i * <span class="gr">2</span>)
+                    }
+
+                    <span class="gr">//2</span>
+                    <span class="gr">//4</span>
+                    <span class="gr">//6</span>
+                    <span class="gr">//8</span>
+                    <span class="gr">//10</span>
+                </code>
+                </pre>
+            </div>
         </div>
         <div id="functions" class="container">
             <h1>Functions</h1>
@@ -511,12 +558,106 @@
         </div>
         <div id="libraries" class="container">
             <h1>Libraries</h1>
-            <h2>Basic</h2>
-            <h2>InOut</h2>
-            <h2>List</h2>
-            <h2>Map</h2>
-            <h2>File</h2>
-            <h2>Network</h2>
+            <div class="mini">
+                <h2>Basic</h2>
+                <pre>
+                <code>
+                    //Casts a float or string to an integer
+                    int(n: [float | string]) -> int
+
+                    //Casts an int or string to a float
+                    float(n: [int | string)] -> float
+
+                    //Casts a float or float to an string
+                    string(n: [int | float]) -> string
+
+                    //returns the absolute value of a int or float
+                    abs(n: [int | float]) -> [int | float]
+
+                    //returns the type of an object as a string
+                    type(n: [any type]) -> string
+
+                    //returns system time 
+                    clock() -> int
+                </code>
+                </pre>
+            </div>
+            <div class="mini">
+                <h2>InOut</h2>
+                <pre>
+                <code>
+                    //Prints string to output
+                    print(n: [string]) -> 
+
+                    //Returns string from input
+                    read_input() -> string
+                </code>
+                </pre>
+            </div>
+            <div class="mini">
+                <h2>File</h2>
+                <pre>
+                <code>
+                    //Opens a file object using input path
+                    open(n: string) -> file
+                  
+                    //close file object
+                    close(n: file) ->
+
+                    //Return to beginning of file
+                    reset(n: file) -> 
+
+                    //Returns the next line from file n
+                    read_line(n: file) -> string
+
+                    //writes string m to file n
+                    write_line(n: file, m: string) ->
+                </code>
+                </pre>
+            </div>
+            <div class="mini">
+                <h2>List</h2>
+                <pre>
+                <code>
+                    my_list: <span class="bl">List</span>(<span class="bl">int</span>) = <span class="bl">List</span>(<span class="bl">int</span>)
+                    
+                    <span class="bl">print</span>(my_list.<span class="bl">size</span>()) <span class="gr">//0</span>
+
+                    my_list.<span class="bl">add</span>(<span class="gr">2</span>)
+                    my_list.<span class="bl">add</span>(<span class="gr">11</span>)
+                    my_list.<span class="bl">add</span>(-<span class="gr">9</span>)
+
+                    <span class="bl">for</span> i: <span class="bl">int</span> <span class="bl">in</span> my_list {
+                        <span class="bl">print</span>(my_list.<span class="bl">at</span>(i))
+                    }
+
+                    <span class="gr">//2</span>
+                    <span class="gr">//11</span>
+                    <span class="gr">//-9</span>
+                </code>
+                </pre>
+            </div>
+            <div class="mini">
+                <h2>Map</h2>
+                <pre>
+                <code>
+                    my_map: <span class="bl">Map</span>(<span class="bl">string</span>, <span class="bl">float</span>) = <span class="bl">Map</span>(<span class="bl">string</span>, <span class="bl">float</span>)
+
+                    <span class="bl">print</span>(my_map.<span class="bl">size</span>()) <span class="gr">//0</span>
+
+                    my_map.<span class="bl">add</span>(<span class="re">"dog"</span>, <span class="gr">32.2</span>)
+                    my_map.<span class="bl">add</span>(<span class="re">"cat"</span>, -<span class="gr">2.6</span>)
+
+                    <span class="bl">for</span> k: <span class="bl">string</span>, v: <span class="bl">float</span> <span class="bl">in</span> my_map {
+                        <span class="bl">print</span>(k + <span class="re">" "</span> + <span class="bl">string</span>(v))
+                    }
+
+                    <span class="gr">//dog 32.2</span>
+                    <span class="gr">//cat -2.6</span>
+                    <span class="gr">//Note: order of key/value pairs may vary</span>
+                </code>
+                </pre>
+            </div>
         </div>
     </section>
   </body>
