@@ -23,14 +23,9 @@
         </section>
         <section class="main">
             <div id="about" class="container">
-                TODO: add more types - file, class, instance, function<br>
-                TODO: Add syntax for inferred types<br>
-                TODO: add enums<br>
-                TODO: Run all code snippets to make sure it all works<br>
-                TODO: have side menu expand/collapse to show subsections when clicked on
                 <h1>About</h1>
                 <p>
-                Zebra is a strongly typed scripting language. Kind of like Python, but with non-optional strong/static/inferred typing.  And 
+                Cebra is a strongly typed scripting language. Kind of like Python, but with non-optional strong/static/inferred typing.  And 
                 required use of braces (no more counting line spacing).  And without (hard to read) Python list comprehensions.
                 </p>
             </div>
@@ -38,14 +33,23 @@
                 <h1>Getting Started</h1>
                 <div class="mini">
                     <h2>Building From Source</h2>
-                    <p>The source code is available on Github at https://github.com/tbui468/zebra.  I'm not distributing executables at the time, so you'll
-                    have to build on your own machine.  I tested on MSVC and Clang, but it should compile fine using GCC.
-                    CMake is needed to generate the build system.  The following commands will use the default build system on your machine.  
-                    The executable should be in zebra/build/src/Debug</p>
+                    <p>The source code is available on Github at https://github.com/tbui468/cebra.  I'm not distributing executables at the time, so you'll
+                    have to build it for your machine. 
+                    You'll need a c compiler (such as gcc or clang), a build tool (make, ninja, etc), and a build system generator (we'll use CMake).</br></br>
+
+                On Windows, installing Visual Studio will include a compiler and buid tool.  Then install CMake and be sure to include it in the path.</br></br>
+
+                    On MacOS, CMake (and the compiler + build tool) can easily be installed using Homebrew.
+                    Follow steps 1 and 2 here https://cse.engineering.nyu.edu/cs653/OpenGLCompilationMacLinux8.pdf to get CMake.
+                    Homebrew should also recognize any missing dependencies (c compiler and build tool) and tell you what you need to install.</br></br>
+                    </p>
+                    <p> The following commands will use the default configurations, build tool and compiler.  Consult the CMake docs for more build options.
+                    Once built, the executable should be in cebra/build/src/Debug if using Windows and cebra/build/src on Linux/MacOS (probably).</p>
+
                     <pre>
                 <code>
-                    git clone https://github.com/tbui468/zebra
-                    cd zebra
+                    git clone https://github.com/tbui468/cebra
+                    cd cebra
                     mkdir build
                     cd build
                     cmake ..
@@ -54,50 +58,54 @@
                     </pre>
                 </div>
                 <div class="mini">
-                    <h2>REPL</h2>
-                    <p>Not yet implemented</p>
-                </div>
-                <div class="mini">
-                    <h2>Running .zbr Files</h2>
-                    <p>Run a script using the following command:</p>
+                    <h2>Running .cbr Files</h2>
+                    <p>A script can be interpreted if used as the first argument. There is an example program writte in cebra called
+                    'interpreter.cbr' in the 'examples' directory.  For example, if the executable is name 'Cebra' and is in cebra/build/src, then the
+                    following will run the executable with the script in the examples directory.  The ./ in front of the executable 
+                    can be omitted on Windows.</p>
                     <pre>
                 <code>
-                    zebra [script name]
+                    ./Cebra ../../examples/interpreter.cbr
                 </code>
                     </pre>
                 </div>
                 <div class="mini">
+                    <h2>REPL</h2>
+                    <p>Running the 'cebra' command without a script argument will open the repl.  Here's a sample Hello world and variable declarations.</p>
+                    </br>
+                    <code>
+                        ./Cebra</br></br>
+
+                        >>> print("Hello world")</br>
+                        Hello world</br>
+                        >>> a := 2</br>
+                        >>> b := 3</br>
+                        >>> print(a + b)</br>
+                        5</br>
+                    </code>
+                </div>
+                <div class="mini">
                     <h2>Code Example</h2>
-                    <p>Here's some example code to get you started on the syntax.  We compute the 1st, 5th, and 10th fibonacci numbers
-                    and initialize a class called ThreeNumbers to hold them.  Then we change our minds and 
-                    replace the second data field with the 6th fibonacci number.</p>
+                    <p>Here's some example code to get you started on the syntax.  See 'interpreter.cbr' in the examples directory
+                    for a more extensive example.</p>
                     <pre>
                 <code>
-                    <span class="gr">//Define a class to hold three integers.</span>
-                    ThreeInts :: <span class="bl">class</span> {
-                        name: <span class="bl">string</span> = <span class="re">"default"</span>
-                        first: <span class="bl">int</span> = <span class="gr">0</span>
-                        second: <span class="bl">int</span> = <span class="gr">0</span>
-                        third: <span class="bl">int</span> = <span class="gr">0</span>
-                    }
-
                     <span class="gr">//Define a function to compute the nth number in the fibonacci sequence</span>
-                    fib :: (n: <span class="bl">int</span>) -> <span class="bl">int</span> {
+                    fib :: (n: <span class="bl">int</span>) -> <span class="bl">(int)</span> {
                         <span class="bl">if</span> n < <span class="gr">2</span> {
-                            <span class="bl">return</span> n
+                            <span class="bl">-></span> n
                         } <span class="bl">else</span> {
-                            <span class="bl">return</span> fib(n - <span class="gr">1</span>) + fib(n - <span class="gr">2</span>)
+                            <span class="bl">-></span> fib(n - <span class="gr">1</span>) + fib(n - <span class="gr">2</span>)
                         }
                     }
 
-                    my_nums: ThreeInts(<span class="re">"Fibonacci numbers!"</span>, fib(<span class="gr">1</span>), fib(<span class="gr">5</span>), fib(<span class="gr">10</span>))
 
-                    <span class="bl">print</span>(my_nums)     <span class="gr">//"Fibonacci numbers!", 1, 5, 55</span>
+                    <span class="bl">print</span>(fib(10))     <span class="gr">//55</span>
+                    a: int = fib(10) + 5 <span class="gr">//declare a new variable and explicitly declare the type</span>
+                    <span class="bl">print</span>(a) <span class="gr">//60</span>
+                    b := 2.2  <span class="gr">//declare a new variable and infer the type based on the assignment</span>
+                    <span class="bl">print</span>(b) <span class="gr">//2.20000</span>
 
-                    <span class="gr">//I changed my mind - let's replace the second number.</span>
-                    my_nums.second = fib(<span class="gr">6</span>)
-
-                    <span class="bl">print</span>(my_nums)     <span class="gr">//"Fibonacci numbers!", 1, 8, 55</span>
                 </code>
                     </pre>
                 </div>
