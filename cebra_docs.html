@@ -409,16 +409,14 @@
     i: int = 1
 
     when i {
-        is 1
-        is 2
-            { print("one or two") * }
-        is 3 
-            { print("three") * }
-        is 4 
-            { print("four") * }
+        is 1 { print("one") }
+        is 2 { print("two") }
+        is 3 { print("three") }
+        is 4 { print("four") }
+        else { print("other") }
     }
 
-    //Will print "one or two"
+    //Will print "one"
                     </code>
                     </pre>
                     <section class="col-1-4">
@@ -437,10 +435,10 @@
                 <div class="row">
                     <pre class="code-box col-3-4">
                         <code>
-    my_list: List(string) = List(string)
-    my_list.add("first")
-    my_list.add("second")
-    my_list.add("third")
+    my_list: List<string> = List<string>()
+    my_list[0] = "first"
+    my_list[1] = "second"
+    my_list[2] = "third"
 
     foreach word: string in my_list {
         print(word)
@@ -449,17 +447,6 @@
     //first
     //second
     //third
-
-    //can be used with integer ranges
-    foreach i: int in 1..5 {
-        print(i * 2)
-    }
-
-    //2
-    //4
-    //6
-    //8
-    //10
                         </code>
                     </pre>
                     <section class="col-1-4">
@@ -474,7 +461,7 @@
                     <section class="col-3-4">
                     <h1>Functions</h1>
                         <h2>Declarations</h2>
-                        <p>The following snippet declares a functin called 'double'.  'double' has one integer paramter 'n'.
+                        <p>The following snippet declares a function called 'double'.  'double' has one integer paramter 'n'.
                         The return type is also an integer.  The function body returns 2 multiplied by n. <br><br>
                         Function 'print_double' has the same parameter, but does not return a value (indicated by leaving
                         the return type blank).  The return arrow inside the body of a function with no return is optional.
@@ -486,21 +473,19 @@
                 <div class="row">
                     <pre class="code-box col-3-4">
                     <code>
-    import io
-
     //takes one integer as a parameters, and returns an integer
-    double :: (n: int) -> int {
+    double :: (n: int) -> (int) {
         -> 2 * n
     }
 
     //takes in one integer as a parameter, and has no return value.
-    print_double :: (n: int) -> {
+    print_double :: (n: int) -> () {
         print(2 * n)
         -> //optional return statement
     }
 
     //takes in two floats as parameters, and has no return value.  
-    early_return :: (n: float, m: float) -> {
+    early_return :: (n: float, m: float) -> () {
         if n < 5.0 {
             ->       //will return from function, and skip calling 'print(n * m)' below
         }
@@ -516,7 +501,8 @@
                     <section class="col-3-4">
                         <h2>Calls</h2>
                         <p>
-                        Functions are called using the keyword followed by any arguments surrounded by parenthesis
+                        Functions are called using the keyword followed by any arguments surrounded by parenthesese.  Functions
+                        can return more than one value.
                         </p>
                     </section>
                     <section class="col-1-4">
@@ -525,14 +511,20 @@
                 <div class="row">
                     <pre class="code-box col-3-4">
                         <code>
-    import io
-
-    greeting :: (name: string) -> string {
+    greeting :: (name: string) -> (string) {
         -> "Hello, " + name + "."
     }
 
     print(greeting("Tim"))  //"Hello, Tim."
     print(greeting("Mittens")) //"Hello, Mittens."
+
+    returns_two :: () -> (int, int) {
+        -> 1, 5
+    }
+
+    x, y := returns_two()
+    print(x) //1
+    print(y) //5
                         </code>
                     </pre>
                     <section class="col-1-4">
@@ -556,7 +548,8 @@
         -> fun(a, b)   
     }    
 
-    print(op(1, 2, (a: int, b: int) -> (int) { -> a + b })) //3
+    result := op(1, 2, (a: int, b: int) -> (int) { -> a + b })
+    print(result) //3
                         </code>
                     </pre>
                     <section class="col-1-4">
@@ -571,8 +564,10 @@
                 <div class="row">
                     <section class="col-3-4">
                     <h2>Declaration</h2>
-                    </p>To declare a new class, follow the name with double colons and 
-                    then the body.  All fields must be set to a default value.  </p>
+                    </p>To declare a new struct, follow the name with double colons and 
+                    then the body.  All fields must be set to a default value except for
+                    fields using a custom struct type - those can be set to 'nil' and assigned
+                    later.  Function pointers can also be set to 'nil'.</p>
                     </section>
                     <section class="col-1-4">
                     </section>
@@ -580,11 +575,14 @@
                 <div class="row">
                     <pre class="code-box col-3-4">
                         <code>
-    Person :: class {
+    Person :: struct {
         name: string        = "John"
         age: int            = 35
         hair_color: string  = "Brown"
         height: float       = 175.1
+        friends             := List<Person>()
+        best_friend: Person = nil
+        talk: () -> (string) = nil
     }
                         </code>
                     </pre>
@@ -595,12 +593,8 @@
                     <section class="col-3-4">
                         <h2>Instantiating and Assignment</h2>
                         <p>
-                        New classes can be created in three ways: using default data, using custom data, or 
-                        copying the data from a different struct instance.  Class instances can also
-                        be assigned a different instance, overwriting their data fields.  <br><br>
-                        Note: a custom constructor must have the same number of arguments as datafields in the
-                        class definition, and the order of appearance of the fields in the definition corresponds
-                        to the order of the arguments.
+                            A new struct of a given type can be instantiated using '()', similar to calling
+                            a function.  
                         </p>
                     </section>
                     <section class="col-1-4">
@@ -609,16 +603,12 @@
                 <div class="row">
                     <pre class="code-box col-3-4">
                         <code>
-    Dog :: class {
+    Dog :: struct {
         name: string = "Mittens"
         age: int = 3
     }
 
-    my_dog: Dog = Dog() //name "Mittens" and age 3
-    copy_dog: Dog = my_dog //a copy of my_dog
-
-    other_dog: Dog = Dog()
-    other_dog = my_dog //assigning to my_dog
+    d: Dog = Dog()
                         </code>
                     </pre>
                     <section class="col-1-4">
@@ -627,7 +617,7 @@
                 <div class="row">
                     <section class="col-3-4">
                         <h2>Accessing and Setting Fields</h2>
-                        <p>Fields on classes can be accessed and set using dot notation.</p>
+                        <p>Properties on structs can be accessed and set using dot notation.</p>
                     </section>
                     <section class="col-1-4">
                     </section>
@@ -635,55 +625,23 @@
                 <div class="row">
                     <pre class="code-box col-3-4">
                         <code>
-    import io
-
-    Car :: class {
+    Car :: struct {
         color: string = "red"
         age: int = 20
+        description: (car: Car) -> (string) = nil
+    }
+
+    to_string :: (car: Car) -> (string) {
+        print("This " + car.age as string + " year-old car is " + car.color)
     }
 
     my_car: Car = Car()
-    print("My care is " + my_car.color + ".") //"My car is red."
+    my_car.description = to_string
+
+    my_car.description() //This 20 year-old car is red
 
     my_car.color = "green"
-    print("Then I painted it " + my_car.color + ".") //"Then I painted it green."
-                        </code>
-                    </pre>
-                    <section class="col-1-4">
-                    </section>
-                </div>
-                <div class="row">
-                    <section class="col-3-4">
-                        <h2>Class Functions</h2>
-                        <p>
-                        Class functions can be declared just like any other function.  Class functions are called using
-                        dot notation.
-                        </p>
-                    </section>
-                    <section class="col-1-4">
-                    </section>
-                </div>
-                <div class="row">
-                    <pre class="code-box col-3-4">
-                        <code>
-    import io
-
-    Cat :: class {
-        name: string = "Whiskers"
-        age: int = 2
-
-        speak :: () -> {
-            print(name)
-        }
-
-        multiply_age :: (n: int) -> int {
-            -> n * age
-        }
-    }
-
-    my_cat: Cat = Cat()
-    my_cat.speak() //"Whiskers"
-    print(my_cat.multiply_age(5)) //10
+    my_car.description() //This 20 year-old car is green
                         </code>
                     </pre>
                     <section class="col-1-4">
@@ -693,8 +651,8 @@
                     <section class="col-3-4">
                         <h2>Inheritance</h2>
                         <p>
-                        Single inheritance is currently supported.  Base class fields and methods can be
-                        overwritten by the derived class.
+                        Single inheritance is supported.  Base structs fields can be
+                        overwritten by the derived struct.
                         </p>
                     </section>
                     <section class="col-1-4">
@@ -703,32 +661,22 @@
                 <div class="row">
                     <pre class="code-box col-3-4">
                         <code>
-    import io
-
-    Animal :: class {
+    Animal :: struct {
         classification: string = "mammalia" 
-        get_verb :: () -> string {
-            -> "run"
-        }
     }
 
-    Deer :: class < Animal {
+    Deer :: struct < Animal {
     }
 
-    Shark :: class < Animal {
+    Shark :: struct < Animal {
         classification: string = "chondrichthyes"
-        get_verb :: () -> string {
-            -> "swim"
-        }
     }
 
     my_deer: Deer = Deer()
     my_shark: Shark = Shark()
 
     print(my_deer.classification) //"mammalia"
-    print(my_deer.get_verb()) //"run"
     print(my_shark.classification) //"chondrichthyes"
-    print(my_deer.get_verb()) //"swim"
                         </code>
                     </pre>
                     <section class="col-1-4">
@@ -741,8 +689,25 @@
                 <h1>Enumerations</h1>
                 <div class="row">
                     <section class="col-3-4">
-                        Coming soon.
+                        Enumerations can be created using the following syntax.  Assignment is done using dot notation.
                     </section>
+                    <section class="col-1-4">
+                    </section>
+                </div>
+                <div class="row">
+                    <pre class="code-box col-3-4">
+                        <code>
+    Token :: enum {
+        plus
+        minus
+        star
+        slash
+    }
+
+    token_1: Token = Token.plus
+    token_2 := Token.star
+                        </code>
+                    </pre>
                     <section class="col-1-4">
                     </section>
                 </div>
@@ -754,6 +719,12 @@
                 <div class="row">
                     <section class="col-3-4">
                         <h2>List</h2>
+                        <p>
+                        Lists can contain data of the same type.  The type must be specified in < > when
+                        creating the list. [] notation can be used to access and set the elements in a List.
+                        Lists also have the 'size' property which can be used to 
+                        Like struct instances and Maps, Lists are passed by reference.
+                        </p>
                     </section>
                     <section class="col-1-4">
                     </section>
@@ -761,16 +732,16 @@
                 <div class="row">
                     <pre class="code-box col-3-4">
                         <code>
-    my_list: List(int) = List(int)
+    my_list: List<int> = List<int>()
 
-    print(my_list.size()) //0
+    print(my_list.size) //0
 
-    my_list.add(2)
-    my_list.add(11)
-    my_list.add(-9)
+    my_list[0] = 2
+    my_list[1] = 11
+    my_list[2] = -9
 
     for i: int in my_list {
-        print(my_list.at(i))
+        print(my_list[i])
     }
 
     //2
@@ -783,7 +754,11 @@
                 </div>
                 <div class="row">
                     <section class="col-3-4">
-                    <h2>Map</h2>
+                        <h2>Map</h2>
+                        <p>
+                        Each entry in a Map is a key-value pair.  The key is a string type
+                        and the value type is specified at creation of the Map using < >.
+                        </p>
                     </section>
                     <section class="col-1-4">
                     </section>
@@ -791,15 +766,15 @@
                 <div class="row">
                     <pre class="code-box col-3-4">
                         <code>
-    my_map: Map(string, float) = Map(string, float)
+    my_map: Map<float> = Map<float>()
 
-    print(my_map.size()) //0
+    print(my_map.size) //0
 
-    my_map.add("dog", 32.2)
-    my_map.add("cat", -2.6)
+    my_map["dog"] = 32.2
+    my_map["cat"] = -2.6
 
-    for k: string, v: float in my_map {
-        print(k + " " + string(v))
+    foreach k: string in my_map.keys {
+        print(k + " " + my_map[k])
     }
 
     //dog 32.2
@@ -817,8 +792,21 @@
                 <h1>Modules</h1>
                 <div class="row">
                     <section class="col-3-4">
-                        Coming soon.
+                        <p>
+                        Modules can be imported into the current script using the 'import' keyword.  Cebra will look
+                        for .cbr files in the same directory as the running script.  The following example imports a module
+                        name vec.cbr and calls a function 'vec3'.
+                        </p>
                     </section>
+                    <section class="col-1-4">
+                    </section>
+                    <pre class="code-box col-3-4">
+                        <code>
+    import vec //do not include the .cbr extension
+
+    x, y, z := vec3() 
+                        </code>
+                    </pre>
                     <section class="col-1-4">
                     </section>
                 </div>
@@ -829,7 +817,7 @@
                 <h1>Standard Library</h1>
                 <div class="row">
                     <section class="col-3-4">
-                        <h2>Basic</h2>
+                        <h2>Input / Output</h2>
                     </section>
                     <section class="col-1-4">
                     </section>
@@ -837,43 +825,8 @@
                 <div class="row">
                     <pre class="code-box col-3-4">
                         <code>
-    //Casts a float or string to an integer
-    int(n: [float | string]) -> int
-
-    //Casts an int or string to a float
-    float(n: [int | string)] -> float
-
-    //Casts a float or float to an string
-    string(n: [int | float]) -> string
-
-    //returns the absolute value of a int or float
-    abs(n: [int | float]) -> [int | float]
-
-    //returns the type of an object as a string
-    type(n: [any type]) -> string
-
-    //returns system time 
-    clock() -> int
-                        </code>
-                    </pre>
-                    <section class="col-1-4">
-                    </section>
-                </div>
-                <div class="row">
-                    <section class="col-3-4">
-                        <h2>InOut</h2>
-                    </section>
-                    <section class="col-1-4">
-                    </section>
-                </div>
-                <div class="row">
-                    <pre class="code-box col-3-4">
-                        <code>
-    //Prints string to output
-    print(n: [string]) -> 
-
-    //Returns string from input
-    read_input() -> string
+    print()
+    input()
                         </code>
                     </pre>
                     <section class="col-1-4">
@@ -889,20 +842,9 @@
                 <div class="row">
                     <pre class="code-box col-3-4">
                         <code>
-    //Opens a file object using input path
-    open(n: string) -> file
-
-    //close file object
-    close(n: file) ->
-
-    //Return to beginning of file
-    reset(n: file) -> 
-
-    //Returns the next line from file n
-    read_line(n: file) -> string
-
-    //writes string m to file n
-    write_line(n: file, m: string) ->
+    open()
+    close()
+    read_line()
                         </code>
                     </pre>
                     <section class="col-1-4">
