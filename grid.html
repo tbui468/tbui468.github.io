@@ -1,0 +1,127 @@
+<html>
+  <head>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@2.0.0/dist/tf.min.js"></script>
+    <link rel="stylesheet" href="grid.css">
+  </head>
+  <body>
+    <section class="grid">
+      <div class="col-1-4">
+        <h1>
+          Interactive Neural Networks
+        </h1>
+        <div class="text">
+          <p>
+          Each network takes in two inputs, (x, y) of each point, and passes it through
+          2 fully-connected feedforward layers with 12 neurons each.  The output is the predicted color.
+          Set initial conditions, and the press <em>Restart Networks</em> to start training.
+          The learning rate and weight decay can also be modified during training.
+          </p>
+        </div>
+        <br>
+        <select name="w_init_1" id="w_init_1">
+          <option value="gaussian">Gaussian</option>
+          <option value="xavier">Xavier</option>
+          <option value="kaiming">Kaiming</option>
+        </select>
+        <label for"w_init_1">Network 1 Initialization</label>
+        <br><br>
+        <select name="w_init_2" id="w_init_2">
+          <option value="gaussian">Gaussian</option>
+          <option value="xavier">Xavier</option>
+          <option value="kaiming">Kaiming</option>
+        </select>
+        <label for"w_init_2">Network 2 Initialization</label>
+        <br><br>
+        <input type="checkbox" class="same_init_cb" id="same_init_cb" onclick="html_same_init();">
+        <label for"same_init_cb">Initialize both networks to same weights</label>
+        <br><br>
+        <button onclick="html_restart_network()">Restart Networks</button>
+        <br><br><br><br><br>
+        <div class="text">
+          <p>
+          Use the <em>Generate Data</em> button to create different data distributions.  
+          Click on <em>Split Data</em> to randomly split the points into training and validation datasets
+          with probability P and 1-P, respectively.
+          The circles represent training data, and the squares validation data.
+          Custom data can also be create using the following mouse/keyboard inputs:
+          <ul class="text">
+            <li>left click: create red point</li>
+            <li>shift + left click: create green point</li>
+            <li>ctrl + left click: create blue point</li>
+            <li>alt + left click: delete closest point</li>
+          </ul>
+          </p>
+        </div>
+        <br>
+        <select name="data_type" id="data_type">
+          <option value="random_data">Random</option>
+          <option value="circle_data">Circular</option>
+          <option value="spiral_data">Spiral</option>
+        </select>
+        <button onclick="html_generate_data()">Generate Data</button>
+        <br><br>
+        <input type="number" id="split" name="split" value="0.9" step="0.01" max="1.0" min="0.0">
+        <button onclick="html_split_indices()">Split Data</button>
+        <br>
+      </div><!--
+      --><div class="col-1-4" id="plot">
+        <br>
+        <canvas id="canvas" width="256px" height="256px"></canvas>
+        <br><br>
+        <input type="number" id="lr" name="lr" value="0.01" step="0.01">
+        <button onclick="html_set_lr()">Set Learning Rate</button><br><br>
+        <input type="number" id="wd_1" name="wd_1" value="0.0001" step="0.0001">
+        <button onclick="html_set_wd1()">Set Weight Decay</button>
+        <br><br><br>
+        <canvas id="canvas2" width="256px" height="256px"></canvas>
+        <br><br>
+        <input type="number" id="lr_2" name="lr_2" value="0.01" step="0.01">
+        <button onclick="html_set_lr2()">Set Learning Rate</button><br><br>
+        <input type="number" id="wd_2" name="wd_2" value="0.0001" step="0.0001">
+        <button onclick="html_set_wd2()">Set Weight Decay</button>
+      </div><!--
+      --><div class="col-1-2">
+        <section>
+          <h2>Network 1</h2>
+        </section>
+        <canvas id="loss_plot" width="512px" height="256px"></canvas>
+        <section class="grid">
+          <div class="col-1-2">
+            <input type="checkbox" class="train_loss_cb" id="train_loss_cb" onclick="html_redraw_plot();" checked>
+            <label for"train_loss_cb">Training Loss</label><br>
+            <input type="checkbox" class="train_acc_cb" id="train_acc_cb" onclick="html_redraw_plot();" checked>
+            <label for"train_acc_cb">Training Acc.</label><br>
+          </div><!--
+          --><div class="col-1-2">
+            <input type="checkbox" class="valid_loss_cb" id="valid_loss_cb" onclick="html_redraw_plot();" checked>
+            <label for"valid_loss">Validation Loss</label><br>
+            <input type="checkbox" class="valid_acc_cb" id="valid_acc_cb" onclick="html_redraw_plot();" checked>
+            <label for"valid_acc">Validation Acc.</label><br>
+          </div>
+        </section>
+        <br>
+        <br>
+        <section>
+          <h2>Network 2</h2>
+        </section>
+        <canvas id="loss_plot_2" width="512px" height="256px"></canvas>
+        <section class="grid">
+          <div class="col-1-2">
+            <input type="checkbox" class="train_loss_cb" id="train_loss_cb_2" onclick="html_redraw_plot();" checked>
+            <label for"train_loss_cb">Training Loss</label><br>
+            <input type="checkbox" class="train_acc_cb" id="train_acc_cb_2" onclick="html_redraw_plot();" checked>
+            <label for"train_acc_cb">Training Acc.</label><br>
+          </div><!--
+          --><div class="col-1-2">
+            <input type="checkbox" class="valid_loss_cb" id="valid_loss_cb_2" onclick="html_redraw_plot();" checked>
+            <label for"valid_loss">Validation Loss</label><br>
+            <input type="checkbox" class="valid_acc_cb" id="valid_acc_cb_2" onclick="html_redraw_plot();" checked>
+            <label for"valid_acc">Validation Acc.</label><br>
+          </div>
+        </section>
+      </div>
+    </section>
+  </body>
+</html>
+
+<script src="grid_script.js" type="text/javascript" language="javascript"></script>

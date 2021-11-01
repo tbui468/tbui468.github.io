@@ -1,0 +1,178 @@
+/* http://meyerweb.com/eric/tools/css/reset/ 
+ *    v2.0 | 20110126
+ *       License: none (public domain)
+ *       */
+
+:root {
+  --c_light: white;
+  --c_dark: black;
+  --c_dark_alt: darkgray;
+  --c_yellow: #b58900;
+  --c_orange: #cb4b16;
+  --c_red: #dc322f;
+  --c_magenta: #d33682;
+  --c_violet: #6c71c4;
+  --c_blue: #268bd2;
+  --c_cyan: #2aa198;
+  --c_green: #859900;
+}
+
+
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed, 
+figure, figcaption, footer, header, hgroup, 
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font-size: 100%;
+  font: inherit;
+  vertical-align: baseline;
+}
+/* HTML5 display-role reset for older browsers */
+article, aside, details, figcaption, figure, 
+footer, header, hgroup, menu, nav, section {
+  display: block;
+}
+body {
+  line-height: 1;
+  background-color: var(--c_light);
+}
+ol, ul {
+/*  list-style: none;*/
+}
+blockquote, q {
+  quotes: none;
+}
+blockquote:before, blockquote:after,
+q:before, q:after {
+  content: '';
+  content: none;
+}
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+
+h1 {
+  color: var(--c_dark);
+  font-family: Arial, sans-serif;
+  font-size: 24px;
+  padding: 12px;
+}
+h2 {
+  color: var(--c_dark);
+  font-family: Arial, sans-serif;
+  font-size: 18px;
+}
+
+label {
+  color: var(--c_dark);
+  font-family: Arial, sans-serif;
+  font-size: 16px;
+}
+
+li {
+  list-style-type: disc;
+  font-family: Arial, sans-serif;
+}
+
+p {
+  font-family: Arial, sans-serif;
+}
+
+
+.container {
+  margin: 0 auto;
+  width: 960px;
+  padding-left: 0px;
+  padding-right: 0px;
+  padding-top: 20px;
+}
+
+.grid {
+  margin: 0 auto;
+  width: 100%;
+  padding-left: 0px;
+  padding-right: 0px;
+  padding-top: 20px;
+}
+
+.col-1-4 {
+  width: 25%;
+  display: inline-block;
+  vertical-align: top;
+  padding-left: 0px;
+  padding-right: 0px;
+  text-align: center;
+}
+
+.col-1-2 {
+  width: 50%;
+  display: inline-block;
+  vertical-align: top;
+  padding-left: 0px;
+  padding-right: 0px;
+  text-align: center;
+}
+
+
+#loss_plot, #loss_plot_2 {
+  margin-left: -100px;
+}
+
+.title {
+  text-align: center;
+}
+
+input[type=checkbox] {
+  height: 16px;
+  width: 16px;
+  appearance: none;
+  background-color: var(--c_light);
+  border: 1px solid var(--c_dark);
+}
+
+input[type=checkbox]:checked {
+  content: '\2713';
+}
+
+
+.train_loss_cb:checked {
+  background-color: var(--c_orange);
+}
+.train_acc_cb:checked {
+  background-color: var(--c_magenta);
+}
+.valid_loss_cb:checked {
+  background-color: var(--c_violet);
+}
+.valid_acc_cb:checked {
+  background-color: var(--c_cyan);
+}
+.same_init_cb:checked {
+  background-color: var(--c_dark_alt);
+}
+
+#canvas {
+  border: 3px solid var(--c_dark);
+  border-radius: 1%;
+}
+#canvas2 {
+  border: 3px solid var(--c_dark);
+  border-radius: 1%;
+}
+
+.text {
+  text-align: left;  
+  padding-left: 30px;
+}
