@@ -85,12 +85,26 @@ a {
     line-height: 1.6;
     letter-spacing: 1px;
     word-spacing: 1px;
-    color: white;
+    color: #567;
     text-decoration: none;
 }
 
 a:hover {
+    color: black;
+}
+
+a.alt {
+    font-size: 14px;
+    font-family: Arial;
+    line-height: 1.6;
+    letter-spacing: 1px;
+    word-spacing: 1px;
     color: #567;
+    text-decoration: none;
+}
+
+a.alt:hover {
+    color: #28d;
 }
 
 p {
@@ -154,7 +168,7 @@ span.code {
 
 /* When you mouse over the navigation links, change their color */
 .sidenav a:hover {
-    color: white;
+    color: #28d;
 }
 
 
@@ -225,18 +239,25 @@ span.code {
     width: 1080px;
     padding-left: 0px;
     padding-right: 0px;
-    margin-bottom: 40px;
+    margin-bottom: 0px;
     background-color: #ffe;
     border: 2px solid #aaa;
 }
 
 .container {
-    width: 960px;
+    width: 1080px;
     padding-left: 0px;
     padding-right: 0px;
-    padding-top: 60px;
+    padding-top: 80px;
+}
+
+.section {
     padding-bottom: 40px;
-    margin: 0 auto;
+}
+
+.bottom-border {
+    margin-top: 80px;
+    border-bottom: 2px solid lightgray;
 }
 
 .container-centered {
@@ -305,6 +326,12 @@ span.code {
     text-align: left;
     border: 2px solid #899;
     color: #567;
+}
+
+.btn:disabled {
+    pointer-events: none;
+    border: 2px solid #cdd;
+    color: #cdd;
 }
 
 /* Darker background on mouse-over */
