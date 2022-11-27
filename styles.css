@@ -8,7 +8,7 @@ p {
   color: green;
 }
 
-header a {
+a {
   border: 1px solid black;
   text-decoration: none;
   border-radius: 15px;
