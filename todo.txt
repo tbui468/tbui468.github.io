@@ -1,0 +1,3 @@
+Don't use javascript to swap pages since this disables ability to use back button in browser
+    just make html pages for each and link them
+    easy
