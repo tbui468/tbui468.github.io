@@ -3,18 +3,56 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>Emscripten-Generated Code</title>
+    <title>Logic Gate Simulator</title>
     <style>body {
   font-family: arial;
   margin: 0;
   padding: none;
 }
 
-.emscripten { padding-right: 0; margin-left: auto; margin-right: auto; display: block; }
+.emscripten { padding-right: 0; margin-left: auto; margin-right: auto; display: none; }
 div.emscripten { text-align: center; }
-div.emscripten_border { border: 1px solid black; }
+div.emscripten_border { }
 /* the canvas *must not* have any border or padding, or mouse coords will be wrong */
 canvas.emscripten { border: 0px none; background-color: black; }
+
+.container {
+    display: flex;
+    justify-content: left;
+    margin-left: 128px;
+}
+
+textarea {
+    resize: none;
+}
+
+section {
+    margin-top: 128px;
+    margin-bottom: 64px;
+}
+
+h2 {
+    margin-left: 128px;
+}
+
+h1 {
+    text-align: center;
+}
+
+table {
+    margin-bottom: 32px;
+    margin-left: 32px;
+    border-collapse: collapse;
+    border: 1px solid black;
+}
+
+th {
+    border-bottom: 1px solid black;
+}
+
+th, td {
+    text-align: center;
+}
 
 #emscripten_logo {
   display: inline-block;
@@ -103,8 +141,105 @@ canvas.emscripten { border: 0px none; background-color: black; }
 </style>
   </head>
   <body>
+    <div class="spinner" id='spinner'></div>
+    <div class="emscripten" id="status">Downloading...</div>
+    <!--
+    <span id='controls'>
+      <span><input type="checkbox" id="resize">Resize canvas</span>
+      <span><input type="checkbox" id="pointerLock" checked>Lock/hide mouse pointer &nbsp;&nbsp;&nbsp;</span>
+      <span><input type="button" value="Fullscreen" onclick="Module.requestFullscreen(document.getElementById('pointerLock').checked, 
+                                                                                document.getElementById('resize').checked)">
+      </span>
+    </span>
 
-    <button id="button1">Click</button>
+    -->
+    <div class="emscripten">
+      <progress value="0" max="100" id="progress" hidden=1></progress>
+    </div>
+    <div class="emscripten_border">
+      <canvas class="emscripten" id="canvas" oncontextmenu="event.preventDefault()" tabindex=-1></canvas>
+    </div>
+<!--
+    <textarea id="output" rows="8"></textarea>
+-->
+
+    <h1>Logic Gate Simulator</h1>
+
+    <section> 
+        <h2>Not</h2>
+        <div class="container">
+            <div>
+                <textarea id="notCode" rows="16" cols="48">module Not(in) -> out { //write your code here }</textarea>
+                <div><button id="notSim">Simulate</button><button id="notReset">Reset</button></div>
+            </div>
+            <div>
+                <table>
+                    <caption>TruthTable</caption>
+                    <tr>
+                        <th>In</th>
+                        <th>Out</th>
+                    </tr>
+                    <tr>
+                        <td>0</td>
+                        <td>1</td>
+                    </tr>
+                    <tr>
+                        <td>1</td>
+                        <td>0</td>
+                    </tr>
+                </table>
+                <table id="notTable">
+                    <caption>Simulated</caption>
+                    <tr>
+                        <th>In</th>
+                        <th>Out</th>
+                    </tr>
+                    <tr>
+                        <td>0</td>
+                        <td id="not0">1</td>
+                    </tr>
+                    <tr>
+                        <td>1</td>
+                        <td id="not1">0</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </section>
+    <hr>
+    <section> 
+        <h2>And</h2>
+        <div class="container">
+            <div>
+                <textarea id="textarea2" rows="16" cols="48">module Not(in) -> out { //write your code here }</textarea>
+                <div><button id="button2">Simulate</button></div>
+            </div>
+            <div>
+                <table>
+                    <tr>
+                        <td>A</td>
+                        <td>B</td>
+                    </tr>
+                    <tr>
+                        <td>C</td>
+                        <td>D</td>
+                    </tr>
+                </table>
+                <table>
+                    <tr>
+                        <td>A</td>
+                        <td>B</td>
+                    </tr>
+                    <tr>
+                        <td>C</td>
+                        <td>D</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </section>
+
+
 
     <script type='text/javascript'>
       var statusElement = document.getElementById('status');
@@ -176,16 +311,75 @@ canvas.emscripten { border: 0px none; background-color: black; }
           if (text) console.error('[post-exception status] ' + text);
         };
       };
+
+
+    let grci_easy_init;
+    let grci_cleanup;
+    let grci_compile_src;
+    let grci_init_module;
+    let grci_destroy_module;
+    let grci_step_module;
+    let grci_set_input;
+    let grci_get_output;
+    let grci_err;
+
+    function load_module() {
+        grci_easy_init = Module.cwrap('grci_easy_init', 'number');
+        grci_cleanup = Module.cwrap('grci_cleanup', null, ['number']);
+        grci_compile_src = Module.cwrap('grci_compile_src', 'number', ['number', 'string', 'number']);
+        grci_init_module = Module.cwrap('grci_init_module', 'number', ['number', 'string', 'number']);
+        grci_destroy_module = Module.cwrap('grci_destroy_module', null, ['number']);
+        grci_step_module = Module.cwrap('grci_step_module', 'number', ['number']);
+        grci_set_input = Module.cwrap('grci_set_input', null, ['number', 'number', 'number']);
+        grci_get_output = Module.cwrap('grci_get_output', 'number', ['number', 'number']);
+        grci_err = Module.cwrap('grci_err', 'number', null);
+    }
+
+    function reset_not() {
+        const src = "module Not(in) -> out { \n    //write your code here\n}";
+        notCode.value = src;
+    }
+    reset_not();
+    notReset.addEventListener("click", reset_not);
+    notSim.addEventListener("click", () => {
+        load_module();
+        let grci = grci_easy_init();
+        let src = new DOMParser().parseFromString(notCode.value, "text/html").body.textContent;
+        let result = grci_compile_src(grci, src, src.length);
+        not0.innerHTML = " ";
+        not1.innerHTML = " ";
+        notTable.style.backgroundColor = "white";
+        if (result == 1) {
+            notSim.style.backgroundColor = "gray";
+            const name = "Not";
+            let module = grci_init_module(grci, name, name.length);
+
+            grci_set_input(module, 0, 0);
+            grci_step_module(module);
+            let not0_out = grci_get_output(module, 0);
+            not0.innerHTML = String(not0_out);
+            let correct1 = not0_out == 1;
+
+            grci_set_input(module, 0, 1);
+            grci_step_module(module);
+            let not1_out = grci_get_output(module, 0);
+            not1.innerHTML = String(not1_out);
+            let correct2 = not1_out == 0;
+
+            if (correct1 && correct2) {
+                notTable.style.backgroundColor = "lightGreen";
+            }
+
+            grci_destroy_module(module);
+        } else {
+            notSim.style.backgroundColor = "red";
+        }
+
+        grci_cleanup(grci);
+    });
+
+
     </script>
-    <script>
-        button1.addEventListener("click", () => {
-            console.log("HI"); 
-            is = Module.cwrap('int_sqrt', 'number', ['number']);
-            console.log(is(12)); 
-            console.log(is(28)); 
-        });
-    </script>
-    <script async type="text/javascript" src="index.js">
-    </script>
+    <script async type="text/javascript" src="grci.js"></script>
   </body>
 </html>
