@@ -165,253 +165,14 @@ th, td {
 
     <h1>Logic Gate Simulator</h1>
 
-    <section> 
-        <h2>Not</h2>
-        <div class="container">
-            <div>
-                <textarea id="notCode" rows="16" cols="48"></textarea>
-                <div><button id="notSim">Simulate</button><button id="notReset">Reset</button></div>
-            </div>
-            <div>
-                <table>
-                    <caption>TruthTable</caption>
-                    <tr>
-                        <th>In</th>
-                        <th>Out</th>
-                    </tr>
-                    <tr>
-                        <td>0</td>
-                        <td>1</td>
-                    </tr>
-                    <tr>
-                        <td>1</td>
-                        <td>0</td>
-                    </tr>
-                </table>
-                <table id="notTable">
-                    <caption>Simulated</caption>
-                    <tr>
-                        <th>In</th>
-                        <th>Out</th>
-                    </tr>
-                    <tr>
-                        <td>0</td>
-                        <td id="not0">1</td>
-                    </tr>
-                    <tr>
-                        <td>1</td>
-                        <td id="not1">0</td>
-                    </tr>
-                </table>
-            </div>
-        </div>
-    </section>
+    <section id="Not"></section>
     <hr>
-    <section> 
-        <h2>And</h2>
-        <div class="container">
-            <div>
-                <textarea id="andCode" rows="16" cols="48"></textarea>
-                <div><button id="andSim">Simulate</button><button id="andReset">Reset</button></div>
-            </div>
-            <div>
-                <table>
-                    <caption>TruthTable</caption>
-                    <tr>
-                        <th>A</th>
-                        <th>B</th>
-                        <th>Out</th>
-                    </tr>
-                    <tr>
-                        <td>0</td>
-                        <td>0</td>
-                        <td>0</td>
-                    </tr>
-                    <tr>
-                        <td>0</td>
-                        <td>1</td>
-                        <td>0</td>
-                    </tr>
-                    <tr>
-                        <td>1</td>
-                        <td>0</td>
-                        <td>0</td>
-                    </tr>
-                    <tr>
-                        <td>1</td>
-                        <td>1</td>
-                        <td>1</td>
-                    </tr>
-                </table>
-                <table id="andTable">
-                    <caption>Simulated</caption>
-                    <tr>
-                        <th>A</th>
-                        <th>B</th>
-                        <th>Out</th>
-                    </tr>
-                    <tr>
-                        <td>0</td>
-                        <td>0</td>
-                        <td id="and0">0</td>
-                    </tr>
-                    <tr>
-                        <td>0</td>
-                        <td>1</td>
-                        <td id="and1">0</td>
-                    </tr>
-                    <tr>
-                        <td>1</td>
-                        <td>0</td>
-                        <td id="and2">0</td>
-                    </tr>
-                    <tr>
-                        <td>1</td>
-                        <td>1</td>
-                        <td id="and3">0</td>
-                    </tr>
-                </table>
-            </div>
-        </div>
-    </section>
+    <section id="And"></section>
     <hr>
-<!--
-    <section> 
-        <h2>Or</h2>
-        <div class="container">
-            <div>
-                <textarea id="orCode" rows="16" cols="48"></textarea>
-                <div><button id="orSim">Simulate</button><button id="orReset">Reset</button></div>
-            </div>
-            <div>
-                <table>
-                    <caption>TruthTable</caption>
-                    <tr>
-                        <th>A</th>
-                        <th>B</th>
-                        <th>Out</th>
-                    </tr>
-                    <tr>
-                        <td>0</td>
-                        <td>0</td>
-                        <td>0</td>
-                    </tr>
-                    <tr>
-                        <td>0</td>
-                        <td>1</td>
-                        <td>1</td>
-                    </tr>
-                    <tr>
-                        <td>1</td>
-                        <td>0</td>
-                        <td>1</td>
-                    </tr>
-                    <tr>
-                        <td>1</td>
-                        <td>1</td>
-                        <td>1</td>
-                    </tr>
-                </table>
-                <table id="orTable">
-                    <caption>Simulated</caption>
-                    <tr>
-                        <th>A</th>
-                        <th>B</th>
-                        <th>Out</th>
-                    </tr>
-                    <tr>
-                        <td>0</td>
-                        <td>0</td>
-                        <td id="or0">0</td>
-                    </tr>
-                    <tr>
-                        <td>0</td>
-                        <td>1</td>
-                        <td id="or1">0</td>
-                    </tr>
-                    <tr>
-                        <td>1</td>
-                        <td>0</td>
-                        <td id="or2">0</td>
-                    </tr>
-                    <tr>
-                        <td>1</td>
-                        <td>1</td>
-                        <td id="or3">0</td>
-                    </tr>
-                </table>
-            </div>
-        </div>
-    </section>
+    <section id="Or"></section>
     <hr>
-    <section> 
-        <h2>Xor</h2>
-        <div class="container">
-            <div>
-                <textarea id="xorCode" rows="16" cols="48"></textarea>
-                <div><button id="xorSim">Simulate</button><button id="xorReset">Reset</button></div>
-            </div>
-            <div>
-                <table>
-                    <caption>TruthTable</caption>
-                    <tr>
-                        <th>A</th>
-                        <th>B</th>
-                        <th>Out</th>
-                    </tr>
-                    <tr>
-                        <td>0</td>
-                        <td>0</td>
-                        <td>0</td>
-                    </tr>
-                    <tr>
-                        <td>0</td>
-                        <td>1</td>
-                        <td>1</td>
-                    </tr>
-                    <tr>
-                        <td>1</td>
-                        <td>0</td>
-                        <td>1</td>
-                    </tr>
-                    <tr>
-                        <td>1</td>
-                        <td>1</td>
-                        <td>0</td>
-                    </tr>
-                </table>
-                <table id="xorTable">
-                    <caption>Simulated</caption>
-                    <tr>
-                        <th>A</th>
-                        <th>B</th>
-                        <th>Out</th>
-                    </tr>
-                    <tr>
-                        <td>0</td>
-                        <td>0</td>
-                        <td id="xor0">0</td>
-                    </tr>
-                    <tr>
-                        <td>0</td>
-                        <td>1</td>
-                        <td id="xor1">0</td>
-                    </tr>
-                    <tr>
-                        <td>1</td>
-                        <td>0</td>
-                        <td id="xor2">0</td>
-                    </tr>
-                    <tr>
-                        <td>1</td>
-                        <td>1</td>
-                        <td id="xor3">0</td>
-                    </tr>
-                </table>
-            </div>
-        </div>
-    </section>
--->
+    <section id="Xor"></section>
+    <hr>
 
     <script type='text/javascript'>
       var statusElement = document.getElementById('status');
@@ -507,234 +268,239 @@ th, td {
         grci_err = Module.cwrap('grci_err', 'number', null);
     }
 
+    function init_default_btn(codeTextarea, defaultCode, reset_btn) {
+        let default_code_fcn = () => {
+            codeTextarea.value = defaultCode;
+        };
+
+        default_code_fcn();
+        reset_btn.addEventListener("click", default_code_fcn);
+    }
+
+    const builtins = [
+        `module Not(in) -> out { 
+            Nand(in, in) -> out
+        }`,
+
+        `module And(a, b) -> out { 
+            Nand(a, b) -> temp
+            Not(temp) -> out
+        }`,
+
+        `module Or(a, b) -> out { 
+            Not(a) -> t1
+            Not(b) -> t2
+            And(t1, t2) -> t3
+            Not(t3) -> out
+        }`,
+
+        `module Xor(a, b) -> out {
+            Not(a) -> na
+            Not(b) -> nb
+            And(na, b) -> a1
+            And(a, nb) -> a2
+            Or(a1, a2) -> out
+        }`];
+
+    function make_html_table(section, test_cases, is_truth_table) {
+        const letters = "abcdefghijklmnop";
+
+
+        let html = is_truth_table ? "<table>" : `<table id="${section.id}Table">`;
+        if (is_truth_table) {
+            html += "<caption>TruthTable</caption>";
+        } else {
+            html += "<caption>Simulated</caption>";
+        }
+        html += "<tr>";
+        test_cases[0].inputs.forEach((value, idx) => {
+            html += `<th>${letters[idx]}</th>`;
+        }); 
+        test_cases[0].outputs.forEach((value, idx) => {
+            html += `<th>${letters[test_cases[0].inputs.length + idx]}</th>`;
+        }); 
+        html += "</tr>";
+
+        test_cases.forEach((test_case, idx) => {
+            html += "<tr>";
+            test_case.inputs.forEach((input) => { html += `<td>${input}</td>`; });
+            test_case.outputs.forEach((output) => { 
+                html += is_truth_table ? `<td>${output}</td>` : `<td id="${section.id + String(idx)}"> </td>`; 
+            });
+            html += "</tr>";
+        });
+        html += "</table>";
+        return html;
+    }
+
+    function init_section(section, test_cases) {
+        console.assert(test_cases.length > 0);
+        console.assert(test_cases[0].inputs.length > 0);
+        console.assert(test_cases[0].outputs.length > 0);
+        let html = `
+        <h2>${section.id}</h2>
+        <div class="container">
+            <div>
+                <textarea id="${section.id}Code" rows="16" cols="48"></textarea>
+                <div><button id="${section.id}Sim">Simulate</button><button id="${section.id}Reset">Reset</button></div>
+            </div>
+            <div>`;
+
+        //table
+        html += make_html_table(section, test_cases, true);
+        html += make_html_table(section, test_cases, false);
+
+        html += `
+            </div>
+        </div>
+        `
+
+        section.innerHTML = html;
+    }
+
+    function init_sim_btn(sim_btn, code_textarea, idx, td_elements, sim_table, name, test_cases) {
+
+        sim_btn.addEventListener("click", () => {
+            load_module();
+
+            td_elements.forEach((element) => {
+                element.innerHTML = " ";
+            });
+            sim_table.style.backgroundColor = "white";
+
+
+            let grci = grci_easy_init();
+            let src = '';
+            builtins.slice(0, idx).forEach((value) => {
+                src += value;
+            });
+            src += new DOMParser().parseFromString(code_textarea.value, "text/html").body.textContent;
+            let result = grci_compile_src(grci, src, src.length);
+            if (result == 1) {
+                sim_btn.style.backgroundColor = "gray";
+                sim_table.style.backgroundColor = "lightGreen";
+                let module = grci_init_module(grci, name, name.length);
+                test_cases.forEach((test_case, case_idx) => {
+                    test_case.inputs.forEach((value, idx) => {
+                        grci_set_input(module, idx, value);
+                    });
+                    grci_step_module(module);
+                    test_case.outputs.forEach((value, idx) => {
+                        let result = grci_get_output(module, idx);
+                        td_elements[case_idx].innerHTML = String(result);
+                        if (result != value) {
+                            sim_table.style.backgroundColor = "white";
+                        } 
+                    });
+                });
+
+                /*
+                grci_set_input(module, 0, 0);
+                grci_set_input(module, 1, 0);
+                grci_step_module(module);
+                let and0_out = grci_get_output(module, 0);
+                and0.innerHTML = String(and0_out);
+                let correct0 = and0_out == 0;
+
+                grci_set_input(module, 0, 1);
+                grci_set_input(module, 1, 0);
+                grci_step_module(module);
+                let and1_out = grci_get_output(module, 0);
+                and1.innerHTML = String(and1_out);
+                let correct1 = and1_out == 0;
+
+                grci_set_input(module, 0, 0);
+                grci_set_input(module, 1, 1);
+                grci_step_module(module);
+                let and2_out = grci_get_output(module, 0);
+                and2.innerHTML = String(and2_out);
+                let correct2 = and2_out == 0;
+
+                grci_set_input(module, 0, 1);
+                grci_set_input(module, 1, 1);
+                grci_step_module(module);
+                let and3_out = grci_get_output(module, 0);
+                and3.innerHTML = String(and3_out);
+                let correct3 = and3_out == 1;
+
+                if (correct0 && correct1 && correct2 && correct3) {
+                    andTable.style.backgroundColor = "lightGreen";
+                }
+                */
+
+                grci_destroy_module(module);
+            } else {
+                sim_btn.style.backgroundColor = "red";
+                console.log(grci_err());
+            }
+
+            grci_cleanup(grci);
+        }); 
+    }
+
     /*
         Not gate
     */
-    function reset_not() {
-        const src = "module Not(in) -> out { \n    //write your code here\n}";
-        notCode.value = src;
-    }
 
-    reset_not();
-    notReset.addEventListener("click", reset_not);
-    notSim.addEventListener("click", () => {
-        load_module();
-        let grci = grci_easy_init();
-        let src = new DOMParser().parseFromString(notCode.value, "text/html").body.textContent;
-        let result = grci_compile_src(grci, src, src.length);
-        not0.innerHTML = " ";
-        not1.innerHTML = " ";
-        notTable.style.backgroundColor = "white";
-        if (result == 1) {
-            notSim.style.backgroundColor = "gray";
-            const name = "Not";
-            let module = grci_init_module(grci, name, name.length);
+    let not_test_cases = [{inputs: [0], outputs: [1]}, 
+                          {inputs: [1], outputs: [0]}];
 
-            grci_set_input(module, 0, 0);
-            grci_step_module(module);
-            let not0_out = grci_get_output(module, 0);
-            not0.innerHTML = String(not0_out);
-            let correct1 = not0_out == 1;
+    init_section(Not, not_test_cases);
 
-            grci_set_input(module, 0, 1);
-            grci_step_module(module);
-            let not1_out = grci_get_output(module, 0);
-            not1.innerHTML = String(not1_out);
-            let correct2 = not1_out == 0;
+    init_default_btn(NotCode, 
+                     "module Not(a) -> b { \n    //write your code here\n}",
+                     NotReset);
 
-            if (correct1 && correct2) {
-                notTable.style.backgroundColor = "lightGreen";
-            }
+    init_sim_btn(NotSim, NotCode, 0, [Not0, Not1], NotTable, "Not", not_test_cases);
 
-            grci_destroy_module(module);
-        } else {
-            notSim.style.backgroundColor = "red";
-        }
-
-        grci_cleanup(grci);
-    });
 
     /*
         And gate
     */
-    function reset_and() {
-        const src = "module And(a, b) -> out { \n    //write your code here\n}";
-        andCode.value = src;
-    }
 
-    reset_and();
-    andReset.addEventListener("click", reset_and);
-    andSim.addEventListener("click", () => {
-        load_module();
-        let grci = grci_easy_init();
-        let src = new DOMParser().parseFromString(notCode.value, "text/html").body.textContent + " " + new DOMParser().parseFromString(andCode.value, "text/html").body.textContent;
-        let result = grci_compile_src(grci, src, src.length);
-        and0.innerHTML = " ";
-        and1.innerHTML = " ";
-        and2.innerHTML = " ";
-        and3.innerHTML = " ";
-        andTable.style.backgroundColor = "white";
-        if (result == 1) {
-            andSim.style.backgroundColor = "gray";
-            const name = "And";
-            let module = grci_init_module(grci, name, name.length);
+    let and_test_cases = [{inputs: [0, 0], outputs: [0]}, 
+                          {inputs: [1, 0], outputs: [0]},
+                          {inputs: [0, 1], outputs: [0]},
+                          {inputs: [1, 1], outputs: [1]}]
 
-            grci_set_input(module, 0, 0);
-            grci_step_module(module);
-            let and0_out = grci_get_output(module, 0);
-            and0.innerHTML = String(and0_out);
-            let correct0 = and0_out == 0;
+    init_section(And, and_test_cases);
 
-            grci_set_input(module, 1, 0);
-            grci_step_module(module);
-            let and1_out = grci_get_output(module, 0);
-            and1.innerHTML = String(and1_out);
-            let correct1 = and1_out == 0;
+    init_default_btn(AndCode, 
+                     "module And(a, b) -> c { \n    //write your code here\n}",
+                     AndReset);
 
-            grci_set_input(module, 0, 1);
-            grci_step_module(module);
-            let and2_out = grci_get_output(module, 0);
-            and2.innerHTML = String(and2_out);
-            let correct2 = and2_out == 0;
+    init_sim_btn(AndSim, AndCode, 1, [And0, And1, And2, And3], AndTable, "And", and_test_cases);
 
-            grci_set_input(module, 1, 1);
-            grci_step_module(module);
-            let and3_out = grci_get_output(module, 0);
-            and3.innerHTML = String(and3_out);
-            let correct3 = and3_out == 1;
+    //Or gate
+    let or_test_cases = [{inputs: [0, 0], outputs: [0]}, 
+                          {inputs: [1, 0], outputs: [1]},
+                          {inputs: [0, 1], outputs: [1]},
+                          {inputs: [1, 1], outputs: [1]}]
 
-            if (correct0 && correct1 && correct2 && correct3) {
-                andTable.style.backgroundColor = "lightGreen";
-            }
+    init_section(Or, or_test_cases);
 
-            grci_destroy_module(module);
-        } else {
-            andSim.style.backgroundColor = "red";
-        }
+    init_default_btn(OrCode, 
+                     "module Or(a, b) -> c { \n    //write your code here\n}",
+                     OrReset);
 
-        grci_cleanup(grci);
-    });
+    init_sim_btn(OrSim, OrCode, 2, [Or0, Or1, Or2, Or3], OrTable, "Or", or_test_cases);
 
-    /*
-        Or gate
-    function reset_or() {
-        const src = "module Or(a, b) -> out { \n    //write your code here\n}";
-        orCode.value = src;
-    }
-
-    reset_or();
-    orReset.addEventListener("click", reset_or);
-    orSim.addEventListener("click", () => {
-        load_module();
-        let grci = grci_easy_init();
-        let src = new DOMParser().parseFromString(notCode.value, "text/html").body.textContent + " " + new DOMParser().parseFromString(andCode.value, "text/html").body.textContent + " " + new DOMParser().parseFromString(orCode.value, "text/html").body.textContent
-        let result = grci_compile_src(grci, src, src.length);
-        or0.innerHTML = " ";
-        or1.innerHTML = " ";
-        or2.innerHTML = " ";
-        or3.innerHTML = " ";
-        orTable.style.backgroundColor = "white";
-        if (result == 1) {
-            orSim.style.backgroundColor = "gray";
-            const name = "Or";
-            let module = grci_init_module(grci, name, name.length);
-
-            grci_set_input(module, 0, 0);
-            grci_step_module(module);
-            let and0_out = grci_get_output(module, 0);
-            or0.innerHTML = String(and0_out);
-            let correct0 = and0_out == 0;
-
-            grci_set_input(module, 1, 0);
-            grci_step_module(module);
-            let and1_out = grci_get_output(module, 0);
-            or1.innerHTML = String(and1_out);
-            let correct1 = and1_out == 1;
-
-            grci_set_input(module, 0, 1);
-            grci_step_module(module);
-            let and2_out = grci_get_output(module, 0);
-            or2.innerHTML = String(and2_out);
-            let correct2 = and2_out == 1;
-
-            grci_set_input(module, 1, 1);
-            grci_step_module(module);
-            let and3_out = grci_get_output(module, 0);
-            or3.innerHTML = String(and3_out);
-            let correct3 = and3_out == 1;
-
-            if (correct0 && correct1 && correct2 && correct3) {
-                orTable.style.backgroundColor = "lightGreen";
-            }
-
-            grci_destroy_module(module);
-        } else {
-            orSim.style.backgroundColor = "red";
-        }
-
-        grci_cleanup(grci);
-    });
 
 
     //    Xor gate
-    function reset_xor() {
-        const src = "module Xor(a, b) -> out { \n    //write your code here\n}";
-        xorCode.value = src;
-    }
+    let xor_test_cases = [{inputs: [0, 0], outputs: [0]}, 
+                          {inputs: [1, 0], outputs: [1]},
+                          {inputs: [0, 1], outputs: [1]},
+                          {inputs: [1, 1], outputs: [0]}]
 
-    reset_xor();
-    xorReset.addEventListener("click", reset_xor);
-    xorSim.addEventListener("click", () => {
-        load_module();
-        let grci = grci_easy_init();
-        let src = new DOMParser().parseFromString(notCode.value, "text/html").body.textContent + " " + new DOMParser().parseFromString(andCode.value, "text/html").body.textContent + " " + new DOMParser().parseFromString(orCode.value, "text/html").body.textContent + " " + new DOMParser().parseFromString(xorCode.value, "text/html").body.textContent;
-        let result = grci_compile_src(grci, src, src.length);
-        xor0.innerHTML = " ";
-        xor1.innerHTML = " ";
-        xor2.innerHTML = " ";
-        xor3.innerHTML = " ";
-        xorTable.style.backgroundColor = "white";
-        if (result == 1) {
-            xorSim.style.backgroundColor = "gray";
-            const name = "Xor";
-            let module = grci_init_module(grci, name, name.length);
+    init_section(Xor, xor_test_cases);
 
-            grci_set_input(module, 0, 0);
-            grci_step_module(module);
-            let and0_out = grci_get_output(module, 0);
-            xor0.innerHTML = String(and0_out);
-            let correct0 = and0_out == 0;
+    init_default_btn(XorCode, 
+                     "module Xor(a, b) -> c { \n    //write your code here\n}",
+                     XorReset);
 
-            grci_set_input(module, 1, 0);
-            grci_step_module(module);
-            let and1_out = grci_get_output(module, 0);
-            xor1.innerHTML = String(and1_out);
-            let correct1 = and1_out == 0;
+    init_sim_btn(XorSim, XorCode, 3, [Xor0, Xor1, Xor2, Xor3], XorTable, "Xor", xor_test_cases);
 
-            grci_set_input(module, 0, 1);
-            grci_step_module(module);
-            let and2_out = grci_get_output(module, 0);
-            xor2.innerHTML = String(and2_out);
-            let correct2 = and2_out == 0;
-
-            grci_set_input(module, 1, 1);
-            grci_step_module(module);
-            let and3_out = grci_get_output(module, 0);
-            xor3.innerHTML = String(and3_out);
-            let correct3 = and3_out == 0;
-
-            if (correct0 && correct1 && correct2 && correct3) {
-                xorTable.style.backgroundColor = "lightGreen";
-            }
-
-            grci_destroy_module(module);
-        } else {
-            xorSim.style.backgroundColor = "red";
-        }
-
-        grci_cleanup(grci);
-    });
-    */
     </script>
     <script async type="text/javascript" src="grci.js"></script>
   </body>
