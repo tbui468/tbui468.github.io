@@ -5,174 +5,182 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <title>Logic Gate Simulator</title>
     <style>body {
-  font-family: arial;
-  margin: 0;
-  padding: none;
-}
+      font-family: arial;
+      margin: 0;
+      padding: none;
+                }
 
-.emscripten { padding-right: 0; margin-left: auto; margin-right: auto; display: none; }
-div.emscripten { text-align: center; }
-div.emscripten_border { }
-/* the canvas *must not* have any border or padding, or mouse coords will be wrong */
-canvas.emscripten { border: 0px none; background-color: black; }
+    .emscripten { padding-right: 0; margin-left: auto; margin-right: auto; display: none; }
+    div.emscripten { text-align: center; }
+    div.emscripten_border { }
+    /* the canvas *must not* have any border or padding, or mouse coords will be wrong */
+    canvas.emscripten { border: 0px none; background-color: black; }
 
-.container {
-    display: flex;
-    justify-content: left;
-    margin-left: 128px;
-}
+    .container {
+        display: flex;
+        justify-content: left;
+    }
 
-textarea {
-    resize: none;
-}
+    .inner_container {
+        display: flex;
+        justify-content: left;
+        margin-left: 32px;
+    }
 
-section {
-    margin-top: 128px;
-    margin-bottom: 64px;
-}
+    button {
+        width: 64px;
+    }
 
-h2 {
-    margin-left: 128px;
-}
+    textarea {
+        resize: none;
+    }
 
-h1 {
-    text-align: center;
-}
+    section {
+    }
 
-table {
-    margin-bottom: 32px;
-    margin-left: 32px;
-    border-collapse: collapse;
-    border: 1px solid black;
-}
+    h2 {
+        margin-top: 0;
+        margin-left: 32px;
+    }
 
-th {
-    border-bottom: 1px solid black;
-}
+    h1 {
+        margin-bottom: 64px;
+        margin-top: 0;
+    }
 
-th, td {
-    text-align: center;
-}
+    table {
+        margin-bottom: 32px;
+        margin-left: 32px;
+        border-collapse: collapse;
+        border: 1px solid black;
+    }
 
-#emscripten_logo {
-  display: inline-block;
-  margin: 0;
-  padding: 6px;
-  width: 265px;
-}
+    th {
+        border-bottom: 1px solid black;
+    }
 
-.spinner {
-  height: 30px;
-  width: 30px;
-  margin: 0;
-  margin-top: 20px;
-  margin-left: 20px;
-  display: inline-block;
-  vertical-align: top;
+    th, td {
+        text-align: center;
+    }
 
-  -webkit-animation: rotation .8s linear infinite;
-  -moz-animation: rotation .8s linear infinite;
-  -o-animation: rotation .8s linear infinite;
-  animation: rotation 0.8s linear infinite;
+    #emscripten_logo {
+      display: inline-block;
+      margin: 0;
+      padding: 6px;
+      width: 265px;
+    }
 
-  border-left: 5px solid rgb(235, 235, 235);
-  border-right: 5px solid rgb(235, 235, 235);
-  border-bottom: 5px solid rgb(235, 235, 235);
-  border-top: 5px solid rgb(120, 120, 120);
+    .spinner {
+      height: 30px;
+      width: 30px;
+      margin: 0;
+      margin-top: 20px;
+      margin-left: 20px;
+      display: inline-block;
+      vertical-align: top;
 
-  border-radius: 100%;
-  background-color: rgb(189, 215, 46);
-}
+      -webkit-animation: rotation .8s linear infinite;
+      -moz-animation: rotation .8s linear infinite;
+      -o-animation: rotation .8s linear infinite;
+      animation: rotation 0.8s linear infinite;
 
-@-webkit-keyframes rotation {
-  from {-webkit-transform: rotate(0deg);}
-  to {-webkit-transform: rotate(360deg);}
-}
-@-moz-keyframes rotation {
-  from {-moz-transform: rotate(0deg);}
-  to {-moz-transform: rotate(360deg);}
-}
-@-o-keyframes rotation {
-  from {-o-transform: rotate(0deg);}
-  to {-o-transform: rotate(360deg);}
-}
-@keyframes rotation {
-  from {transform: rotate(0deg);}
-  to {transform: rotate(360deg);}
-}
+      border-left: 5px solid rgb(235, 235, 235);
+      border-right: 5px solid rgb(235, 235, 235);
+      border-bottom: 5px solid rgb(235, 235, 235);
+      border-top: 5px solid rgb(120, 120, 120);
 
-#status {
-  display: inline-block;
-  vertical-align: top;
-  margin-top: 30px;
-  margin-left: 20px;
-  font-weight: bold;
-  color: rgb(120, 120, 120);
-}
+      border-radius: 100%;
+      background-color: rgb(189, 215, 46);
+    }
 
-#progress {
-  height: 20px;
-  width: 300px;
-}
+    @-webkit-keyframes rotation {
+      from {-webkit-transform: rotate(0deg);}
+      to {-webkit-transform: rotate(360deg);}
+    }
+    @-moz-keyframes rotation {
+      from {-moz-transform: rotate(0deg);}
+      to {-moz-transform: rotate(360deg);}
+    }
+    @-o-keyframes rotation {
+      from {-o-transform: rotate(0deg);}
+      to {-o-transform: rotate(360deg);}
+    }
+    @keyframes rotation {
+      from {transform: rotate(0deg);}
+      to {transform: rotate(360deg);}
+    }
 
-#controls {
-  display: inline-block;
-  float: right;
-  vertical-align: top;
-  margin-top: 30px;
-  margin-right: 20px;
-}
+    #status {
+      display: inline-block;
+      vertical-align: top;
+      margin-top: 30px;
+      margin-left: 20px;
+      font-weight: bold;
+      color: rgb(120, 120, 120);
+    }
 
-#output {
-  width: 100%;
-  height: 200px;
-  margin: 0 auto;
-  margin-top: 10px;
-  border-left: 0px;
-  border-right: 0px;
-  padding-left: 0px;
-  padding-right: 0px;
-  display: block;
-  background-color: black;
-  color: white;
-  font-family: 'Lucida Console', Monaco, monospace;
-  outline: none;
-}
-</style>
+    #progress {
+      height: 20px;
+      width: 300px;
+    }
+
+    #controls {
+      display: inline-block;
+      float: right;
+      vertical-align: top;
+      margin-top: 30px;
+      margin-right: 20px;
+    }
+
+    #output {
+      width: 100%;
+      height: 200px;
+      margin: 0 auto;
+      margin-top: 10px;
+      border-left: 0px;
+      border-right: 0px;
+      padding-left: 0px;
+      padding-right: 0px;
+      display: block;
+      background-color: black;
+      color: white;
+      font-family: 'Lucida Console', Monaco, monospace;
+      outline: none;
+    }
+    </style>
   </head>
   <body>
     <div class="spinner" id='spinner'></div>
     <div class="emscripten" id="status">Downloading...</div>
-    <!--
-    <span id='controls'>
-      <span><input type="checkbox" id="resize">Resize canvas</span>
-      <span><input type="checkbox" id="pointerLock" checked>Lock/hide mouse pointer &nbsp;&nbsp;&nbsp;</span>
-      <span><input type="button" value="Fullscreen" onclick="Module.requestFullscreen(document.getElementById('pointerLock').checked, 
-                                                                                document.getElementById('resize').checked)">
-      </span>
-    </span>
 
-    -->
     <div class="emscripten">
       <progress value="0" max="100" id="progress" hidden=1></progress>
     </div>
     <div class="emscripten_border">
       <canvas class="emscripten" id="canvas" oncontextmenu="event.preventDefault()" tabindex=-1></canvas>
     </div>
-<!--
-    <textarea id="output" rows="8"></textarea>
--->
 
     <h1>Logic Gate Simulator</h1>
-
-    <section id="Not"></section>
-    <hr>
-    <section id="And"></section>
-    <hr>
-    <section id="Or"></section>
-    <hr>
-    <section id="Xor"></section>
-    <hr>
+    <div class="container">
+        <div>
+            <div><button id="NotSelect">Not</button></div>
+            <div><button id="AndSelect" disabled>And</button></div>
+            <div><button id="OrSelect" disabled>Or</button></div>
+            <div><button id="XorSelect" disabled>Xor</button></div>
+        </div>
+        <div>
+            <section id="task"></section>
+            <!--
+            <hr>
+            <section id="And"></section>
+            <hr>
+            <section id="Or"></section>
+            <hr>
+            <section id="Xor"></section>
+            <hr>
+            -->
+        <div>
+    </div>
 
     <script type='text/javascript'>
       var statusElement = document.getElementById('status');
@@ -256,6 +264,8 @@ th, td {
     let grci_get_output;
     let grci_err;
 
+    const letters = "abcdefghijklmnopqrstuvwxyz";
+
     function load_module() {
         grci_easy_init = Module.cwrap('grci_easy_init', 'number');
         grci_cleanup = Module.cwrap('grci_cleanup', null, ['number']);
@@ -275,6 +285,159 @@ th, td {
 
         default_code_fcn();
         reset_btn.addEventListener("click", default_code_fcn);
+    }
+
+    function make_html_table(name, test_cases, is_truth_table) {
+
+
+        let html = is_truth_table ? "<table>" : `<table id="${name}Table">`;
+        if (is_truth_table) {
+            html += "<caption>TruthTable</caption>";
+        } else {
+            html += "<caption>Simulated</caption>";
+        }
+        html += "<tr>";
+        test_cases[0].inputs.forEach((value, idx) => {
+            html += `<th>${letters[idx]}</th>`;
+        }); 
+        test_cases[0].outputs.forEach((value, idx) => {
+            html += `<th>${letters[test_cases[0].inputs.length + idx]}</th>`;
+        }); 
+        html += "</tr>";
+
+        test_cases.forEach((test_case, idx) => {
+            html += "<tr>";
+            test_case.inputs.forEach((input) => { html += `<td>${input}</td>`; });
+            test_case.outputs.forEach((output) => { 
+                html += is_truth_table ? `<td>${output}</td>` : `<td id="${name + String(idx)}">-</td>`; 
+            });
+            html += "</tr>";
+        });
+        html += "</table>";
+        return html;
+    }
+
+    function init_section(name, test_cases) {
+        console.assert(test_cases.length > 0);
+        console.assert(test_cases[0].inputs.length > 0);
+        console.assert(test_cases[0].outputs.length > 0);
+        let html = `
+        <h2>${name}</h2>
+        <div class="inner_container">
+            <div>
+                <textarea id="${name}Code" rows="16" cols="48" spellcheck="false"></textarea>
+                <div><button id="${name}Sim">Simulate</button><button id="${name}Reset">Reset</button></div>
+            </div>
+            <div>`;
+
+        html += make_html_table(name, test_cases, false);
+        html += "</div><div>";
+        html += make_html_table(name, test_cases, true);
+
+        html += `
+            </div>
+        </div>
+        `
+
+       // task.innerHTML = html;
+        document.getElementById("task").innerHTML = html;
+       //section.innerHTML = html;
+    }
+
+    function init_sim_btn(sim_btn, code_textarea, idx, td_elements, sim_table, name, test_cases) {
+
+        sim_btn.addEventListener("click", () => {
+            load_module();
+
+            let data = JSON.parse(localStorage.getItem(name));
+
+            td_elements.forEach((element) => {
+                element.innerHTML = "-";
+            });
+            sim_table.style.backgroundColor = "white";
+
+            let grci = grci_easy_init();
+            let src = '';
+            builtins.slice(0, idx).forEach((value) => {
+                src += value;
+            });
+
+            code = new DOMParser().parseFromString(code_textarea.value, "text/html").body.textContent;
+            data.code = code;
+            src += code;
+            let result = grci_compile_src(grci, src, src.length);
+            if (result == 1) {
+                sim_btn.style.backgroundColor = "gray";
+                let cleared = true;
+                let module = grci_init_module(grci, name, name.length);
+                test_cases.forEach((test_case, case_idx) => {
+                    test_case.inputs.forEach((value, idx) => {
+                        grci_set_input(module, idx, value);
+                    });
+                    grci_step_module(module);
+                    test_case.outputs.forEach((value, idx) => {
+                        let result = grci_get_output(module, idx);
+                        td_elements[case_idx].innerHTML = String(result);
+                        if (result != value) {
+                            cleared = false;
+                        } 
+                    });
+                });
+
+                if (cleared) {
+                    data.cleared = true;
+                }
+
+                sim_table.style.backgroundColor = cleared ? "lightGreen" : "white";
+                grci_destroy_module(module);
+            } else {
+                sim_btn.style.backgroundColor = "red";
+                console.log(grci_err());
+            }
+
+            grci_cleanup(grci);
+
+            localStorage.setItem(name, JSON.stringify(data));
+            set_button_colors();
+        }); 
+    }
+
+    function init_task(name, idx, test_cases, default_code) {
+        if (localStorage.getItem(name) === null) {
+            localStorage.setItem(name, JSON.stringify({ name: name, cleared: false, code: default_code }));
+        }
+        let data = JSON.parse(localStorage.getItem(name));
+        init_section(name, test_cases);
+
+        let code_textarea = document.getElementById(name + "Code");
+        let reset_btn = document.getElementById(name + "Reset");
+        let sim_btn = document.getElementById(name + "Sim");
+        let table = document.getElementById(name + "Table");
+
+        init_default_btn(code_textarea, 
+                         default_code,
+                         reset_btn);
+
+        code_textarea.value = data.code;
+
+        let sim_outputs = []
+        test_cases.forEach((test_case, idx) => {
+            let output_id = name + String(idx);
+            sim_outputs.push(document.getElementById(output_id));
+        });
+        init_sim_btn(sim_btn, code_textarea, idx, sim_outputs, table, name, test_cases);
+    }
+
+
+    function set_button_colors() {
+        Object.keys(selects).forEach((key) => {
+            if (localStorage.getItem(key) !== null) {
+                let data = JSON.parse(localStorage.getItem(key));
+                if (data.cleared) {
+                    selects[key].style.backgroundColor = "lightGreen";
+                }
+            }
+        });
     }
 
     const builtins = [
@@ -302,204 +465,47 @@ th, td {
             Or(a1, a2) -> out
         }`];
 
-    function make_html_table(section, test_cases, is_truth_table) {
-        const letters = "abcdefghijklmnop";
-
-
-        let html = is_truth_table ? "<table>" : `<table id="${section.id}Table">`;
-        if (is_truth_table) {
-            html += "<caption>TruthTable</caption>";
-        } else {
-            html += "<caption>Simulated</caption>";
-        }
-        html += "<tr>";
-        test_cases[0].inputs.forEach((value, idx) => {
-            html += `<th>${letters[idx]}</th>`;
-        }); 
-        test_cases[0].outputs.forEach((value, idx) => {
-            html += `<th>${letters[test_cases[0].inputs.length + idx]}</th>`;
-        }); 
-        html += "</tr>";
-
-        test_cases.forEach((test_case, idx) => {
-            html += "<tr>";
-            test_case.inputs.forEach((input) => { html += `<td>${input}</td>`; });
-            test_case.outputs.forEach((output) => { 
-                html += is_truth_table ? `<td>${output}</td>` : `<td id="${section.id + String(idx)}"> </td>`; 
-            });
-            html += "</tr>";
-        });
-        html += "</table>";
-        return html;
+    const selects = {
+        Not: NotSelect,
+        And: AndSelect,
+        Or: OrSelect,
+        Xor: XorSelect
     }
 
-    function init_section(section, test_cases) {
-        console.assert(test_cases.length > 0);
-        console.assert(test_cases[0].inputs.length > 0);
-        console.assert(test_cases[0].outputs.length > 0);
-        let html = `
-        <h2>${section.id}</h2>
-        <div class="container">
-            <div>
-                <textarea id="${section.id}Code" rows="16" cols="48"></textarea>
-                <div><button id="${section.id}Sim">Simulate</button><button id="${section.id}Reset">Reset</button></div>
-            </div>
-            <div>`;
 
-        //table
-        html += make_html_table(section, test_cases, true);
-        html += make_html_table(section, test_cases, false);
-
-        html += `
-            </div>
-        </div>
-        `
-
-        section.innerHTML = html;
-    }
-
-    function init_sim_btn(sim_btn, code_textarea, idx, td_elements, sim_table, name, test_cases) {
-
-        sim_btn.addEventListener("click", () => {
-            load_module();
-
-            td_elements.forEach((element) => {
-                element.innerHTML = " ";
-            });
-            sim_table.style.backgroundColor = "white";
+    NotSelect.addEventListener("click", () => {
+        let not_test_cases = [{inputs: [0], outputs: [1]}, 
+                              {inputs: [1], outputs: [0]}];
+        init_task("Not", 0, not_test_cases, "module Not(a) -> b { \n    //write your code here\n}");
+    });
+    NotSelect.click();
 
 
-            let grci = grci_easy_init();
-            let src = '';
-            builtins.slice(0, idx).forEach((value) => {
-                src += value;
-            });
-            src += new DOMParser().parseFromString(code_textarea.value, "text/html").body.textContent;
-            let result = grci_compile_src(grci, src, src.length);
-            if (result == 1) {
-                sim_btn.style.backgroundColor = "gray";
-                sim_table.style.backgroundColor = "lightGreen";
-                let module = grci_init_module(grci, name, name.length);
-                test_cases.forEach((test_case, case_idx) => {
-                    test_case.inputs.forEach((value, idx) => {
-                        grci_set_input(module, idx, value);
-                    });
-                    grci_step_module(module);
-                    test_case.outputs.forEach((value, idx) => {
-                        let result = grci_get_output(module, idx);
-                        td_elements[case_idx].innerHTML = String(result);
-                        if (result != value) {
-                            sim_table.style.backgroundColor = "white";
-                        } 
-                    });
-                });
+    AndSelect.addEventListener("click", () => {
+        let and_test_cases = [{inputs: [0, 0], outputs: [0]}, 
+                              {inputs: [0, 1], outputs: [0]},
+                              {inputs: [1, 0], outputs: [0]},
+                              {inputs: [1, 1], outputs: [1]}];
+        init_task("And", 1, and_test_cases, "module And(a, b) -> c { \n    //write your code here\n}");
+    });
 
-                /*
-                grci_set_input(module, 0, 0);
-                grci_set_input(module, 1, 0);
-                grci_step_module(module);
-                let and0_out = grci_get_output(module, 0);
-                and0.innerHTML = String(and0_out);
-                let correct0 = and0_out == 0;
+    OrSelect.addEventListener("click", () => {
+        let or_test_cases = [{inputs: [0, 0], outputs: [0]}, 
+                             {inputs: [0, 1], outputs: [1]},
+                             {inputs: [1, 0], outputs: [1]},
+                             {inputs: [1, 1], outputs: [1]}];
+        init_task("Or", 2, or_test_cases, "module Or(a, b) -> c { \n    //write your code here\n}");
+    });
 
-                grci_set_input(module, 0, 1);
-                grci_set_input(module, 1, 0);
-                grci_step_module(module);
-                let and1_out = grci_get_output(module, 0);
-                and1.innerHTML = String(and1_out);
-                let correct1 = and1_out == 0;
-
-                grci_set_input(module, 0, 0);
-                grci_set_input(module, 1, 1);
-                grci_step_module(module);
-                let and2_out = grci_get_output(module, 0);
-                and2.innerHTML = String(and2_out);
-                let correct2 = and2_out == 0;
-
-                grci_set_input(module, 0, 1);
-                grci_set_input(module, 1, 1);
-                grci_step_module(module);
-                let and3_out = grci_get_output(module, 0);
-                and3.innerHTML = String(and3_out);
-                let correct3 = and3_out == 1;
-
-                if (correct0 && correct1 && correct2 && correct3) {
-                    andTable.style.backgroundColor = "lightGreen";
-                }
-                */
-
-                grci_destroy_module(module);
-            } else {
-                sim_btn.style.backgroundColor = "red";
-                console.log(grci_err());
-            }
-
-            grci_cleanup(grci);
-        }); 
-    }
-
-    /*
-        Not gate
-    */
-
-    let not_test_cases = [{inputs: [0], outputs: [1]}, 
-                          {inputs: [1], outputs: [0]}];
-
-    init_section(Not, not_test_cases);
-
-    init_default_btn(NotCode, 
-                     "module Not(a) -> b { \n    //write your code here\n}",
-                     NotReset);
-
-    init_sim_btn(NotSim, NotCode, 0, [Not0, Not1], NotTable, "Not", not_test_cases);
-
-
-    /*
-        And gate
-    */
-
-    let and_test_cases = [{inputs: [0, 0], outputs: [0]}, 
-                          {inputs: [1, 0], outputs: [0]},
-                          {inputs: [0, 1], outputs: [0]},
-                          {inputs: [1, 1], outputs: [1]}]
-
-    init_section(And, and_test_cases);
-
-    init_default_btn(AndCode, 
-                     "module And(a, b) -> c { \n    //write your code here\n}",
-                     AndReset);
-
-    init_sim_btn(AndSim, AndCode, 1, [And0, And1, And2, And3], AndTable, "And", and_test_cases);
-
-    //Or gate
-    let or_test_cases = [{inputs: [0, 0], outputs: [0]}, 
-                          {inputs: [1, 0], outputs: [1]},
-                          {inputs: [0, 1], outputs: [1]},
-                          {inputs: [1, 1], outputs: [1]}]
-
-    init_section(Or, or_test_cases);
-
-    init_default_btn(OrCode, 
-                     "module Or(a, b) -> c { \n    //write your code here\n}",
-                     OrReset);
-
-    init_sim_btn(OrSim, OrCode, 2, [Or0, Or1, Or2, Or3], OrTable, "Or", or_test_cases);
-
-
-
-    //    Xor gate
-    let xor_test_cases = [{inputs: [0, 0], outputs: [0]}, 
-                          {inputs: [1, 0], outputs: [1]},
-                          {inputs: [0, 1], outputs: [1]},
-                          {inputs: [1, 1], outputs: [0]}]
-
-    init_section(Xor, xor_test_cases);
-
-    init_default_btn(XorCode, 
-                     "module Xor(a, b) -> c { \n    //write your code here\n}",
-                     XorReset);
-
-    init_sim_btn(XorSim, XorCode, 3, [Xor0, Xor1, Xor2, Xor3], XorTable, "Xor", xor_test_cases);
+    XorSelect.addEventListener("click", () => {
+        let xor_test_cases = [{inputs: [0, 0], outputs: [0]}, 
+                              {inputs: [0, 1], outputs: [1]},
+                              {inputs: [1, 0], outputs: [1]},
+                              {inputs: [1, 1], outputs: [0]}];
+        init_task("Xor", 3, xor_test_cases, "module Xor(a, b) -> c { \n    //write your code here\n}");
+    });
+    
+    set_button_colors();
 
     </script>
     <script async type="text/javascript" src="grci.js"></script>
