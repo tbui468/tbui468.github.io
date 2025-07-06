@@ -166,7 +166,11 @@
             <div><button id="NotSelect">Not</button></div>
             <div><button id="AndSelect" disabled>And</button></div>
             <div><button id="OrSelect" disabled>Or</button></div>
+            <div><button id="NorSelect" disabled>Nor</button></div>
             <div><button id="XorSelect" disabled>Xor</button></div>
+            <div><button id="XnorSelect" disabled>Xnor</button></div>
+            <div><button id="MuxSelect" disabled>Mux</button></div>
+            <div><button id="DmuxSelect" disabled>Dmux</button></div>
         </div>
         <div>
             <section id="task"></section>
@@ -264,8 +268,6 @@
     let grci_get_output;
     let grci_err;
 
-    const letters = "abcdefghijklmnopqrstuvwxyz";
-
     function load_module() {
         grci_easy_init = Module.cwrap('grci_easy_init', 'number');
         grci_cleanup = Module.cwrap('grci_cleanup', null, ['number']);
@@ -287,7 +289,7 @@
         reset_btn.addEventListener("click", default_code_fcn);
     }
 
-    function make_html_table(name, test_cases, is_truth_table) {
+    function make_html_table(name, test_cases, letters, is_truth_table) {
 
 
         let html = is_truth_table ? "<table>" : `<table id="${name}Table">`;
@@ -308,8 +310,8 @@
         test_cases.forEach((test_case, idx) => {
             html += "<tr>";
             test_case.inputs.forEach((input) => { html += `<td>${input}</td>`; });
-            test_case.outputs.forEach((output) => { 
-                html += is_truth_table ? `<td>${output}</td>` : `<td id="${name + String(idx)}">-</td>`; 
+            test_case.outputs.forEach((output, output_idx) => { 
+                html += is_truth_table ? `<td>${output}</td>` : `<td id="${name + String(idx) + String(output_idx)}">-</td>`; 
             });
             html += "</tr>";
         });
@@ -317,7 +319,7 @@
         return html;
     }
 
-    function init_section(name, test_cases) {
+    function init_section(name, test_cases, identifiers) {
         console.assert(test_cases.length > 0);
         console.assert(test_cases[0].inputs.length > 0);
         console.assert(test_cases[0].outputs.length > 0);
@@ -330,9 +332,9 @@
             </div>
             <div>`;
 
-        html += make_html_table(name, test_cases, false);
+        html += make_html_table(name, test_cases, identifiers, false);
         html += "</div><div>";
-        html += make_html_table(name, test_cases, true);
+        html += make_html_table(name, test_cases, identifiers, true);
 
         html += `
             </div>
@@ -358,8 +360,8 @@
 
             let grci = grci_easy_init();
             let src = '';
-            builtins.slice(0, idx).forEach((value) => {
-                src += value;
+            modules.slice(0, idx).forEach((data) => {
+                src += data.builtin_code;
             });
 
             code = new DOMParser().parseFromString(code_textarea.value, "text/html").body.textContent;
@@ -377,7 +379,7 @@
                     grci_step_module(module);
                     test_case.outputs.forEach((value, idx) => {
                         let result = grci_get_output(module, idx);
-                        td_elements[case_idx].innerHTML = String(result);
+                        td_elements[case_idx * test_case.outputs.length + idx].innerHTML = String(result);
                         if (result != value) {
                             cleared = false;
                         } 
@@ -402,12 +404,12 @@
         }); 
     }
 
-    function init_task(name, idx, test_cases, default_code) {
+    function init_task(name, idx, test_cases, identifiers, default_code) {
         if (localStorage.getItem(name) === null) {
             localStorage.setItem(name, JSON.stringify({ name: name, cleared: false, code: default_code }));
         }
         let data = JSON.parse(localStorage.getItem(name));
-        init_section(name, test_cases);
+        init_section(name, test_cases, identifiers);
 
         let code_textarea = document.getElementById(name + "Code");
         let reset_btn = document.getElementById(name + "Reset");
@@ -422,88 +424,211 @@
 
         let sim_outputs = []
         test_cases.forEach((test_case, idx) => {
-            let output_id = name + String(idx);
-            sim_outputs.push(document.getElementById(output_id));
+            test_case.outputs.forEach((output, output_idx) => {
+                let output_id = name + String(idx) + String(output_idx);
+                sim_outputs.push(document.getElementById(output_id));
+            });
         });
         init_sim_btn(sim_btn, code_textarea, idx, sim_outputs, table, name, test_cases);
     }
 
 
     function set_button_colors() {
-        Object.keys(selects).forEach((key) => {
-            if (localStorage.getItem(key) !== null) {
-                let data = JSON.parse(localStorage.getItem(key));
-                if (data.cleared) {
-                    selects[key].style.backgroundColor = "lightGreen";
+        modules.forEach((data, idx) => {
+            let key = data.name;
+            if (localStorage.getItem(data.name) !== null) {
+                let saved = JSON.parse(localStorage.getItem(data.name));
+                if (saved.cleared) {
+                    data.select_btn.style.backgroundColor = "lightGreen";
+                    if (idx + 1 < modules.length) {
+                        modules[idx + 1].select_btn.removeAttribute("disabled");
+                    }
                 }
             }
         });
     }
 
-    const builtins = [
-        `module Not(in) -> out { 
-            Nand(in, in) -> out
-        }`,
+    const modules = [
+        { 
+            name: 
+                "Not",
+            select_btn: 
+                NotSelect,
+            builtin_code:
+                `module Not(in) -> out { 
+                    Nand(in, in) -> out
+                }`,
+            test_cases: 
+                [{inputs: [0], outputs: [1]}, 
+                 {inputs: [1], outputs: [0]}],
+            identifiers:
+                ["in", "out"],
+            default_code: 
+                "module Not(in) -> out { \n    //write your code here\n}"
+        },
+        { 
+            name: 
+                "And",
+            select_btn: 
+                AndSelect,
+            builtin_code:
+                `module And(a, b) -> out { 
+                    Nand(a, b) -> temp
+                    Not(temp) -> out
+                }`,
+            test_cases: 
+                [{inputs: [0, 0], outputs: [0]}, 
+                 {inputs: [0, 1], outputs: [0]},
+                 {inputs: [1, 0], outputs: [0]},
+                 {inputs: [1, 1], outputs: [1]}],
+            identifiers:
+                ["a", "b", "out"],
+            default_code: 
+                "module And(a, b) -> out { \n    //write your code here\n}"
+        },
+        { 
+            name: 
+                "Or",
+            select_btn: 
+                OrSelect,
+            builtin_code:
+                `module Or(a, b) -> out { 
+                    Not(a) -> t1
+                    Not(b) -> t2
+                    And(t1, t2) -> t3
+                    Not(t3) -> out
+                }`,
+            test_cases: 
+                [{inputs: [0, 0], outputs: [0]}, 
+                 {inputs: [0, 1], outputs: [1]},
+                 {inputs: [1, 0], outputs: [1]},
+                 {inputs: [1, 1], outputs: [1]}],
+            identifiers:
+                ["a", "b", "out"],
+            default_code: 
+                "module Or(a, b) -> out { \n    //write your code here\n}"
+        },
+        { 
+            name: 
+                "Nor",
+            select_btn: 
+                NorSelect,
+            builtin_code:
+                `module Nor(a, b) -> out { 
+                    Or(a, b) -> t
+                    Not(t) -> out
+                }`,
+            test_cases: 
+                [{inputs: [0, 0], outputs: [1]}, 
+                 {inputs: [0, 1], outputs: [0]},
+                 {inputs: [1, 0], outputs: [0]},
+                 {inputs: [1, 1], outputs: [0]}],
+            identifiers:
+                ["a", "b", "out"],
+            default_code: 
+                "module Nor(a, b) -> out { \n    //write your code here\n}"
+        },
+        { 
+            name: 
+                "Xor",
+            select_btn: 
+                XorSelect,
+            builtin_code:
+                `module Xor(a, b) -> out {
+                    Not(a) -> na
+                    Not(b) -> nb
+                    And(na, b) -> a1
+                    And(a, nb) -> a2
+                    Or(a1, a2) -> out
+                }`,
+            test_cases: 
+                [{inputs: [0, 0], outputs: [0]}, 
+                 {inputs: [0, 1], outputs: [1]},
+                 {inputs: [1, 0], outputs: [1]},
+                 {inputs: [1, 1], outputs: [0]}],
+            identifiers:
+                ["a", "b", "out"],
+            default_code: 
+                "module Xor(a, b) -> out { \n    //write your code here\n}"
+        },
+        { 
+            name: 
+                "Xnor",
+            select_btn: 
+                XnorSelect,
+            builtin_code:
+                `module Xnor(a, b) -> out {
+                    Xor(a, b) -> t
+                    Not(t) -> out
+                }`,
+            test_cases: 
+                [{inputs: [0, 0], outputs: [1]}, 
+                 {inputs: [0, 1], outputs: [0]},
+                 {inputs: [1, 0], outputs: [0]},
+                 {inputs: [1, 1], outputs: [1]}],
+            identifiers:
+                ["a", "b", "out"],
+            default_code: 
+                "module Xnor(a, b) -> out { \n    //write your code here\n}"
+        },
+        { 
+            name: 
+                "Mux",
+            select_btn: 
+                MuxSelect,
+            builtin_code:
+                `module Mux(a, b, sel) -> out {
+                    Not(sel) -> notSel
+                    And(b, sel) -> and1
+                    And(a, notSel) -> and2
+                    Or(and1, and2) -> out
+                }`,
+            test_cases: 
+                [{inputs: [0, 0, 0], outputs: [0]}, 
+                 {inputs: [0, 1, 0], outputs: [0]},
+                 {inputs: [1, 0, 0], outputs: [1]},
+                 {inputs: [1, 1, 0], outputs: [1]},
+                 {inputs: [0, 0, 1], outputs: [0]}, 
+                 {inputs: [0, 1, 1], outputs: [1]},
+                 {inputs: [1, 0, 1], outputs: [0]},
+                 {inputs: [1, 1, 1], outputs: [1]}],
+            identifiers:
+                ["a", "b", "sel", "out"],
+            default_code: 
+                "module Mux(a, b, sel) -> out { \n    //write your code here\n}"
+        },
+        { 
+            name: 
+                "Dmux",
+            select_btn: 
+                DmuxSelect,
+            builtin_code:
+                `module DMux(in, sel) -> a, b {
+                    Not(sel) -> notSel
+                    And(in, notSel) -> a
+                    And(in, sel) -> b
+                }`,
+            test_cases: 
+                [{inputs: [0, 0], outputs: [0, 0]}, 
+                 {inputs: [1, 0], outputs: [1, 0]},
+                 {inputs: [0, 1], outputs: [0, 0]},
+                 {inputs: [1, 1], outputs: [0, 1]}],
+            identifiers:
+                ["in", "sel", "a", "b"],
+            default_code: 
+                "module Dmux(in, sel) -> a, b { \n    //write your code here\n}"
+        },
+    ];
 
-        `module And(a, b) -> out { 
-            Nand(a, b) -> temp
-            Not(temp) -> out
-        }`,
-
-        `module Or(a, b) -> out { 
-            Not(a) -> t1
-            Not(b) -> t2
-            And(t1, t2) -> t3
-            Not(t3) -> out
-        }`,
-
-        `module Xor(a, b) -> out {
-            Not(a) -> na
-            Not(b) -> nb
-            And(na, b) -> a1
-            And(a, nb) -> a2
-            Or(a1, a2) -> out
-        }`];
-
-    const selects = {
-        Not: NotSelect,
-        And: AndSelect,
-        Or: OrSelect,
-        Xor: XorSelect
-    }
-
-
-    NotSelect.addEventListener("click", () => {
-        let not_test_cases = [{inputs: [0], outputs: [1]}, 
-                              {inputs: [1], outputs: [0]}];
-        init_task("Not", 0, not_test_cases, "module Not(a) -> b { \n    //write your code here\n}");
+    modules.forEach((data, idx) => {
+        data.select_btn.addEventListener("click", () => {
+            init_task(data.name, idx, data.test_cases, data.identifiers, data.default_code);
+        });
+        if (idx === 0) {
+            data.select_btn.click();    
+        }
     });
-    NotSelect.click();
 
-
-    AndSelect.addEventListener("click", () => {
-        let and_test_cases = [{inputs: [0, 0], outputs: [0]}, 
-                              {inputs: [0, 1], outputs: [0]},
-                              {inputs: [1, 0], outputs: [0]},
-                              {inputs: [1, 1], outputs: [1]}];
-        init_task("And", 1, and_test_cases, "module And(a, b) -> c { \n    //write your code here\n}");
-    });
-
-    OrSelect.addEventListener("click", () => {
-        let or_test_cases = [{inputs: [0, 0], outputs: [0]}, 
-                             {inputs: [0, 1], outputs: [1]},
-                             {inputs: [1, 0], outputs: [1]},
-                             {inputs: [1, 1], outputs: [1]}];
-        init_task("Or", 2, or_test_cases, "module Or(a, b) -> c { \n    //write your code here\n}");
-    });
-
-    XorSelect.addEventListener("click", () => {
-        let xor_test_cases = [{inputs: [0, 0], outputs: [0]}, 
-                              {inputs: [0, 1], outputs: [1]},
-                              {inputs: [1, 0], outputs: [1]},
-                              {inputs: [1, 1], outputs: [0]}];
-        init_task("Xor", 3, xor_test_cases, "module Xor(a, b) -> c { \n    //write your code here\n}");
-    });
     
     set_button_colors();
 
