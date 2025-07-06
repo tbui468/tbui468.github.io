@@ -171,6 +171,8 @@
             <div><button id="XnorSelect" disabled>Xnor</button></div>
             <div><button id="MuxSelect" disabled>Mux</button></div>
             <div><button id="DmuxSelect" disabled>Dmux</button></div>
+            <div><button id="And4WaySelect" disabled>And4Way</button></div>
+            <div><button id="Or4WaySelect" disabled>Or4Way</button></div>
         </div>
         <div>
             <section id="task"></section>
@@ -319,7 +321,7 @@
         return html;
     }
 
-    function init_section(name, test_cases, identifiers) {
+    function init_section(name, test_cases, identifiers, draw_tables) {
         console.assert(test_cases.length > 0);
         console.assert(test_cases[0].inputs.length > 0);
         console.assert(test_cases[0].outputs.length > 0);
@@ -332,9 +334,11 @@
             </div>
             <div>`;
 
-        html += make_html_table(name, test_cases, identifiers, false);
-        html += "</div><div>";
-        html += make_html_table(name, test_cases, identifiers, true);
+        if (draw_tables) {
+            html += make_html_table(name, test_cases, identifiers, false);
+            html += "</div><div>";
+            html += make_html_table(name, test_cases, identifiers, true);
+        }
 
         html += `
             </div>
@@ -346,7 +350,7 @@
        //section.innerHTML = html;
     }
 
-    function init_sim_btn(sim_btn, code_textarea, idx, td_elements, sim_table, name, test_cases) {
+    function init_sim_btn(sim_btn, code_textarea, idx, td_elements, sim_table, name, test_cases, draw_tables) {
 
         sim_btn.addEventListener("click", () => {
             load_module();
@@ -404,12 +408,12 @@
         }); 
     }
 
-    function init_task(name, idx, test_cases, identifiers, default_code) {
+    function init_task(name, idx, test_cases, identifiers, default_code, draw_tables) {
         if (localStorage.getItem(name) === null) {
             localStorage.setItem(name, JSON.stringify({ name: name, cleared: false, code: default_code }));
         }
         let data = JSON.parse(localStorage.getItem(name));
-        init_section(name, test_cases, identifiers);
+        init_section(name, test_cases, identifiers, draw_tables);
 
         let code_textarea = document.getElementById(name + "Code");
         let reset_btn = document.getElementById(name + "Reset");
@@ -429,7 +433,7 @@
                 sim_outputs.push(document.getElementById(output_id));
             });
         });
-        init_sim_btn(sim_btn, code_textarea, idx, sim_outputs, table, name, test_cases);
+        init_sim_btn(sim_btn, code_textarea, idx, sim_outputs, table, name, test_cases, draw_tables);
     }
 
 
@@ -464,7 +468,8 @@
             identifiers:
                 ["in", "out"],
             default_code: 
-                "module Not(in) -> out { \n    //write your code here\n}"
+                "module Not(in) -> out { \n    //write your code here\n}",
+            draw_tables: true 
         },
         { 
             name: 
@@ -484,7 +489,8 @@
             identifiers:
                 ["a", "b", "out"],
             default_code: 
-                "module And(a, b) -> out { \n    //write your code here\n}"
+                "module And(a, b) -> out { \n    //write your code here\n}",
+            draw_tables: true 
         },
         { 
             name: 
@@ -506,7 +512,8 @@
             identifiers:
                 ["a", "b", "out"],
             default_code: 
-                "module Or(a, b) -> out { \n    //write your code here\n}"
+                "module Or(a, b) -> out { \n    //write your code here\n}",
+            draw_tables: true 
         },
         { 
             name: 
@@ -526,7 +533,8 @@
             identifiers:
                 ["a", "b", "out"],
             default_code: 
-                "module Nor(a, b) -> out { \n    //write your code here\n}"
+                "module Nor(a, b) -> out { \n    //write your code here\n}",
+            draw_tables: true 
         },
         { 
             name: 
@@ -549,7 +557,8 @@
             identifiers:
                 ["a", "b", "out"],
             default_code: 
-                "module Xor(a, b) -> out { \n    //write your code here\n}"
+                "module Xor(a, b) -> out { \n    //write your code here\n}",
+            draw_tables: true 
         },
         { 
             name: 
@@ -569,7 +578,8 @@
             identifiers:
                 ["a", "b", "out"],
             default_code: 
-                "module Xnor(a, b) -> out { \n    //write your code here\n}"
+                "module Xnor(a, b) -> out { \n    //write your code here\n}",
+            draw_tables: true 
         },
         { 
             name: 
@@ -595,7 +605,8 @@
             identifiers:
                 ["a", "b", "sel", "out"],
             default_code: 
-                "module Mux(a, b, sel) -> out { \n    //write your code here\n}"
+                "module Mux(a, b, sel) -> out { \n    //write your code here\n}",
+            draw_tables: true 
         },
         { 
             name: 
@@ -616,13 +627,84 @@
             identifiers:
                 ["in", "sel", "a", "b"],
             default_code: 
-                "module Dmux(in, sel) -> a, b { \n    //write your code here\n}"
+                "module Dmux(in, sel) -> a, b { \n    //write your code here\n}",
+            draw_tables: true 
+        },
+        { 
+            name: 
+                "And4Way",
+            select_btn: 
+                And4WaySelect,
+            builtin_code:
+                ` 
+                module And4Way(a[4]) -> out {
+                    And(a[0], a[1]) -> a1
+                    And(a1, a[2]) -> a2
+                    And(a2, a[3]) -> out
+                }`,
+            test_cases: 
+                [{inputs: [0, 0, 0, 0], outputs: [0]}, 
+                 {inputs: [0, 0, 0, 1], outputs: [0]},
+                 {inputs: [0, 0, 1, 0], outputs: [0]},
+                 {inputs: [0, 0, 1, 1], outputs: [0]},
+                 {inputs: [0, 1, 0, 0], outputs: [0]},
+                 {inputs: [0, 1, 0, 1], outputs: [0]},
+                 {inputs: [0, 1, 1, 0], outputs: [0]},
+                 {inputs: [0, 1, 1, 1], outputs: [0]},
+                 {inputs: [1, 0, 0, 0], outputs: [0]},
+                 {inputs: [1, 0, 0, 1], outputs: [0]},
+                 {inputs: [1, 0, 1, 0], outputs: [0]},
+                 {inputs: [1, 0, 1, 1], outputs: [0]},
+                 {inputs: [1, 1, 0, 0], outputs: [0]},
+                 {inputs: [1, 1, 0, 1], outputs: [0]},
+                 {inputs: [1, 1, 1, 0], outputs: [0]},
+                 {inputs: [1, 1, 1, 1], outputs: [1]}],
+            identifiers:
+                ["in[3]", "in[2]", "in[1]", "in[0]", "out"],
+            default_code: 
+                "module And4Way(in[4]) -> out { \n    //write your code here\n}",
+            draw_tables: true
+        },
+        { 
+            name: 
+                "Or4Way",
+            select_btn: 
+                Or4WaySelect,
+            builtin_code:
+                ` 
+                module Or4Way(a[4]) -> out {
+                    Or(a[0], a[1]) -> a1
+                    Or(a1, a[2]) -> a2
+                    Or(a2, a[3]) -> out
+                }`,
+            test_cases: 
+                [{inputs: [0, 0, 0, 0], outputs: [0]}, 
+                 {inputs: [0, 0, 0, 1], outputs: [1]},
+                 {inputs: [0, 0, 1, 0], outputs: [1]},
+                 {inputs: [0, 0, 1, 1], outputs: [1]},
+                 {inputs: [0, 1, 0, 0], outputs: [1]},
+                 {inputs: [0, 1, 0, 1], outputs: [1]},
+                 {inputs: [0, 1, 1, 0], outputs: [1]},
+                 {inputs: [0, 1, 1, 1], outputs: [1]},
+                 {inputs: [1, 0, 0, 0], outputs: [1]},
+                 {inputs: [1, 0, 0, 1], outputs: [1]},
+                 {inputs: [1, 0, 1, 0], outputs: [1]},
+                 {inputs: [1, 0, 1, 1], outputs: [1]},
+                 {inputs: [1, 1, 0, 0], outputs: [1]},
+                 {inputs: [1, 1, 0, 1], outputs: [1]},
+                 {inputs: [1, 1, 1, 0], outputs: [1]},
+                 {inputs: [1, 1, 1, 1], outputs: [1]}],
+            identifiers:
+                ["in[3]", "in[2]", "in[1]", "in[0]", "out"],
+            default_code: 
+                "module Or4Way(in[4]) -> out { \n    //write your code here\n}",
+            draw_tables: true
         },
     ];
 
     modules.forEach((data, idx) => {
         data.select_btn.addEventListener("click", () => {
-            init_task(data.name, idx, data.test_cases, data.identifiers, data.default_code);
+            init_task(data.name, idx, data.test_cases, data.identifiers, data.default_code, data.draw_tables);
         });
         if (idx === 0) {
             data.select_btn.click();    
