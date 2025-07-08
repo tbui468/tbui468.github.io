@@ -31,6 +31,10 @@
         width: 64px;
     }
 
+    #reset_btn {
+        width: 128px;
+    }
+
     textarea {
         resize: none;
     }
@@ -61,6 +65,8 @@
 
     th, td {
         text-align: center;
+        padding-left: 4px;
+        padding-right: 4px;
     }
 
     #emscripten_logo {
@@ -160,9 +166,17 @@
       <canvas class="emscripten" id="canvas" oncontextmenu="event.preventDefault()" tabindex=-1></canvas>
     </div>
 
+    <button id="reset_btn">Reset Progress</button>
     <h1>Logic Gate Simulator</h1>
+    <label for="lessons">Lessons</label>
+    <select name="lessons" id="lessons">
+        <option value="basic">Basic</option>
+        <option value="advanced">ALU</option>
+    </select>
+    <br><br>
     <div class="container">
-        <div>
+        <div id="menu">
+            <!--
             <div><button id="NotSelect">Not</button></div>
             <div><button id="AndSelect" disabled>And</button></div>
             <div><button id="OrSelect" disabled>Or</button></div>
@@ -173,6 +187,7 @@
             <div><button id="DmuxSelect" disabled>Dmux</button></div>
             <div><button id="And4WaySelect" disabled>And4Way</button></div>
             <div><button id="Or4WaySelect" disabled>Or4Way</button></div>
+            -->
         </div>
         <div>
             <section id="task"></section>
@@ -187,7 +202,6 @@
             -->
         <div>
     </div>
-
     <script type='text/javascript'>
       var statusElement = document.getElementById('status');
       var progressElement = document.getElementById('progress');
@@ -311,9 +325,9 @@
 
         test_cases.forEach((test_case, idx) => {
             html += "<tr>";
-            test_case.inputs.forEach((input) => { html += `<td>${input}</td>`; });
+            test_case.inputs.forEach((input) => { html += `<td><tt>${input}</tt></td>`; });
             test_case.outputs.forEach((output, output_idx) => { 
-                html += is_truth_table ? `<td>${output}</td>` : `<td id="${name + String(idx) + String(output_idx)}">-</td>`; 
+                html += is_truth_table ? `<td><tt>${output}</td>` : `<td id="${name + String(idx) + String(output_idx)}">-</tt></td>`; 
             });
             html += "</tr>";
         });
@@ -336,8 +350,14 @@
 
         if (draw_tables) {
             html += make_html_table(name, test_cases, identifiers, false);
-            html += "</div><div>";
+            //html += "</div><div>";
             html += make_html_table(name, test_cases, identifiers, true);
+        } else {
+            html += `
+                <label>Input</label><textarea></textarea>
+                <label>Output</label><input type="text">
+                <div id="${name}Table">Tests</div>
+            `;
         }
 
         html += `
@@ -350,7 +370,21 @@
        //section.innerHTML = html;
     }
 
-    function init_sim_btn(sim_btn, code_textarea, idx, td_elements, sim_table, name, test_cases, draw_tables) {
+    function flatten_bits(arr) {
+        let result = [];
+        arr.forEach((value) => {
+            if (typeof value === "string") {
+                value.split("").reverse().forEach((c) => {
+                    result.push(Number(c));
+                });
+            } else {
+                result.push(value);
+            }
+        });
+        return result;
+    }
+
+    function init_sim_btn(sim_btn, code_textarea, idx, td_elements, sim_table, name, test_cases, draw_tables, range) {
 
         sim_btn.addEventListener("click", () => {
             load_module();
@@ -364,7 +398,7 @@
 
             let grci = grci_easy_init();
             let src = '';
-            modules.slice(0, idx).forEach((data) => {
+            modules.slice(0, range[0] + idx).forEach((data) => {
                 src += data.builtin_code;
             });
 
@@ -377,16 +411,42 @@
                 let cleared = true;
                 let module = grci_init_module(grci, name, name.length);
                 test_cases.forEach((test_case, case_idx) => {
-                    test_case.inputs.forEach((value, idx) => {
+                    let input_bits = flatten_bits(test_case.inputs);
+                    input_bits.forEach((value, idx) => {
+                    //test_case.inputs.forEach((value, idx) => {
                         grci_set_input(module, idx, value);
                     });
                     grci_step_module(module);
-                    test_case.outputs.forEach((value, idx) => {
+                    let output_bits = flatten_bits(test_case.outputs);
+                    output_bits.forEach((value, idx) => {
+                    //test_case.outputs.forEach((value, idx) => {
                         let result = grci_get_output(module, idx);
-                        td_elements[case_idx * test_case.outputs.length + idx].innerHTML = String(result);
+                        /*
+                        if (td_elements.length > 0) {
+                            td_elements[case_idx * test_case.outputs.length + idx].innerHTML = '<tt>' + String(result) + '</tt>';
+                        }
+                        */
                         if (result != value) {
                             cleared = false;
                         } 
+                    });
+
+                    //fill table here
+                    let bit_idx = 0;
+                    test_case.outputs.forEach((value, idx) => {
+                        if (typeof value === "string") {
+                            let s = "";
+                            for (let i = 0; i < value.length; i++) {
+                                let result = grci_get_output(module, bit_idx);
+                                bit_idx += 1;
+                                s = String(result) + s;
+                            }
+                            td_elements[case_idx * test_case.outputs.length + idx].innerHTML = '<tt>' + s + '</tt>';
+                        } else {
+                            let result = grci_get_output(module, bit_idx);
+                            td_elements[case_idx * test_case.outputs.length + idx].innerHTML = '<tt>' + String(result) + '</tt>';
+                            bit_idx += 1;
+                        }
                     });
                 });
 
@@ -404,11 +464,11 @@
             grci_cleanup(grci);
 
             localStorage.setItem(name, JSON.stringify(data));
-            set_button_colors();
+            set_button_color(name, idx, range);
         }); 
     }
 
-    function init_task(name, idx, test_cases, identifiers, default_code, draw_tables) {
+    function init_task(name, idx, test_cases, identifiers, default_code, draw_tables, range) {
         if (localStorage.getItem(name) === null) {
             localStorage.setItem(name, JSON.stringify({ name: name, cleared: false, code: default_code }));
         }
@@ -433,31 +493,28 @@
                 sim_outputs.push(document.getElementById(output_id));
             });
         });
-        init_sim_btn(sim_btn, code_textarea, idx, sim_outputs, table, name, test_cases, draw_tables);
+        sim_outputs = draw_tables ? sim_outputs : [];
+        init_sim_btn(sim_btn, code_textarea, idx, sim_outputs, table, name, test_cases, draw_tables, range);
     }
 
-
-    function set_button_colors() {
-        modules.forEach((data, idx) => {
-            let key = data.name;
-            if (localStorage.getItem(data.name) !== null) {
-                let saved = JSON.parse(localStorage.getItem(data.name));
-                if (saved.cleared) {
-                    data.select_btn.style.backgroundColor = "lightGreen";
-                    if (idx + 1 < modules.length) {
-                        modules[idx + 1].select_btn.removeAttribute("disabled");
-                    }
+    function set_button_color(name, idx, range) {
+        if (localStorage.getItem(name) !== null) {
+            let saved = JSON.parse(localStorage.getItem(name));
+            if (saved.cleared) {
+                let select_btn = document.getElementById(`${name}Selector`);
+                select_btn.style.backgroundColor = "lightGreen";
+                if (idx + 1 + range[0] < range[1]) {
+                    let next_select_btn = document.getElementById(`${modules[idx + 1 + range[0]].name}Selector`);
+                    next_select_btn.removeAttribute("disabled");
                 }
             }
-        });
+        }
     }
 
     const modules = [
         { 
             name: 
                 "Not",
-            select_btn: 
-                NotSelect,
             builtin_code:
                 `module Not(in) -> out { 
                     Nand(in, in) -> out
@@ -474,8 +531,6 @@
         { 
             name: 
                 "And",
-            select_btn: 
-                AndSelect,
             builtin_code:
                 `module And(a, b) -> out { 
                     Nand(a, b) -> temp
@@ -495,8 +550,6 @@
         { 
             name: 
                 "Or",
-            select_btn: 
-                OrSelect,
             builtin_code:
                 `module Or(a, b) -> out { 
                     Not(a) -> t1
@@ -518,8 +571,6 @@
         { 
             name: 
                 "Nor",
-            select_btn: 
-                NorSelect,
             builtin_code:
                 `module Nor(a, b) -> out { 
                     Or(a, b) -> t
@@ -539,8 +590,6 @@
         { 
             name: 
                 "Xor",
-            select_btn: 
-                XorSelect,
             builtin_code:
                 `module Xor(a, b) -> out {
                     Not(a) -> na
@@ -563,8 +612,6 @@
         { 
             name: 
                 "Xnor",
-            select_btn: 
-                XnorSelect,
             builtin_code:
                 `module Xnor(a, b) -> out {
                     Xor(a, b) -> t
@@ -584,8 +631,6 @@
         { 
             name: 
                 "Mux",
-            select_btn: 
-                MuxSelect,
             builtin_code:
                 `module Mux(a, b, sel) -> out {
                     Not(sel) -> notSel
@@ -611,8 +656,6 @@
         { 
             name: 
                 "Dmux",
-            select_btn: 
-                DmuxSelect,
             builtin_code:
                 `module DMux(in, sel) -> a, b {
                     Not(sel) -> notSel
@@ -633,8 +676,6 @@
         { 
             name: 
                 "And4Way",
-            select_btn: 
-                And4WaySelect,
             builtin_code:
                 ` 
                 module And4Way(a[4]) -> out {
@@ -668,8 +709,6 @@
         { 
             name: 
                 "Or4Way",
-            select_btn: 
-                Or4WaySelect,
             builtin_code:
                 ` 
                 module Or4Way(a[4]) -> out {
@@ -700,19 +739,397 @@
                 "module Or4Way(a, b, c, d) -> out { \n    //write your code here\n}",
             draw_tables: true
         },
+        { 
+            name: 
+                "Not8",
+            builtin_code:
+                ` 
+                module Not8(in[8]) -> out[8] {
+                    Not(in[0]) -> out[0]
+                    Not(in[1]) -> out[1]
+                    Not(in[2]) -> out[2]
+                    Not(in[3]) -> out[3]
+                    Not(in[4]) -> out[4]
+                    Not(in[5]) -> out[5]
+                    Not(in[6]) -> out[6]
+                    Not(in[7]) -> out[7]
+                }`,
+            test_cases: 
+                [{inputs: ["00000000"], outputs: ["11111111"]}, 
+                 {inputs: ["11111111"], outputs: ["00000000"]},
+                 {inputs: ["10101010"], outputs: ["01010101"]},
+                 {inputs: ["01010101"], outputs: ["10101010"]},
+                 {inputs: ["00001111"], outputs: ["11110000"]},
+                 {inputs: ["11110000"], outputs: ["00001111"]}],
+            identifiers:
+                ["in[8]", "out[8]"],
+            default_code: 
+                "module Not8(in[8]) -> out[8] { \n    //write your code here\n}",
+            draw_tables: true
+        },
+        { 
+            name: 
+                "And8",
+            builtin_code:
+                ` 
+                module And8(a[8], b[8]) -> out[8] {
+                    And(a[0], b[0]) -> out[0]
+                    And(a[1], b[1]) -> out[1]
+                    And(a[2], b[2]) -> out[2]
+                    And(a[3], b[3]) -> out[3]
+                    And(a[4], b[4]) -> out[4]
+                    And(a[5], b[5]) -> out[5]
+                    And(a[6], b[6]) -> out[6]
+                    And(a[7], b[7]) -> out[7]
+                }`,
+            test_cases: 
+                [
+                 {inputs: ["00000000", "00000000"], outputs: ["00000000"]}, 
+                 {inputs: ["11111111", "00000000"], outputs: ["00000000"]},
+                 {inputs: ["00000000", "11111111"], outputs: ["00000000"]},
+                 {inputs: ["11111111", "11111111"], outputs: ["11111111"]},
+                 {inputs: ["01010101", "01010101"], outputs: ["01010101"]},
+                 {inputs: ["10101010", "10101010"], outputs: ["10101010"]},
+                 {inputs: ["01010101", "10101010"], outputs: ["00000000"]},
+                ],
+            identifiers:
+                ["a[8]", "b[8]", "out[8]"],
+            default_code: 
+                "module And8(a[8], b[8]) -> out[8] { \n    //write your code here\n}",
+            draw_tables: true
+        },
+        { 
+            name: 
+                "Or8",
+            builtin_code:
+                ` 
+                module Or8(a[8], b[8]) -> out[8] {
+                    Or(a[0], b[0]) -> out[0]
+                    Or(a[1], b[1]) -> out[1]
+                    Or(a[2], b[2]) -> out[2]
+                    Or(a[3], b[3]) -> out[3]
+                    Or(a[4], b[4]) -> out[4]
+                    Or(a[5], b[5]) -> out[5]
+                    Or(a[6], b[6]) -> out[6]
+                    Or(a[7], b[7]) -> out[7]
+                }`,
+            test_cases: [
+                 {inputs: ["00000000", "00000000"], outputs: ["00000000"]}, 
+                 {inputs: ["11111111", "00000000"], outputs: ["11111111"]},
+                 {inputs: ["00000000", "11111111"], outputs: ["11111111"]},
+                 {inputs: ["11111111", "11111111"], outputs: ["11111111"]},
+                 {inputs: ["01010101", "01010101"], outputs: ["01010101"]},
+                 {inputs: ["10101010", "10101010"], outputs: ["10101010"]},
+                 {inputs: ["01010101", "10101010"], outputs: ["11111111"]},
+                        ],
+            identifiers:
+                ["a[8]", "b[8]", "out[8]"],
+            default_code: 
+                "module Or8(a[8], b[8]) -> out[8] { \n    //write your code here\n}",
+            draw_tables: true
+        },
+        { 
+            name: 
+                "Xor8",
+            builtin_code:
+                ` 
+                module Xor8(a[8], b[8]) -> out[8] {
+                    Xor(a[0], b[0]) -> out[0]
+                    Xor(a[1], b[1]) -> out[1]
+                    Xor(a[2], b[2]) -> out[2]
+                    Xor(a[3], b[3]) -> out[3]
+                    Xor(a[4], b[4]) -> out[4]
+                    Xor(a[5], b[5]) -> out[5]
+                    Xor(a[6], b[6]) -> out[6]
+                    Xor(a[7], b[7]) -> out[7]
+                }`,
+            test_cases: [
+                 {inputs: ["00000000", "00000000"], outputs: ["00000000"]}, 
+                 {inputs: ["11111111", "00000000"], outputs: ["11111111"]},
+                 {inputs: ["00000000", "11111111"], outputs: ["11111111"]},
+                 {inputs: ["11111111", "11111111"], outputs: ["00000000"]},
+                 {inputs: ["01010101", "01010101"], outputs: ["00000000"]},
+                 {inputs: ["10101010", "10101010"], outputs: ["00000000"]},
+                 {inputs: ["01010101", "10101010"], outputs: ["11111111"]},
+                ],
+            identifiers:
+                ["a[8]", "b[8]", "out[8]"],
+            default_code: 
+                "module Xor8(a[8], b[8]) -> out[8] { \n    //write your code here\n}",
+            draw_tables: true
+        },
+        { 
+            name: 
+                "Or8Way",
+            builtin_code:
+                ` 
+                module Or8Way(in[8]) -> out {
+                    Or(in[0], in[1]) -> a
+                    Or(a, in[2]) -> b
+                    Or(b, in[3]) -> c
+                    Or(c, in[4]) -> d
+                    Or(d, in[5]) -> e
+                    Or(e, in[6]) -> f
+                    Or(f, in[7]) -> out
+                }`,
+            test_cases: [
+                 {inputs: ["00000000"], outputs: [0]}, 
+                 {inputs: ["00000001"], outputs: [1]},
+                 {inputs: ["00000010"], outputs: [1]},
+                 {inputs: ["00000100"], outputs: [1]},
+                 {inputs: ["00001000"], outputs: [1]},
+                 {inputs: ["00010000"], outputs: [1]},
+                 {inputs: ["00100000"], outputs: [1]},
+                 {inputs: ["01000000"], outputs: [1]},
+                 {inputs: ["10000000"], outputs: [1]},
+                 {inputs: ["11111111"], outputs: [1]},
+                ],
+            identifiers:
+                ["in[8]", "out"],
+            default_code: 
+                "module Or8Way(in[8]) -> out { \n    //write your code here\n}",
+            draw_tables: true
+        },
+        { 
+            name: 
+                "Mux8",
+            builtin_code:
+                ` 
+                module Mux8(a[8], b[8], sel) -> out[8] {
+                    Mux(a[0], b[0], sel) -> out[0]
+                    Mux(a[1], b[1], sel) -> out[1]
+                    Mux(a[2], b[2], sel) -> out[2]
+                    Mux(a[3], b[3], sel) -> out[3]
+                    Mux(a[4], b[4], sel) -> out[4]
+                    Mux(a[5], b[5], sel) -> out[5]
+                    Mux(a[6], b[6], sel) -> out[6]
+                    Mux(a[7], b[7], sel) -> out[7]
+                }`,
+            test_cases: [
+                 {inputs: ["00000000", "00000000", 0], outputs: ["00000000"]}, 
+                 {inputs: ["10001000", "01000100", 0], outputs: ["10001000"]}, 
+                 {inputs: ["11110000", "00001111", 0], outputs: ["11110000"]}, 
+                 {inputs: ["00001111", "11110000", 0], outputs: ["00001111"]}, 
+                 {inputs: ["00000000", "00000000", 1], outputs: ["00000000"]}, 
+                 {inputs: ["10001000", "01000100", 1], outputs: ["01000100"]}, 
+                 {inputs: ["11110000", "00001111", 1], outputs: ["00001111"]}, 
+                 {inputs: ["00001111", "11110000", 1], outputs: ["11110000"]}, 
+                ],
+            identifiers:
+                ["a[8]", "b[8]", "sel", "out[8]"],
+            default_code: 
+                "module Mux8(a[8], b[8], sel) -> out[8] { \n    //write your code here\n}",
+            draw_tables: true
+        },
+        { 
+            name: 
+                "HalfAdder",
+            builtin_code:
+                ` 
+                module HalfAdder(a, b) -> sum, carry {
+                    Xor(a, b) -> sum
+                    And(a, b) -> carry
+                }`,
+            test_cases: [
+                 {inputs: [0, 0], outputs: [0, 0]}, 
+                 {inputs: [0, 1], outputs: [1, 0]}, 
+                 {inputs: [1, 0], outputs: [1, 0]}, 
+                 {inputs: [1, 1], outputs: [0, 1]}, 
+                ],
+            identifiers:
+                ["a", "b", "sum", "carry"],
+            default_code: 
+                "module HalfAdder(a, b) -> sum, carry { \n    //write your code here\n}",
+            draw_tables: true
+        },
+        { 
+            name: 
+                "FullAdder",
+            builtin_code:
+                ` 
+                module FullAdder(a, b, c) -> sum, carry {
+                    HalfAdder(a, b) -> sum1, carry1
+                    HalfAdder(sum1, c) -> sum, carry2
+                    Or(carry1, carry2) -> carry
+                }`,
+            test_cases: [
+                {inputs: [0, 0, 0], outputs: [0, 0]},
+                {inputs: [0, 0, 1], outputs: [1, 0]},
+                {inputs: [0, 1, 0], outputs: [1, 0]},
+                {inputs: [0, 1, 1], outputs: [0, 1]},
+                {inputs: [1, 0, 0], outputs: [1, 0]},
+                {inputs: [1, 0, 1], outputs: [0, 1]},
+                {inputs: [1, 1, 0], outputs: [0, 1]},
+                {inputs: [1, 1, 1], outputs: [1, 1]},
+                ],
+            identifiers:
+                ["a", "b", "c", "sum", "carry"],
+            default_code: 
+                "module FullAdder(a, b, c) -> sum, carry { \n    //write your code here\n}",
+            draw_tables: true
+        },
+        { 
+            name: 
+                "Add8",
+            builtin_code:
+                ` 
+                module Add8(a[8], b[8]) -> out[8], carry {
+                    HalfAdder(a[0], b[0]) -> out[0], carry0
+                    FullAdder(a[1], b[1], carry0) -> out[1], carry1
+                    FullAdder(a[2], b[2], carry1) -> out[2], carry2
+                    FullAdder(a[3], b[3], carry2) -> out[3], carry3
+
+                    FullAdder(a[4], b[4], carry3) -> out[4], carry4
+                    FullAdder(a[5], b[5], carry4) -> out[5], carry5
+                    FullAdder(a[6], b[6], carry5) -> out[6], carry6
+                    FullAdder(a[7], b[7], carry6) -> out[7], carry
+                }`,
+            test_cases: [
+                {inputs: ["00000000", "00000000"], outputs: ["00000000", 0]},
+                {inputs: ["00000001", "00000000"], outputs: ["00000001", 0]},
+                {inputs: ["00000001", "00000001"], outputs: ["00000010", 0]},
+                {inputs: ["00000011", "00000111"], outputs: ["00001010", 0]},
+                {inputs: ["00001111", "11110000"], outputs: ["11111111", 0]},
+                {inputs: ["01010101", "10101010"], outputs: ["11111111", 0]},
+                {inputs: ["10000000", "00000001"], outputs: ["10000001", 0]},
+                {inputs: ["11111111", "00000001"], outputs: ["00000000", 1]},
+                {inputs: ["11111111", "11111111"], outputs: ["11111110", 1]},
+                ],
+            identifiers:
+                ["a[8]", "b[8]", "out[8]", "carry"],
+            default_code: 
+                "module Add8(a[8], b[8]) -> out[8], carry { \n    //write your code here\n}",
+            draw_tables: true
+        },
+        { 
+            name: 
+                "Inc8",
+            builtin_code:
+                ` 
+                module Inc8(a[8], inc) -> out[8] {
+                    {1, 0, 0, 0, 0, 0, 0, 0}  -> b
+                    Mux8(0, b, inc) -> mux
+                    Add8(a, mux) -> out, carry
+                }`,
+            test_cases: [
+                {inputs: ["00000000", 0], outputs: ["00000000"]},
+                {inputs: ["00000001", 0], outputs: ["00000001"]},
+                {inputs: ["11111111", 0], outputs: ["11111111"]},
+                {inputs: ["00001111", 0], outputs: ["00001111"]},
+                {inputs: ["00000000", 1], outputs: ["00000001"]},
+                {inputs: ["00000011", 1], outputs: ["00000100"]},
+                {inputs: ["11111101", 1], outputs: ["11111110"]},
+                {inputs: ["11111111", 1], outputs: ["00000000"]},
+                {inputs: [], outputs: []},
+                ],
+            identifiers:
+                ["a[8]", "inc", "out[8]"],
+            default_code: 
+                "module Inc8(a[8], inc) -> out[8] { \n    //write your code here\n}",
+            draw_tables: true
+        },
+        { 
+            name: 
+                "ALU",
+            builtin_code:
+                ` 
+                module ALU(x[8], y[8], ny) -> out[8], carry, zero {
+                    Xor8(y, 1) -> flipped
+                    Inc8(flipped, 1) -> negY
+                    Mux8(y, negY, ny) -> finaly
+
+                    Add8(x, finaly) -> result, carry
+                    result -> out
+                    Or8Way(result) -> or
+                    Not(or) -> zero
+                }`,
+            test_cases: [
+                {inputs: ["00000000", "00000000", 0], outputs: ["00000000", 0, 1]},
+                {inputs: ["00000001", "11111110", 0], outputs: ["11111111", 0, 0]},
+                {inputs: ["11111111", "00000001", 0], outputs: ["00000000", 1, 1]},
+                {inputs: ["11111111", "11111111", 0], outputs: ["11111110", 1, 0]},
+                {inputs: ["10000000", "10000000", 0], outputs: ["00000000", 1, 1]},
+                {inputs: ["00111000", "00000111", 0], outputs: ["00111111", 0, 0]},
+                {inputs: ["00001111", "00000111", 0], outputs: ["00010110", 0, 0]},
+
+                {inputs: ["00000000", "00000111", 1], outputs: ["11111001", 0, 0]},
+                {inputs: ["00000000", "11111111", 1], outputs: ["00000001", 0, 0]},
+                {inputs: ["00001000", "00001000", 1], outputs: ["00000000", 1, 1]},
+                {inputs: ["00010000", "00001000", 1], outputs: ["00001000", 1, 0]},
+                {inputs: ["00001000", "00010000", 1], outputs: ["11111000", 0, 0]},
+                {inputs: ["01111111", "01111111", 1], outputs: ["00000000", 1, 1]},
+                {inputs: ["01110011", "01110000", 1], outputs: ["00000011", 1, 0]},
+                {inputs: ["11111111", "00000001", 1], outputs: ["11111110", 1, 0]},
+                ],
+            identifiers:
+                ["x[8]", "y[8]", "ny", "out[8]", "carry", "zero"],
+            default_code: 
+                "module ALU(x[8], y[8], ny) -> out[8], cr, zr { \n    //write your code here\n}",
+            draw_tables: true
+        },
     ];
 
-    modules.forEach((data, idx) => {
-        data.select_btn.addEventListener("click", () => {
-            init_task(data.name, idx, data.test_cases, data.identifiers, data.default_code, data.draw_tables);
-        });
-        if (idx === 0) {
-            data.select_btn.click();    
-        }
+    let html = '';
+    const BORDER = 10;
+    lessons.addEventListener("change", (event) => {
+        switch (event.target.value) {
+        case "basic":
+            html = '';
+            modules.slice(0, BORDER).forEach((data) => {
+                if (html === '') {
+                    html += `<div><button id="${data.name}Selector">${data.name}</button></div>`;
+                } else {
+                    html += `<div><button id="${data.name}Selector" disabled>${data.name}</button></div>`;
+                }
+            });  
+            menu.innerHTML = html;
+            modules.slice(0, BORDER).forEach((data, idx) => {
+                let select_btn = document.getElementById(`${data.name}Selector`);
+                select_btn.addEventListener("click", () => {
+                    init_task(data.name, idx, data.test_cases, data.identifiers, data.default_code, data.draw_tables, [0, BORDER]);
+                });
+                if (idx === 0) {
+                    select_btn.click();    
+                }
+            });
+            modules.slice(0, BORDER).forEach((data, idx) => {
+                set_button_color(data.name, idx, [0, BORDER]);
+            });
+            break;
+        case "advanced":
+            html = '';
+            modules.slice(BORDER).forEach((data) => {
+                if (html === '') {
+                    html += `<div><button id="${data.name}Selector">${data.name}</button></div>`;
+                } else {
+                    html += `<div><button id="${data.name}Selector" disabled>${data.name}</button></div>`;
+                }
+            });  
+            menu.innerHTML = html;
+            modules.slice(BORDER).forEach((data, idx) => {
+                let select_btn = document.getElementById(`${data.name}Selector`);
+                select_btn.addEventListener("click", () => {
+                    init_task(data.name, idx, data.test_cases, data.identifiers, data.default_code, data.draw_tables, [BORDER, modules.length]);
+                });
+                if (idx === 0) {
+                    select_btn.click();    
+                }
+            });
+            modules.slice(BORDER).forEach((data, idx) => {
+                set_button_color(data.name, idx, [BORDER, modules.length]);
+            });
+            break;
+        default:
+            break;
+        } 
     });
 
-    
-    set_button_colors();
+    reset_btn.addEventListener("click", () => {
+        localStorage.clear();
+        lessons.dispatchEvent(new Event('change'));
+    });
+
+    lessons.dispatchEvent(new Event('change'));
 
     </script>
     <script async type="text/javascript" src="grci.js"></script>
