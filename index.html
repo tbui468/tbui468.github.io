@@ -27,6 +27,11 @@
         margin-left: 32px;
     }
 
+    #description {
+        padding-left: 32px;
+        padding-right: 32px;
+    }
+
     button {
         width: 64px;
     }
@@ -176,30 +181,9 @@
     <br><br>
     <div class="container">
         <div id="menu">
-            <!--
-            <div><button id="NotSelect">Not</button></div>
-            <div><button id="AndSelect" disabled>And</button></div>
-            <div><button id="OrSelect" disabled>Or</button></div>
-            <div><button id="NorSelect" disabled>Nor</button></div>
-            <div><button id="XorSelect" disabled>Xor</button></div>
-            <div><button id="XnorSelect" disabled>Xnor</button></div>
-            <div><button id="MuxSelect" disabled>Mux</button></div>
-            <div><button id="DmuxSelect" disabled>Dmux</button></div>
-            <div><button id="And4WaySelect" disabled>And4Way</button></div>
-            <div><button id="Or4WaySelect" disabled>Or4Way</button></div>
-            -->
         </div>
         <div>
             <section id="task"></section>
-            <!--
-            <hr>
-            <section id="And"></section>
-            <hr>
-            <section id="Or"></section>
-            <hr>
-            <section id="Xor"></section>
-            <hr>
-            -->
         <div>
     </div>
     <script type='text/javascript'>
@@ -335,7 +319,7 @@
         return html;
     }
 
-    function init_section(name, test_cases, identifiers, draw_tables) {
+    function init_section(name, test_cases, identifiers, draw_tables, description) {
         console.assert(test_cases.length > 0);
         console.assert(test_cases[0].inputs.length > 0);
         console.assert(test_cases[0].outputs.length > 0);
@@ -361,6 +345,9 @@
         }
 
         html += `
+            </div>
+            <div>
+                <p id="description">${description}</p>
             </div>
         </div>
         `
@@ -468,12 +455,12 @@
         }); 
     }
 
-    function init_task(name, idx, test_cases, identifiers, default_code, draw_tables, range) {
+    function init_task(name, idx, test_cases, identifiers, default_code, draw_tables, range, description) {
         if (localStorage.getItem(name) === null) {
             localStorage.setItem(name, JSON.stringify({ name: name, cleared: false, code: default_code }));
         }
         let data = JSON.parse(localStorage.getItem(name));
-        init_section(name, test_cases, identifiers, draw_tables);
+        init_section(name, test_cases, identifiers, draw_tables, description);
 
         let code_textarea = document.getElementById(name + "Code");
         let reset_btn = document.getElementById(name + "Reset");
@@ -526,7 +513,8 @@
                 ["in", "out"],
             default_code: 
                 "module Not(in) -> out { \n    //write your code here\n}",
-            draw_tables: true 
+            draw_tables: true,
+            description: "",
         },
         { 
             name: 
@@ -545,7 +533,8 @@
                 ["a", "b", "out"],
             default_code: 
                 "module And(a, b) -> out { \n    //write your code here\n}",
-            draw_tables: true 
+            draw_tables: true,
+            description: "",
         },
         { 
             name: 
@@ -566,7 +555,8 @@
                 ["a", "b", "out"],
             default_code: 
                 "module Or(a, b) -> out { \n    //write your code here\n}",
-            draw_tables: true 
+            draw_tables: true,
+            description: "",
         },
         { 
             name: 
@@ -585,7 +575,8 @@
                 ["a", "b", "out"],
             default_code: 
                 "module Nor(a, b) -> out { \n    //write your code here\n}",
-            draw_tables: true 
+            draw_tables: true,
+            description: "",
         },
         { 
             name: 
@@ -607,7 +598,8 @@
                 ["a", "b", "out"],
             default_code: 
                 "module Xor(a, b) -> out { \n    //write your code here\n}",
-            draw_tables: true 
+            draw_tables: true,
+            description: "",
         },
         { 
             name: 
@@ -626,7 +618,8 @@
                 ["a", "b", "out"],
             default_code: 
                 "module Xnor(a, b) -> out { \n    //write your code here\n}",
-            draw_tables: true 
+            draw_tables: true,
+            description: "",
         },
         { 
             name: 
@@ -651,7 +644,8 @@
                 ["a", "b", "sel", "out"],
             default_code: 
                 "module Mux(a, b, sel) -> out { \n    //write your code here\n}",
-            draw_tables: true 
+            draw_tables: true,
+            description: "",
         },
         { 
             name: 
@@ -671,7 +665,8 @@
                 ["in", "sel", "a", "b"],
             default_code: 
                 "module Dmux(in, sel) -> a, b { \n    //write your code here\n}",
-            draw_tables: true 
+            draw_tables: true,
+            description: "",
         },
         { 
             name: 
@@ -704,7 +699,8 @@
                 ["a", "b", "c", "d", "out"],
             default_code: 
                 "module And4Way(a, b, c, d) -> out { \n    //write your code here\n}",
-            draw_tables: true
+            draw_tables: true,
+            description: "",
         },
         { 
             name: 
@@ -737,7 +733,8 @@
                 ["a", "b", "c", "d", "out"],
             default_code: 
                 "module Or4Way(a, b, c, d) -> out { \n    //write your code here\n}",
-            draw_tables: true
+            draw_tables: true,
+            description: "",
         },
         { 
             name: 
@@ -765,7 +762,8 @@
                 ["in[8]", "out[8]"],
             default_code: 
                 "module Not8(in[8]) -> out[8] { \n    //write your code here\n}",
-            draw_tables: true
+            draw_tables: true,
+            description: "",
         },
         { 
             name: 
@@ -796,7 +794,8 @@
                 ["a[8]", "b[8]", "out[8]"],
             default_code: 
                 "module And8(a[8], b[8]) -> out[8] { \n    //write your code here\n}",
-            draw_tables: true
+            draw_tables: true,
+            description: "",
         },
         { 
             name: 
@@ -826,7 +825,8 @@
                 ["a[8]", "b[8]", "out[8]"],
             default_code: 
                 "module Or8(a[8], b[8]) -> out[8] { \n    //write your code here\n}",
-            draw_tables: true
+            draw_tables: true,
+            description: "",
         },
         { 
             name: 
@@ -856,7 +856,40 @@
                 ["a[8]", "b[8]", "out[8]"],
             default_code: 
                 "module Xor8(a[8], b[8]) -> out[8] { \n    //write your code here\n}",
-            draw_tables: true
+            draw_tables: true,
+            description: "",
+        },
+        { 
+            name: 
+                "Mux8",
+            builtin_code:
+                ` 
+                module Mux8(a[8], b[8], sel) -> out[8] {
+                    Mux(a[0], b[0], sel) -> out[0]
+                    Mux(a[1], b[1], sel) -> out[1]
+                    Mux(a[2], b[2], sel) -> out[2]
+                    Mux(a[3], b[3], sel) -> out[3]
+                    Mux(a[4], b[4], sel) -> out[4]
+                    Mux(a[5], b[5], sel) -> out[5]
+                    Mux(a[6], b[6], sel) -> out[6]
+                    Mux(a[7], b[7], sel) -> out[7]
+                }`,
+            test_cases: [
+                 {inputs: ["00000000", "00000000", 0], outputs: ["00000000"]}, 
+                 {inputs: ["10001000", "01000100", 0], outputs: ["10001000"]}, 
+                 {inputs: ["11110000", "00001111", 0], outputs: ["11110000"]}, 
+                 {inputs: ["00001111", "11110000", 0], outputs: ["00001111"]}, 
+                 {inputs: ["00000000", "00000000", 1], outputs: ["00000000"]}, 
+                 {inputs: ["10001000", "01000100", 1], outputs: ["01000100"]}, 
+                 {inputs: ["11110000", "00001111", 1], outputs: ["00001111"]}, 
+                 {inputs: ["00001111", "11110000", 1], outputs: ["11110000"]}, 
+                ],
+            identifiers:
+                ["a[8]", "b[8]", "sel", "out[8]"],
+            default_code: 
+                "module Mux8(a[8], b[8], sel) -> out[8] { \n    //write your code here\n}",
+            draw_tables: true,
+            description: "",
         },
         { 
             name: 
@@ -888,38 +921,8 @@
                 ["in[8]", "out"],
             default_code: 
                 "module Or8Way(in[8]) -> out { \n    //write your code here\n}",
-            draw_tables: true
-        },
-        { 
-            name: 
-                "Mux8",
-            builtin_code:
-                ` 
-                module Mux8(a[8], b[8], sel) -> out[8] {
-                    Mux(a[0], b[0], sel) -> out[0]
-                    Mux(a[1], b[1], sel) -> out[1]
-                    Mux(a[2], b[2], sel) -> out[2]
-                    Mux(a[3], b[3], sel) -> out[3]
-                    Mux(a[4], b[4], sel) -> out[4]
-                    Mux(a[5], b[5], sel) -> out[5]
-                    Mux(a[6], b[6], sel) -> out[6]
-                    Mux(a[7], b[7], sel) -> out[7]
-                }`,
-            test_cases: [
-                 {inputs: ["00000000", "00000000", 0], outputs: ["00000000"]}, 
-                 {inputs: ["10001000", "01000100", 0], outputs: ["10001000"]}, 
-                 {inputs: ["11110000", "00001111", 0], outputs: ["11110000"]}, 
-                 {inputs: ["00001111", "11110000", 0], outputs: ["00001111"]}, 
-                 {inputs: ["00000000", "00000000", 1], outputs: ["00000000"]}, 
-                 {inputs: ["10001000", "01000100", 1], outputs: ["01000100"]}, 
-                 {inputs: ["11110000", "00001111", 1], outputs: ["00001111"]}, 
-                 {inputs: ["00001111", "11110000", 1], outputs: ["11110000"]}, 
-                ],
-            identifiers:
-                ["a[8]", "b[8]", "sel", "out[8]"],
-            default_code: 
-                "module Mux8(a[8], b[8], sel) -> out[8] { \n    //write your code here\n}",
-            draw_tables: true
+            draw_tables: true,
+            description: "If any of the 8 inputs is high, the output of Or8Way will be high.  Otherwise will output low.",
         },
         { 
             name: 
@@ -940,7 +943,8 @@
                 ["a", "b", "sum", "carry"],
             default_code: 
                 "module HalfAdder(a, b) -> sum, carry { \n    //write your code here\n}",
-            draw_tables: true
+            draw_tables: true,
+            description: "Adds two bits, a and b.  Will output the sum and the carry bit.",
         },
         { 
             name: 
@@ -966,7 +970,8 @@
                 ["a", "b", "c", "sum", "carry"],
             default_code: 
                 "module FullAdder(a, b, c) -> sum, carry { \n    //write your code here\n}",
-            draw_tables: true
+            draw_tables: true,
+            description: "Adds three bits, a, b and c.  Will output the sum and carry bit.",
         },
         { 
             name: 
@@ -999,7 +1004,8 @@
                 ["a[8]", "b[8]", "out[8]", "carry"],
             default_code: 
                 "module Add8(a[8], b[8]) -> out[8], carry { \n    //write your code here\n}",
-            draw_tables: true
+            draw_tables: true,
+            description: "Adds two 8-bit numbers, a and b.  Will output the sum, an 8-bit number, and a carry bit.",
         },
         { 
             name: 
@@ -1026,7 +1032,8 @@
                 ["a[8]", "inc", "out[8]"],
             default_code: 
                 "module Inc8(a[8], inc) -> out[8] { \n    //write your code here\n}",
-            draw_tables: true
+            draw_tables: true,
+            description: "If inc is high, will output a + 1.  Otherwise output a.",
         },
         { 
             name: 
@@ -1065,7 +1072,8 @@
                 ["x[8]", "y[8]", "ny", "out[8]", "carry", "zero"],
             default_code: 
                 "module ALU(x[8], y[8], ny) -> out[8], cr, zr { \n    //write your code here\n}",
-            draw_tables: true
+            draw_tables: true,
+            description: "Will add two 8-bit numbers, x and y.  If ny is high, will negate y using two's complement format before addition.  Outputs sum, carry flag, and zero flag."
         },
     ];
 
@@ -1086,7 +1094,7 @@
             modules.slice(0, BORDER).forEach((data, idx) => {
                 let select_btn = document.getElementById(`${data.name}Selector`);
                 select_btn.addEventListener("click", () => {
-                    init_task(data.name, idx, data.test_cases, data.identifiers, data.default_code, data.draw_tables, [0, BORDER]);
+                    init_task(data.name, idx, data.test_cases, data.identifiers, data.default_code, data.draw_tables, [0, BORDER], data.description);
                 });
                 if (idx === 0) {
                     select_btn.click();    
@@ -1109,7 +1117,7 @@
             modules.slice(BORDER).forEach((data, idx) => {
                 let select_btn = document.getElementById(`${data.name}Selector`);
                 select_btn.addEventListener("click", () => {
-                    init_task(data.name, idx, data.test_cases, data.identifiers, data.default_code, data.draw_tables, [BORDER, modules.length]);
+                    init_task(data.name, idx, data.test_cases, data.identifiers, data.default_code, data.draw_tables, [BORDER, modules.length], data.description);
                 });
                 if (idx === 0) {
                     select_btn.click();    
