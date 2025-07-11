@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Logic Gate Simulator</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    #header {
+        padding: 4px;
+        margin: 0;
+    }
+
+    .editor-action {
+        padding: 0;
+    }
+
+    .editor-action button {
+        width: 32px;
+        height: 32px;
+    }
+
+    button {
+        margin-left: 8px;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+
+    header {
+      background-color: #1e1e1e;
+      color: white;
+      padding: 16px 8px;
+      font-size: 1.2em;
+      justify-content: space-between;
+      display: flex;
+    }
+
+    /* Sidebar */
+    nav {
+      width: 128px;
+      background-color: #2c3e50;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      padding: 20px 10px;
+      flex-wrap: wrap;
+    }
+
+    nav h2 {
+      font-size: 1.2em;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    nav a {
+      color: white;
+      text-decoration: none;
+      padding: 0px;
+      margin: 0 0;
+      border-radius: 4px;
+      transition: background 0.3s;
+      width: 96px;
+      text-align: left;
+    }
+
+    nav a:hover {
+      background-color: #34495e;
+    }
+
+    select {
+        margin: 0 0;
+        padding: 4px;
+        /*background-color: #2c3e50;*/
+        background-color: #5c6e80;
+        color: white;
+        width: 96px;
+    }
+
+    #menu {
+        background-color: #3c4e60;
+        padding: 4px;
+        display: flex;
+        justify-content: space-between;
+    }
+
+    select option {
+      color: white;
+      text-decoration: none;
+    }
+
+    .editor-container {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    #code-column {
+        width: 50%;
+        display: flex;
+        flex-direction: column;
+    }
+
+    #terminal {
+      background-color: #000;
+      height: 40%;
+    }
+
+    textarea {
+      width: 100%;
+      height: 100%;
+      padding: 15px;
+      font-family: monospace;
+      font-size: 1em;
+      border: none;
+      outline: none;
+      resize: none;
+      background-color: #282c34;
+      color: #f8f8f2;
+    }
+
+    #instructions {
+      width: 50%;
+      border: none;
+      background-color: white;
+      overflow-y: scroll;
+    }
+
+    p {
+        padding: 16px;
+    }
+
+    @media screen and (max-width: 800px) {
+        .editor-container {
+            flex-direction: column;
+        }
+
+        textarea {
+            width: 100%;
+            height: 100%;
+        }
+        
+        #code-column {
+            width: 100%;
+            height: 70%;
+        }
+        #instructions {
+            width: 100%;
+            height: 30%;
+        }
+        
+        nav {
+          flex-direction: row;
+          width: 100%;
+          height: 25%;
+        }
+        nav a {
+          text-align: center;
+        }
+    }
+
+    footer {
+      background-color: #f1f1f1;
+      text-align: right;
+      padding: 4px;
+      font-size: 0.9em;
+    }
+  </style>
+</head>
+<body>
+    <header>
+        <h3 id="header">💻 Logic Gate Simulator</h3>
+        <select>
+            <option>Basic</option>
+            <option>ALU</option>
+            <option>Memory</option>
+        </select>
+    </header>
+  <div class="editor-container">
+        <!--
+        <nav>
+            <a href="#">Basic</a>
+            <a href="#">ALU</a>
+            <a href="#">Memory</a>
+            <a href="#">CU</a>
+            <a href="#">Computer</a>
+            <a href="#">Basic1</a>
+            <a href="#">ALU1</a>
+            <a href="#">Memory1</a>
+            <a href="#">CU1</a>
+            <a href="#">Computer1</a>
+        </nav>
+        -->
+        <section id="code-column">
+            <div id="menu">
+                <select>
+                    <option>Basic</option>
+                    <option>ALU</option>
+                    <option>Memory</option>
+                </select>
+                <div class="editor-action">
+                    <button>&#9654;</button>
+                    <button>&#11148;</button>
+                </div>
+            </div>
+            <textarea id="code" placeholder="Write your HTML/CSS/JS here..."></textarea>
+            <textarea id="terminal" placeholder=">>>" disabled></textarea>
+        </section>
+        <!--
+        <iframe id="preview">
+</iframe>
+        -->
+    <div id="instructions">
+        <p>
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur id semper turpis. Curabitur risus dui, consequat fermentum lorem id, tristique tincidunt lacus. Praesent velit metus, vehicula eget lacus non, aliquam tristique nisl. Cras posuere iaculis enim vitae consectetur. Maecenas eu mauris non nisi ullamcorper aliquam. Maecenas vitae erat purus. Nullam turpis velit, egestas eget ullamcorper vitae, scelerisque eget tellus. Integer auctor, augue sit amet elementum gravida, mauris massa laoreet eros, vitae malesuada purus mauris eu odio. Nam dapibus id lorem ac vulputate. Vivamus vehicula magna at ipsum fermentum finibus et ac neque. Vivamus a sem sed enim molestie scelerisque. Phasellus cursus rhoncus odio, sed blandit ligula vulputate cursus. Integer ut est eget quam pellentesque maximus sit amet quis lacus. Duis nibh ante, blandit ac felis at, hendrerit iaculis ex.
+        </p>
+        <p>
+Donec mattis arcu nec ipsum placerat, eget consectetur leo auctor. Sed volutpat urna enim, non interdum lorem rutrum eu. Aenean venenatis lorem eu quam euismod scelerisque. Sed et suscipit ipsum. Cras eget sem vel velit blandit tempus. Nulla eu metus nec dolor porta aliquet. Maecenas a lorem condimentum, imperdiet nunc vel, sodales tellus. Cras posuere erat vitae ligula ultricies, ut vestibulum est aliquet.
+    </p>
+    <p>
+Nam venenatis faucibus neque, a feugiat elit sagittis ac. In quis varius velit. Integer aliquet eleifend commodo. Etiam porttitor lobortis ligula, non gravida ex viverra nec. Donec molestie augue ut sem iaculis venenatis. In tempor eros vitae massa porta, non ornare libero semper. Nullam pellentesque nulla in orci rhoncus, sit amet placerat tortor aliquam.
+    </p>
+    <p>
+Nulla et dolor quis nisl vestibulum bibendum nec eget leo. Aenean dictum metus a justo porta sagittis. Maecenas sed turpis eu nunc efficitur porta sed a nulla. Aliquam quis orci sagittis, sodales ante eget, feugiat nisl. Fusce condimentum interdum lectus, eget dignissim tellus finibus eu. Sed ut augue nunc. Integer aliquam consequat est a sollicitudin. Praesent quis risus neque. In ultrices nisi ornare, malesuada leo ac, blandit elit.
+    </p>
+    <p>
+Aliquam erat volutpat. Ut vitae consectetur orci. Suspendisse quis tellus at nulla fermentum pharetra. In semper gravida sapien, id fringilla urna venenatis ut. Integer sit amet finibus augue. Pellentesque tristique ipsum metus, eget hendrerit augue gravida in. Proin vitae elit laoreet, placerat arcu in, pulvinar velit.
+    </p>
+    </div>
+  </div>
+  <footer><button>Reset</button></footer>
+
+  <script>
+    const codeInput = document.getElementById('code');
+    const previewFrame = document.getElementById('preview');
+
+    codeInput.addEventListener('input', () => {
+      const code = codeInput.value;
+      previewFrame.srcdoc = code;
+    });
+
+    // Optional: preload with a basic template
+    codeInput.value = `<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body { font-family: sans-serif; padding: 20px; }
+    h1 { color: #007acc; }
+  </style>
+</head>
+<body>
+  <h1>Hello, world!</h1>
+  <p>Edit the code to see changes live.</p>
+</body>
+</html>`;
+    previewFrame.srcdoc = codeInput.value;
+  </script>
+</body>
+</html>
+
