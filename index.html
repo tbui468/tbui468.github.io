@@ -4,10 +4,19 @@
     <meta charset="utf-8">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <title>Logic Gate Simulator</title>
-    <style>body {
-      font-family: arial;
-      margin: 0;
+    <style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
       padding: none;
+
+
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
                 }
 
     .emscripten { padding-right: 0; margin-left: auto; margin-right: auto; display: none; }
@@ -15,6 +24,84 @@
     div.emscripten_border { }
     /* the canvas *must not* have any border or padding, or mouse coords will be wrong */
     canvas.emscripten { border: 0px none; background-color: black; }
+
+    #header {
+        padding: 4px;
+        margin: 0;
+    }
+
+    .editor-container {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    select {
+        margin: 0 0;
+        padding: 4px;
+        /*background-color: #2c3e50;*/
+        background-color: #3c4e60;
+        color: white;
+        width: 96px;
+    }
+
+    #menu {
+        background-color: #3c4e60;
+        padding: 4px;
+        display: flex;
+        justify-content: space-between;
+    }
+
+    select option {
+      color: white;
+      text-decoration: none;
+    }
+
+    #code-column {
+        width: 50%;
+        display: flex;
+        flex-direction: column;
+    }
+
+    #terminal {
+      background-color: #000;
+      height: 50%;
+      overflow-y: auto;
+      overflow-x: hidden;
+    }
+
+    #terminal p {
+        color: white;
+    }
+
+    textarea {
+      width: 100%;
+      height: 60%;
+      padding: 15px;
+      font-family: monospace;
+      font-size: 1em;
+      border: none;
+      outline: none;
+      resize: none;
+      background-color: #282c34;
+      color: #f8f8f2;
+    }
+
+    #instructions {
+      width: 50%;
+      border: none;
+      background-color: white;
+      overflow-y: scroll;
+    }
+
+    header {
+      background-color: #1e1e1e;
+      color: white;
+      padding: 16px 8px;
+      font-size: 1.2em;
+      justify-content: space-between;
+      display: flex;
+    }
 
     .container {
         display: flex;
@@ -32,19 +119,38 @@
         padding-right: 32px;
     }
 
-    button {
-        width: 64px;
-    }
-
-    #reset_btn {
-        width: 128px;
-    }
-
     textarea {
         resize: none;
     }
 
-    section {
+    @media screen and (max-width: 800px) {
+        .editor-container {
+            flex-direction: column;
+        }
+
+        textarea {
+            width: 100%;
+            height: 60%;
+        }
+        
+        #code-column {
+            width: 100%;
+            height: 70%;
+        }
+
+        #instructions {
+            width: 100%;
+            height: 30%;
+        }
+        
+        nav {
+          flex-direction: row;
+          width: 100%;
+          height: 25%;
+        }
+        nav a {
+          text-align: center;
+        }
     }
 
     h2 {
@@ -61,17 +167,19 @@
         margin-bottom: 32px;
         margin-left: 32px;
         border-collapse: collapse;
-        border: 1px solid black;
+        border: 1px solid white;
     }
 
     th {
-        border-bottom: 1px solid black;
+        border-bottom: 1px solid white;
+        color: white;
     }
 
     th, td {
         text-align: center;
         padding-left: 4px;
         padding-right: 4px;
+        color: white;
     }
 
     #emscripten_logo {
@@ -158,34 +266,72 @@
       font-family: 'Lucida Console', Monaco, monospace;
       outline: none;
     }
+
+    footer {
+      background-color: #f1f1f1;
+      text-align: right;
+      padding: 4px;
+      font-size: 0.9em;
+    }
+
     </style>
   </head>
   <body>
-    <div class="spinner" id='spinner'></div>
-    <div class="emscripten" id="status">Downloading...</div>
+    <header>
+        <h3 id="header">💻 Logic Gate Simulator</h3>
+        <select name="lessons" id="lessons">
+            <option value="basic">Basic</option>
+            <option value="advanced">ALU</option>
+            <option value="memory">Memory</option>
+        </select>
+    </header>
 
-    <div class="emscripten">
-      <progress value="0" max="100" id="progress" hidden=1></progress>
-    </div>
-    <div class="emscripten_border">
-      <canvas class="emscripten" id="canvas" oncontextmenu="event.preventDefault()" tabindex=-1></canvas>
-    </div>
+    <div class="editor-container">
+        <section id="code-column">
+            <div id="menu">
+                <div id="task_select">
+                    <select>
+                        <option>Basic</option>
+                        <option>ALU</option>
+                        <option>Memory</option>
+                    </select>
+                </div>
+                <div id="task_action">
+                    <button id="sim_btn">&#9654;</button>
+                    <button id="reset_btn">&#11148;</button>
+                </div>
+            </div>
+            <textarea id="code" placeholder="Write your HTML/CSS/JS here..." spellcheck=false></textarea>
+            <div id="terminal"><p>TEST</p></div>
+        </section>
+        <div id="instructions">
+            <div class="spinner" id='spinner'></div>
+            <div class="emscripten" id="status">Downloading...</div>
 
-    <button id="reset_btn">Reset Progress</button>
-    <h1>Logic Gate Simulator</h1>
-    <label for="lessons">Lessons</label>
-    <select name="lessons" id="lessons">
-        <option value="basic">Basic</option>
-        <option value="advanced">ALU</option>
-    </select>
-    <br><br>
-    <div class="container">
-        <div id="menu">
+            <div class="emscripten">
+              <progress value="0" max="100" id="progress" hidden=1></progress>
+            </div>
+
+            <div class="emscripten_border">
+              <canvas class="emscripten" id="canvas" oncontextmenu="event.preventDefault()" tabindex=-1></canvas>
+            </div>
+
+            <br><br>
+            <div class="container">
+            <!--
+                <div id="menu">
+                </div>
+                <div>
+                    <section id="task"></section>
+                </div>
+            -->
+            </div>
         </div>
-        <div>
-            <section id="task"></section>
-        <div>
     </div>
+
+    <footer><button id="clear_progress_btn">Reset</button></footer>
+
+
     <script type='text/javascript'>
       var statusElement = document.getElementById('status');
       var progressElement = document.getElementById('progress');
@@ -289,7 +435,7 @@
         reset_btn.addEventListener("click", default_code_fcn);
     }
 
-    function make_html_table(name, test_cases, letters, is_truth_table) {
+    function make_html_table(name, test_cases, letters, is_truth_table, has_clk) {
 
 
         let html = is_truth_table ? "<table>" : `<table id="${name}Table">`;
@@ -299,19 +445,31 @@
             html += "<caption>Simulated</caption>";
         }
         html += "<tr>";
+        if (has_clk) {
+            html += `<th>clk</th>`;
+        }
         test_cases[0].inputs.forEach((value, idx) => {
             html += `<th>${letters[idx]}</th>`;
         }); 
         test_cases[0].outputs.forEach((value, idx) => {
             html += `<th>${letters[test_cases[0].inputs.length + idx]}</th>`;
         }); 
+        test_cases[0].outputs.forEach((value, idx) => {
+            html += `<th><b>${letters[test_cases[0].inputs.length + idx]}</b></th>`;
+        }); 
         html += "</tr>";
 
         test_cases.forEach((test_case, idx) => {
             html += "<tr>";
+            if (has_clk) {
+                html += `<td><tt>${idx % 2}</tt></td>`;
+            }
             test_case.inputs.forEach((input) => { html += `<td><tt>${input}</tt></td>`; });
             test_case.outputs.forEach((output, output_idx) => { 
-                html += is_truth_table ? `<td><tt>${output}</td>` : `<td id="${name + String(idx) + String(output_idx)}">-</tt></td>`; 
+                html += `<td><tt>${output}</tt></td>`;
+            });
+            test_case.outputs.forEach((output, output_idx) => { 
+                html += `<td id="${name + String(idx) + String(output_idx)}"><tt>-</tt></td>`;
             });
             html += "</tr>";
         });
@@ -319,23 +477,16 @@
         return html;
     }
 
-    function init_section(name, test_cases, identifiers, draw_tables, description) {
+    function init_section(name, test_cases, identifiers, draw_tables, description, has_clk) {
         console.assert(test_cases.length > 0);
         console.assert(test_cases[0].inputs.length > 0);
         console.assert(test_cases[0].outputs.length > 0);
         let html = `
-        <h2>${name}</h2>
         <div class="inner_container">
-            <div>
-                <textarea id="${name}Code" rows="16" cols="48" spellcheck="false"></textarea>
-                <div><button id="${name}Sim">Simulate</button><button id="${name}Reset">Reset</button></div>
-            </div>
             <div>`;
 
         if (draw_tables) {
-            html += make_html_table(name, test_cases, identifiers, false);
-            //html += "</div><div>";
-            html += make_html_table(name, test_cases, identifiers, true);
+            html += make_html_table(name, test_cases, identifiers, false, has_clk);
         } else {
             html += `
                 <label>Input</label><textarea></textarea>
@@ -353,7 +504,7 @@
         `
 
        // task.innerHTML = html;
-        document.getElementById("task").innerHTML = html;
+        document.getElementById("terminal").innerHTML = html;
        //section.innerHTML = html;
     }
 
@@ -381,11 +532,11 @@
             td_elements.forEach((element) => {
                 element.innerHTML = "-";
             });
-            sim_table.style.backgroundColor = "white";
+            sim_table.style.backgroundColor = "black";
 
             let grci = grci_easy_init();
             let src = '';
-            modules.slice(0, range[0] + idx).forEach((data) => {
+            modules.slice(0, idx).forEach((data) => {
                 src += data.builtin_code;
             });
 
@@ -441,7 +592,7 @@
                     data.cleared = true;
                 }
 
-                sim_table.style.backgroundColor = cleared ? "lightGreen" : "white";
+                sim_table.style.backgroundColor = cleared ? "lightGreen" : "black";
                 grci_destroy_module(module);
             } else {
                 sim_btn.style.backgroundColor = "red";
@@ -449,22 +600,22 @@
             }
 
             grci_cleanup(grci);
-
+            console.log('saving', name);
             localStorage.setItem(name, JSON.stringify(data));
             set_button_color(name, idx, range);
         }); 
     }
 
-    function init_task(name, idx, test_cases, identifiers, default_code, draw_tables, range, description) {
+    function init_task(name, idx, test_cases, identifiers, default_code, draw_tables, range, description, has_clk) {
         if (localStorage.getItem(name) === null) {
             localStorage.setItem(name, JSON.stringify({ name: name, cleared: false, code: default_code }));
         }
         let data = JSON.parse(localStorage.getItem(name));
-        init_section(name, test_cases, identifiers, draw_tables, description);
+        init_section(name, test_cases, identifiers, draw_tables, description, has_clk);
 
-        let code_textarea = document.getElementById(name + "Code");
-        let reset_btn = document.getElementById(name + "Reset");
-        let sim_btn = document.getElementById(name + "Sim");
+        let code_textarea = document.getElementById("code");
+        let reset_btn = document.getElementById("reset_btn");
+        let sim_btn = document.getElementById("sim_btn");
         let table = document.getElementById(name + "Table");
 
         init_default_btn(code_textarea, 
@@ -488,10 +639,11 @@
         if (localStorage.getItem(name) !== null) {
             let saved = JSON.parse(localStorage.getItem(name));
             if (saved.cleared) {
-                let select_btn = document.getElementById(`${name}Selector`);
+                let select_btn = document.getElementById(`${idx}`);
+                console.log(idx, range);
                 select_btn.style.backgroundColor = "lightGreen";
-                if (idx + 1 + range[0] < range[1]) {
-                    let next_select_btn = document.getElementById(`${modules[idx + 1 + range[0]].name}Selector`);
+                if (idx + 1 < range[1]) {
+                    let next_select_btn = document.getElementById(`${idx + 1}`);
                     next_select_btn.removeAttribute("disabled");
                 }
             }
@@ -515,6 +667,7 @@
                 "module Not(in) -> out { \n    //write your code here\n}",
             draw_tables: true,
             description: "",
+            has_clk: false,
         },
         { 
             name: 
@@ -535,6 +688,7 @@
                 "module And(a, b) -> out { \n    //write your code here\n}",
             draw_tables: true,
             description: "",
+            has_clk: false,
         },
         { 
             name: 
@@ -557,6 +711,7 @@
                 "module Or(a, b) -> out { \n    //write your code here\n}",
             draw_tables: true,
             description: "",
+            has_clk: false,
         },
         { 
             name: 
@@ -577,6 +732,7 @@
                 "module Nor(a, b) -> out { \n    //write your code here\n}",
             draw_tables: true,
             description: "",
+            has_clk: false,
         },
         { 
             name: 
@@ -600,6 +756,7 @@
                 "module Xor(a, b) -> out { \n    //write your code here\n}",
             draw_tables: true,
             description: "",
+            has_clk: false,
         },
         { 
             name: 
@@ -620,6 +777,7 @@
                 "module Xnor(a, b) -> out { \n    //write your code here\n}",
             draw_tables: true,
             description: "",
+            has_clk: false,
         },
         { 
             name: 
@@ -646,10 +804,11 @@
                 "module Mux(a, b, sel) -> out { \n    //write your code here\n}",
             draw_tables: true,
             description: "",
+            has_clk: false,
         },
         { 
             name: 
-                "Dmux",
+                "DMux",
             builtin_code:
                 `module DMux(in, sel) -> a, b {
                     Not(sel) -> notSel
@@ -664,9 +823,10 @@
             identifiers:
                 ["in", "sel", "a", "b"],
             default_code: 
-                "module Dmux(in, sel) -> a, b { \n    //write your code here\n}",
+                "module DMux(in, sel) -> a, b { \n    //write your code here\n}",
             draw_tables: true,
             description: "",
+            has_clk: false,
         },
         { 
             name: 
@@ -701,6 +861,7 @@
                 "module And4Way(a, b, c, d) -> out { \n    //write your code here\n}",
             draw_tables: true,
             description: "",
+            has_clk: false,
         },
         { 
             name: 
@@ -735,6 +896,7 @@
                 "module Or4Way(a, b, c, d) -> out { \n    //write your code here\n}",
             draw_tables: true,
             description: "",
+            has_clk: false,
         },
         { 
             name: 
@@ -764,6 +926,7 @@
                 "module Not8(in[8]) -> out[8] { \n    //write your code here\n}",
             draw_tables: true,
             description: "",
+            has_clk: false,
         },
         { 
             name: 
@@ -796,6 +959,7 @@
                 "module And8(a[8], b[8]) -> out[8] { \n    //write your code here\n}",
             draw_tables: true,
             description: "",
+            has_clk: false,
         },
         { 
             name: 
@@ -827,6 +991,7 @@
                 "module Or8(a[8], b[8]) -> out[8] { \n    //write your code here\n}",
             draw_tables: true,
             description: "",
+            has_clk: false,
         },
         { 
             name: 
@@ -858,6 +1023,7 @@
                 "module Xor8(a[8], b[8]) -> out[8] { \n    //write your code here\n}",
             draw_tables: true,
             description: "",
+            has_clk: false,
         },
         { 
             name: 
@@ -890,6 +1056,7 @@
                 "module Mux8(a[8], b[8], sel) -> out[8] { \n    //write your code here\n}",
             draw_tables: true,
             description: "",
+            has_clk: false,
         },
         { 
             name: 
@@ -923,6 +1090,7 @@
                 "module Or8Way(in[8]) -> out { \n    //write your code here\n}",
             draw_tables: true,
             description: "If any of the 8 inputs is high, the output of Or8Way will be high.  Otherwise will output low.",
+            has_clk: false,
         },
         { 
             name: 
@@ -945,6 +1113,7 @@
                 "module HalfAdder(a, b) -> sum, carry { \n    //write your code here\n}",
             draw_tables: true,
             description: "Adds two bits, a and b.  Will output the sum and the carry bit.",
+            has_clk: false,
         },
         { 
             name: 
@@ -972,6 +1141,7 @@
                 "module FullAdder(a, b, c) -> sum, carry { \n    //write your code here\n}",
             draw_tables: true,
             description: "Adds three bits, a, b and c.  Will output the sum and carry bit.",
+            has_clk: false,
         },
         { 
             name: 
@@ -1006,6 +1176,7 @@
                 "module Add8(a[8], b[8]) -> out[8], carry { \n    //write your code here\n}",
             draw_tables: true,
             description: "Adds two 8-bit numbers, a and b.  Will output the sum, an 8-bit number, and a carry bit.",
+            has_clk: false,
         },
         { 
             name: 
@@ -1034,6 +1205,7 @@
                 "module Inc8(a[8], inc) -> out[8] { \n    //write your code here\n}",
             draw_tables: true,
             description: "If inc is high, will output a + 1.  Otherwise output a.",
+            has_clk: false,
         },
         { 
             name: 
@@ -1073,66 +1245,344 @@
             default_code: 
                 "module ALU(x[8], y[8], ny) -> out[8], cr, zr { \n    //write your code here\n}",
             draw_tables: true,
-            description: "Will add two 8-bit numbers, x and y.  If ny is high, will negate y using two's complement format before addition.  Outputs sum, carry flag, and zero flag."
+            description: "Will add two 8-bit numbers, x and y.  If ny is high, will negate y using two's complement format before addition.  Outputs sum, carry flag, and zero flag.",
+            has_clk: false,
+        },
+        {
+            name: 
+                "Mux4Way8",
+            builtin_code:
+                ` 
+                module Mux4Way8(a[8], b[8], c[8], d[8], sel[2]) -> out[8] {
+                    Mux8(a, b, sel[0]) -> out1
+                    Mux8(c, d, sel[0]) -> out2
+                    Mux8(out1, out2, sel[1]) -> out
+                }`,
+            test_cases: [
+                    {inputs: ["00000011", "00001100", "00110000", "11000000", "00"], outputs: ["00000011"]},
+                    {inputs: ["00000011", "00001100", "00110000", "11000000", "01"], outputs: ["00001100"]},
+                    {inputs: ["00000011", "00001100", "00110000", "11000000", "10"], outputs: ["00110000"]},
+                    {inputs: ["00000011", "00001100", "00110000", "11000000", "11"], outputs: ["11000000"]},
+                ],
+            identifiers:
+                ["a[8]", "b[8]", "c[8]", "d[8]", "sel[2]", "out[8]"],
+            default_code: 
+                "module Mux4Way8(a[8], b[8], c[8], d[8], sel[2]) -> out[8] { \n    //write your code here\n}",
+            draw_tables: true,
+            description: "",
+            has_clk: false,
+        },
+        {
+            name: 
+                "DMux4Way",
+            builtin_code:
+                ` 
+                module DMux4Way(in, sel[2]) -> a, b, c, d {
+                    DMux(in, sel[0]) -> t1, t2
+                    DMux(t1, sel[1]) -> a, c
+                    DMux(t2, sel[1]) -> b, d
+                }`,
+            test_cases: [
+                    {inputs: [0, "00"], outputs: [0, 0, 0, 0]},
+                    {inputs: [1, "00"], outputs: [1, 0, 0, 0]},
+
+                    {inputs: [0, "01"], outputs: [0, 0, 0, 0]},
+                    {inputs: [1, "01"], outputs: [0, 1, 0, 0]},
+
+                    {inputs: [0, "10"], outputs: [0, 0, 0, 0]},
+                    {inputs: [1, "10"], outputs: [0, 0, 1, 0]},
+
+                    {inputs: [0, "11"], outputs: [0, 0, 0, 0]},
+                    {inputs: [1, "11"], outputs: [0, 0, 0, 1]},
+                ],
+            identifiers:
+                ["in", "sel[2]", "a", "b", "c", "d"],
+            default_code: 
+                "module DMux4Way(in, sel[2]) -> a, b, c, d { \n    //write your code here\n}",
+            draw_tables: true,
+            description: "",
+            has_clk: false,
+        },
+        {
+            name: 
+                "Bit",
+            builtin_code:
+                ` 
+                module Bit(in, load) -> out {
+                    Mux(dffOut, in, load) -> muxOut
+                    Dff(muxOut) -> dffOut
+                    dffOut -> out
+                }`,
+            test_cases: [
+                    {inputs: [0, 0], outputs: [0]},
+                    {inputs: [0, 0], outputs: [0]},
+                    {inputs: [1, 1], outputs: [0]},
+                    {inputs: [1, 1], outputs: [1]},
+                    {inputs: [0, 1], outputs: [1]},
+                    {inputs: [0, 1], outputs: [0]},
+                    {inputs: [1, 0], outputs: [0]},
+                    {inputs: [1, 0], outputs: [0]},
+                ],
+            identifiers:
+                ["in", "load", "out"],
+            default_code: 
+                "module Bit(in, load) -> out { \n    //write your code here\n}",
+            draw_tables: true,
+            description: "",
+            has_clk: true,
+        },
+        {
+            name: 
+                "Register",
+            builtin_code:
+                ` 
+                module Register(in[8], load) -> out[8] {
+                    Bit(in[0], load) -> out[0]
+                    Bit(in[1], load) -> out[1]
+                    Bit(in[2], load) -> out[2]
+                    Bit(in[3], load) -> out[3]
+                    Bit(in[4], load) -> out[4]
+                    Bit(in[5], load) -> out[5]
+                    Bit(in[6], load) -> out[6]
+                    Bit(in[7], load) -> out[7]
+                }`,
+            test_cases: [
+                    {inputs: ["00000000", 0], outputs: ["00000000"]},
+                    {inputs: ["00000011", 0], outputs: ["00000000"]},
+                    {inputs: ["10000000", 1], outputs: ["00000000"]},
+                    {inputs: ["11100000", 1], outputs: ["11100000"]},
+                    {inputs: ["00000000", 1], outputs: ["11100000"]},
+                    {inputs: ["00011000", 1], outputs: ["00011000"]},
+                    {inputs: ["10000001", 0], outputs: ["00011000"]},
+                    {inputs: ["10000001", 0], outputs: ["00011000"]},
+                ],
+            identifiers:
+                ["in[8]", "load", "out[8]"],
+            default_code: 
+                "module Register(in[8], load) -> out[8] { \n    //write your code here\n}",
+            draw_tables: true,
+            description: "",
+            has_clk: true,
+        },
+        {
+            name: 
+                "Ram4",
+            builtin_code:
+                ` 
+                module Ram4(data[8], load, addr[2]) -> out[8] {
+                    DMux4Way(load, addr) -> loadA, loadB, loadC, loadD
+                    Register(data, loadA) -> aout
+                    Register(data, loadB) -> bout
+                    Register(data, loadC) -> cout
+                    Register(data, loadD) -> dout
+                    Mux4Way8(aout, bout, cout, dout, addr) -> out
+                }`,
+            test_cases: [
+                    {inputs: ["00000000", 0, "00"], outputs: ["00000000"]},
+                    {inputs: ["00000011", 1, "00"], outputs: ["00000011"]},
+
+                    {inputs: ["10000010", 1, "00"], outputs: ["00000011"]},
+                    {inputs: ["00001100", 1, "01"], outputs: ["00001100"]},
+
+                    {inputs: ["00000000", 1, "01"], outputs: ["00001100"]},
+                    {inputs: ["00110000", 1, "10"], outputs: ["00110000"]},
+
+                    {inputs: ["10001001", 0, "10"], outputs: ["00110000"]},
+                    {inputs: ["11000000", 1, "11"], outputs: ["11000000"]},
+
+                    {inputs: ["11111111", 0, "11"], outputs: ["11000000"]},
+                ],
+            identifiers:
+                ["in[8]", "load", "addr[2]", "out[8]"],
+            default_code: 
+                "module Ram4(in[8], load, addr[2]) -> out[8] { \n    //write your code here\n}",
+            draw_tables: true,
+            description: "",
+            has_clk: true,
+        },
+        {
+            name: 
+                "Ram16",
+            builtin_code:
+                ` 
+                module Ram16(data[8], load, addr[4]) -> out[8] {
+                    DMux4Way(load, addr[2..3]) -> loadA, loadB, loadC, loadD
+                    Ram4(data, loadA, addr[0..1]) -> aout
+                    Ram4(data, loadB, addr[0..1]) -> bout
+                    Ram4(data, loadC, addr[0..1]) -> cout
+                    Ram4(data, loadD, addr[0..1]) -> dout
+                    Mux4Way8(aout, bout, cout, dout, addr[2..3]) -> out
+                }`,
+            test_cases: [
+                    {inputs: ["00000000", 0, "0000"], outputs: ["00000000"]},
+                    {inputs: ["00000011", 1, "0000"], outputs: ["00000011"]},
+
+                    {inputs: ["10000010", 1, "0000"], outputs: ["00000011"]},
+                    {inputs: ["00001100", 1, "0001"], outputs: ["00001100"]},
+
+                    {inputs: ["00000000", 1, "0001"], outputs: ["00001100"]},
+                    {inputs: ["00110000", 1, "0010"], outputs: ["00110000"]},
+
+                    {inputs: ["10001001", 0, "0010"], outputs: ["00110000"]},
+                    {inputs: ["11000000", 1, "0011"], outputs: ["11000000"]},
+
+                    {inputs: ["11111111", 0, "0011"], outputs: ["11000000"]},
+                    {inputs: ["00000011", 1, "0100"], outputs: ["00000011"]},
+
+                    {inputs: ["10000010", 1, "0100"], outputs: ["00000011"]},
+                    {inputs: ["00001100", 1, "1001"], outputs: ["00001100"]},
+
+                    {inputs: ["00000000", 1, "1001"], outputs: ["00001100"]},
+                    {inputs: ["00110000", 1, "1110"], outputs: ["00110000"]},
+
+                    {inputs: ["10001001", 0, "1110"], outputs: ["00110000"]},
+                    {inputs: ["11000000", 1, "1111"], outputs: ["11000000"]},
+
+                    {inputs: ["11000000", 0, "1111"], outputs: ["11000000"]},
+                ],
+            identifiers:
+                ["in[8]", "load", "addr[4]", "out[8]"],
+            default_code: 
+                "module Ram16(in[8], load, addr[4]) -> out[8] { \n    //write your code here\n}",
+            draw_tables: true,
+            description: "",
+            has_clk: true,
+        },
+        {
+            name: 
+                "PC",
+            builtin_code:
+                ` 
+                module PC(data[8], load, reset, inc) -> out[8] {
+                    Inc8(reg, inc) -> incout
+                    Mux8(incout, 0, reset) -> mux
+                    Mux8(mux, data, load) -> regInput
+                    Register(regInput, 1) -> reg
+                    reg -> out
+                }`,
+            test_cases: [
+                    {inputs: ["00000000", 0, 0, 0], outputs: ["00000000"]},
+                    {inputs: ["00000011", 0, 0, 1], outputs: ["00000001"]},
+                    {inputs: ["10000000", 0, 0, 1], outputs: ["00000001"]},
+                    {inputs: ["11100000", 0, 0, 1], outputs: ["00000010"]},
+                    {inputs: ["00000000", 1, 0, 0], outputs: ["00000010"]},
+                    {inputs: ["00011000", 0, 1, 0], outputs: ["00000000"]},
+                    {inputs: ["10000001", 0, 0, 0], outputs: ["00000000"]},
+                    {inputs: ["00000111", 1, 0, 0], outputs: ["00000111"]},
+                ],
+            identifiers:
+                ["in[8]", "load", "reset", "inc", "out[8]"],
+            default_code: 
+                "module PC(in[8], load, reset, inc) -> out[8] { \n    //write your code here\n}",
+            draw_tables: true,
+            description: "",
+            has_clk: true,
+        },
+        {
+            name: 
+                "ShiftRegister",
+            builtin_code:
+                ` 
+                module ShiftRegister(reset) -> out[5] {
+                    Bit(o4, 1) -> b0
+                    b0 -> out[0]
+
+                    Bit(o0, 1) -> b1
+                    b1 -> out[1]
+
+                    Bit(o1, 1) -> b2
+                    b2 -> out[2]
+
+                    Bit(o2, 1) -> b3
+                    b3 -> out[3]
+
+                    Bit(o3, 1) -> b4
+                    b4 -> out[4]
+
+                    Mux(b0, 0, reset) -> o0
+                    Mux(b1, 0, reset) -> o1
+                    Mux(b2, 0, reset) -> o2
+                    Mux(b3, 0, reset) -> o3
+                    Mux(b4, 1, reset) -> o4
+                }`,
+            test_cases: [
+                    {inputs: [0], outputs: ["00000"]},
+                    {inputs: [1], outputs: ["00001"]},
+                    {inputs: [0], outputs: ["00001"]},
+                    {inputs: [0], outputs: ["00010"]},
+                    {inputs: [0], outputs: ["00010"]},
+                    {inputs: [0], outputs: ["00100"]},
+                    {inputs: [0], outputs: ["00100"]},
+                    {inputs: [0], outputs: ["01000"]},
+                    {inputs: [0], outputs: ["01000"]},
+                    {inputs: [0], outputs: ["10000"]},
+                    {inputs: [0], outputs: ["10000"]},
+                    {inputs: [0], outputs: ["00001"]},
+                    {inputs: [0], outputs: ["00001"]},
+                    {inputs: [1], outputs: ["00001"]},
+                ],
+            identifiers:
+                ["reset", "out[5]"],
+            default_code: 
+                "module ShiftRegister(reset) -> out[5] { \n    //write your code here\n}",
+            draw_tables: true,
+            description: "",
+            has_clk: true,
         },
     ];
 
-    let html = '';
-    const BORDER = 10;
+    let start = -1;
+    let end = -1;
+    const ALU_START = 10;
+    const MEMORY_START = 21;
     lessons.addEventListener("change", (event) => {
         switch (event.target.value) {
         case "basic":
-            html = '';
-            modules.slice(0, BORDER).forEach((data) => {
-                if (html === '') {
-                    html += `<div><button id="${data.name}Selector">${data.name}</button></div>`;
-                } else {
-                    html += `<div><button id="${data.name}Selector" disabled>${data.name}</button></div>`;
-                }
-            });  
-            menu.innerHTML = html;
-            modules.slice(0, BORDER).forEach((data, idx) => {
-                let select_btn = document.getElementById(`${data.name}Selector`);
-                select_btn.addEventListener("click", () => {
-                    init_task(data.name, idx, data.test_cases, data.identifiers, data.default_code, data.draw_tables, [0, BORDER], data.description);
-                });
-                if (idx === 0) {
-                    select_btn.click();    
-                }
-            });
-            modules.slice(0, BORDER).forEach((data, idx) => {
-                set_button_color(data.name, idx, [0, BORDER]);
-            });
+            start = 0;
+            end = ALU_START; 
             break;
         case "advanced":
-            html = '';
-            modules.slice(BORDER).forEach((data) => {
-                if (html === '') {
-                    html += `<div><button id="${data.name}Selector">${data.name}</button></div>`;
-                } else {
-                    html += `<div><button id="${data.name}Selector" disabled>${data.name}</button></div>`;
-                }
-            });  
-            menu.innerHTML = html;
-            modules.slice(BORDER).forEach((data, idx) => {
-                let select_btn = document.getElementById(`${data.name}Selector`);
-                select_btn.addEventListener("click", () => {
-                    init_task(data.name, idx, data.test_cases, data.identifiers, data.default_code, data.draw_tables, [BORDER, modules.length], data.description);
-                });
-                if (idx === 0) {
-                    select_btn.click();    
-                }
-            });
-            modules.slice(BORDER).forEach((data, idx) => {
-                set_button_color(data.name, idx, [BORDER, modules.length]);
-            });
+            start = ALU_START;
+            end = MEMORY_START; 
+            break;
+        case "memory":
+            start = MEMORY_START;
+            end = modules.length; 
             break;
         default:
             break;
         } 
+
+        let html = '<select name="tasks" id="tasks">';
+        modules.slice(start, end).forEach((data, idx) => {
+            if (idx === 0) {
+                html += `<option id="${idx + start}" value="${idx + start}">${data.name}</option>`;
+            } else {
+                html += `<option id="${idx + start}" value="${idx + start}" disabled>${data.name}</option>`;
+            }
+        });  
+        html += "</select>";
+        task_select.innerHTML = html;
+
+        //ensure all complete options are set to green
+        modules.slice(start, end).forEach((data, idx) => {
+            set_button_color(data.name, idx + start, [start, end]);
+        });
+
+        tasks.addEventListener("change", (event) => {
+            let idx = Number(event.target.value);
+            let data = modules[idx];
+            task_action.innerHTML = `
+                <button id="sim_btn">&#9654;</button>
+                <button id="reset_btn">&#11148;</button>
+            `;
+            init_task(data.name, idx, data.test_cases, data.identifiers, data.default_code, data.draw_tables, [start, end], data.description, data.has_clk);
+            set_button_color(data.name, idx, [start, end]);
+        });
+        tasks.dispatchEvent(new Event('change'));
     });
 
-    reset_btn.addEventListener("click", () => {
+    clear_progress_btn.addEventListener("click", () => {
         localStorage.clear();
         lessons.dispatchEvent(new Event('change'));
     });
