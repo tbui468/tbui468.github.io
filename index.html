@@ -109,8 +109,8 @@
     }
 
     .inner_container {
-        display: flex;
-        justify-content: left;
+        /*display: flex;*/
+        /*justify-content: left;*/
         margin-left: 32px;
     }
 
@@ -483,6 +483,9 @@
         console.assert(test_cases[0].outputs.length > 0);
         let html = `
         <div class="inner_container">
+            <div>
+                <p id="description">${description}</p>
+            </div>
             <div>`;
 
         if (draw_tables) {
@@ -496,9 +499,6 @@
         }
 
         html += `
-            </div>
-            <div>
-                <p id="description">${description}</p>
             </div>
         </div>
         `
@@ -1441,14 +1441,21 @@
                     {inputs: ["10001001", 0, "1110"], outputs: ["00110000"]},
                     {inputs: ["11000000", 1, "1111"], outputs: ["11000000"]},
 
-                    {inputs: ["11000000", 0, "1111"], outputs: ["11000000"]},
+                    {inputs: ["00000000", 0, "0000"], outputs: ["00000011"]},
+                    {inputs: ["00000000", 0, "0001"], outputs: ["00001100"]},
+                    {inputs: ["00000000", 0, "0010"], outputs: ["00110000"]},
+                    {inputs: ["00000000", 0, "0011"], outputs: ["11000000"]},
+                    {inputs: ["00000000", 0, "0100"], outputs: ["00000011"]},
+                    {inputs: ["00000000", 0, "1001"], outputs: ["00001100"]},
+                    {inputs: ["00000000", 0, "1110"], outputs: ["00110000"]},
+                    {inputs: ["00000000", 0, "1111"], outputs: ["11000000"]},
                 ],
             identifiers:
                 ["in[8]", "load", "addr[4]", "out[8]"],
             default_code: 
                 "module Ram16(in[8], load, addr[4]) -> out[8] { \n    //write your code here\n}",
             draw_tables: true,
-            description: "Memory unit storing 16 bytes at addresses 0 - 15.  When load is set, data will be saved to the given address addr[4].",
+            description: "Memory unit storing 16 bytes at addresses 0 - 15.  When load is set, data will be saved to the given address addr[4].  The output will be the byte at address addr[4].",
             has_clk: true,
         },
         {
