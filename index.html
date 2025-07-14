@@ -1269,7 +1269,7 @@
             default_code: 
                 "module Mux4Way8(a[8], b[8], c[8], d[8], sel[2]) -> out[8] { \n    //write your code here\n}",
             draw_tables: true,
-            description: "Output a when sel is 00.  Output b when sel is 01.  Output c when sel is 10.  Output d when sel is 11.",
+            description: "Will output buses a, b, c or d based on sel.  Output a when sel is 00.  Output b when sel is 01.  Output c when sel is 10.  Output d when sel is 11.",
             has_clk: false,
         },
         {
@@ -1300,7 +1300,7 @@
             default_code: 
                 "module DMux4Way(in, sel[2]) -> a, b, c, d { \n    //write your code here\n}",
             draw_tables: true,
-            description: "a is in when sel is 00.  b is in when sel is 01. c is in when sel is 10.  d is in when sel is 11.",
+            description: "Will output in to a, b, c or d based on sel; zero the other outputs.  a is in when sel is 00.  b is in when sel is 01. c is in when sel is 10.  d is in when sel is 11.",
             has_clk: false,
         },
         {
@@ -1328,7 +1328,7 @@
             default_code: 
                 "module Bit(in, load) -> out { \n    //write your code here\n}",
             draw_tables: true,
-            description: "When load is set, the bit will save in to state if on a rising clock edge.  Output the state.",
+            description: "Memory unit storing a single bit.  When load is set, the bit will save in to state on a rising clock edge.  Output the state.",
             has_clk: true,
         },
         {
@@ -1361,7 +1361,7 @@
             default_code: 
                 "module Register(in[8], load) -> out[8] { \n    //write your code here\n}",
             draw_tables: true,
-            description: "The register will save in[8] to state when load is set.  Output the state out[8].",
+            description: "Memory unit storing 8 bits.  The register will save in[8] to state when load is set.  Output the state out[8].",
             has_clk: true,
         },
         {
@@ -1397,7 +1397,7 @@
             default_code: 
                 "module Ram4(in[8], load, addr[2]) -> out[8] { \n    //write your code here\n}",
             draw_tables: true,
-            description: "When load is set, data will be saved to the given address addr[2].",
+            description: "Memory unit storing 4 bytes at addresses 0, 1, 2, and 3. When load is set, data will be saved to the given address addr[2].",
             has_clk: true,
         },
         {
@@ -1445,7 +1445,7 @@
             default_code: 
                 "module Ram16(in[8], load, addr[4]) -> out[8] { \n    //write your code here\n}",
             draw_tables: true,
-            description: "When load is set, data will be saved to the given address addr[4].",
+            description: "Memory unit storing 16 bytes at addresses 0 - 15.  When load is set, data will be saved to the given address addr[4].",
             has_clk: true,
         },
         {
@@ -1475,7 +1475,7 @@
             default_code: 
                 "module PC(in[8], load, reset, inc) -> out[8] { \n    //write your code here\n}",
             draw_tables: true,
-            description: "When inc is set, PC will increment state.  When reset is set, PC state will reset to 0.  When load is set, state will be set to data[8].  Output the current state.",
+            description: "Stores current instruction address.  When inc is set, PC will increment state by 1.  When reset is set, PC state will reset to 0.  When load is set, state will be set to data[8].  Output the current state.",
             has_clk: true,
         },
         {
@@ -1526,7 +1526,7 @@
             default_code: 
                 "module ShiftRegister(reset) -> out[5] { \n    //write your code here\n}",
             draw_tables: true,
-            description: "Reset will reset the first bit to 1 and all others to 0.  On each high clock tick, the next more-significant bit will be set high.",
+            description: "Used to track current position in instruction cycle.  Shift registers will only have a single high bit at any given time.  Pefforms a left-bit shift on each high clock cycle, wrapping if necessary. Reset will reset the first bit to 1 and all others to 0.  On each high clock tick, the next more-significant bit will be set high.",
             has_clk: true,
         },
     ];
