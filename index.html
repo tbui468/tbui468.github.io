@@ -1269,7 +1269,7 @@
             default_code: 
                 "module Mux4Way8(a[8], b[8], c[8], d[8], sel[2]) -> out[8] { \n    //write your code here\n}",
             draw_tables: true,
-            description: "",
+            description: "Output a when sel is 00.  Output b when sel is 01.  Output c when sel is 10.  Output d when sel is 11.",
             has_clk: false,
         },
         {
@@ -1300,7 +1300,7 @@
             default_code: 
                 "module DMux4Way(in, sel[2]) -> a, b, c, d { \n    //write your code here\n}",
             draw_tables: true,
-            description: "",
+            description: "a is in when sel is 00.  b is in when sel is 01. c is in when sel is 10.  d is in when sel is 11.",
             has_clk: false,
         },
         {
@@ -1328,7 +1328,7 @@
             default_code: 
                 "module Bit(in, load) -> out { \n    //write your code here\n}",
             draw_tables: true,
-            description: "",
+            description: "When load is set, the bit will save in to state if on a rising clock edge.  Output the state.",
             has_clk: true,
         },
         {
@@ -1361,7 +1361,7 @@
             default_code: 
                 "module Register(in[8], load) -> out[8] { \n    //write your code here\n}",
             draw_tables: true,
-            description: "",
+            description: "The register will save in[8] to state when load is set.  Output the state out[8].",
             has_clk: true,
         },
         {
@@ -1397,7 +1397,7 @@
             default_code: 
                 "module Ram4(in[8], load, addr[2]) -> out[8] { \n    //write your code here\n}",
             draw_tables: true,
-            description: "",
+            description: "When load is set, data will be saved to the given address addr[2].",
             has_clk: true,
         },
         {
@@ -1445,7 +1445,7 @@
             default_code: 
                 "module Ram16(in[8], load, addr[4]) -> out[8] { \n    //write your code here\n}",
             draw_tables: true,
-            description: "",
+            description: "When load is set, data will be saved to the given address addr[4].",
             has_clk: true,
         },
         {
@@ -1475,7 +1475,7 @@
             default_code: 
                 "module PC(in[8], load, reset, inc) -> out[8] { \n    //write your code here\n}",
             draw_tables: true,
-            description: "",
+            description: "When inc is set, PC will increment state.  When reset is set, PC state will reset to 0.  When load is set, state will be set to data[8].  Output the current state.",
             has_clk: true,
         },
         {
@@ -1526,7 +1526,7 @@
             default_code: 
                 "module ShiftRegister(reset) -> out[5] { \n    //write your code here\n}",
             draw_tables: true,
-            description: "",
+            description: "Reset will reset the first bit to 1 and all others to 0.  On each high clock tick, the next more-significant bit will be set high.",
             has_clk: true,
         },
     ];
