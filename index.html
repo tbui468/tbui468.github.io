@@ -283,6 +283,8 @@
             <option value="basic">Basic</option>
             <option value="advanced">ALU</option>
             <option value="memory">Memory</option>
+            <option value="control_unit">Control Unit</option>
+            <option value="computer">Computer</option>
         </select>
     </header>
 
@@ -1493,8 +1495,8 @@
                 "ShiftRegister",
             builtin_code:
                 ` 
-                module ShiftRegister(reset) -> out[5] {
-                    Bit(o4, 1) -> b0
+                module ShiftRegister(reset) -> out[6] {
+                    Bit(o5, 1) -> b0
                     b0 -> out[0]
 
                     Bit(o0, 1) -> b1
@@ -1509,35 +1511,83 @@
                     Bit(o3, 1) -> b4
                     b4 -> out[4]
 
+                    Bit(o4, 1) -> b5
+                    b5 -> out[5]
+
                     Mux(b0, 0, reset) -> o0
                     Mux(b1, 0, reset) -> o1
                     Mux(b2, 0, reset) -> o2
                     Mux(b3, 0, reset) -> o3
-                    Mux(b4, 1, reset) -> o4
+                    Mux(b4, 0, reset) -> o4
+                    Mux(b5, 1, reset) -> o5
                 }`,
             test_cases: [
-                    {inputs: [0], outputs: ["00000"]},
-                    {inputs: [1], outputs: ["00001"]},
-                    {inputs: [0], outputs: ["00001"]},
-                    {inputs: [0], outputs: ["00010"]},
-                    {inputs: [0], outputs: ["00010"]},
-                    {inputs: [0], outputs: ["00100"]},
-                    {inputs: [0], outputs: ["00100"]},
-                    {inputs: [0], outputs: ["01000"]},
-                    {inputs: [0], outputs: ["01000"]},
-                    {inputs: [0], outputs: ["10000"]},
-                    {inputs: [0], outputs: ["10000"]},
-                    {inputs: [0], outputs: ["00001"]},
-                    {inputs: [0], outputs: ["00001"]},
-                    {inputs: [1], outputs: ["00001"]},
+                    {inputs: [0], outputs: ["000000"]},
+                    {inputs: [1], outputs: ["000001"]},
+                    {inputs: [0], outputs: ["000001"]},
+                    {inputs: [0], outputs: ["000010"]},
+                    {inputs: [0], outputs: ["000010"]},
+                    {inputs: [0], outputs: ["000100"]},
+                    {inputs: [0], outputs: ["000100"]},
+                    {inputs: [0], outputs: ["001000"]},
+                    {inputs: [0], outputs: ["001000"]},
+                    {inputs: [0], outputs: ["010000"]},
+                    {inputs: [0], outputs: ["010000"]},
+                    {inputs: [0], outputs: ["100000"]},
+                    {inputs: [0], outputs: ["100000"]},
+                    {inputs: [0], outputs: ["000001"]},
                 ],
             identifiers:
-                ["reset", "out[5]"],
+                ["reset", "out[6]"],
             default_code: 
-                "module ShiftRegister(reset) -> out[5] { \n    //write your code here\n}",
+                "module ShiftRegister(reset) -> out[6] { \n    //write your code here\n}",
             draw_tables: true,
             description: "Used to track current position in instruction cycle.  Shift registers will only have a single high bit at any given time.  Pefforms a left-bit shift on each high clock cycle, wrapping if necessary. Reset will reset the first bit to 1 and all others to 0.  On each high clock tick, the next more-significant bit will be set high.",
             has_clk: true,
+        },
+        {
+            name: 
+                "FetchSignals",
+            builtin_code:
+                ` 
+                module FetchSignals(ring[5]) -> control_bits[16] {
+                    {1, 0, 1, 0,   0, 0, 0, 0,   0, 0, 0, 0,  0, 0, 0, 0} -> t0
+                    {0, 1, 0, 0,   0, 0, 0, 0,   0, 0, 0, 0,  0, 0, 0, 0} -> t1
+
+                    Mux16(t0, t1, ring[1]) -> control_bits
+                }`,
+            test_cases: [
+                    {inputs: ["00000"], outputs: ["0000000000000000"]},
+                ],
+            identifiers:
+                ["ring", "control_signals"],
+            default_code: 
+                "module FetchSignals(ring[5]) -> control_signals[16] { \n    //write your code here\n}",
+            draw_tables: true,
+            description: "",
+            has_clk: false,
+        },
+        {
+            name: 
+                "CPU",
+            builtin_code:
+                ` 
+                module FetchSignals(ring[5]) -> control_bits[16] {
+                    {1, 0, 1, 0,   0, 0, 0, 0,   0, 0, 0, 0,  0, 0, 0, 0} -> t0
+                    {0, 1, 0, 0,   0, 0, 0, 0,   0, 0, 0, 0,  0, 0, 0, 0} -> t1
+
+                    Mux16(t0, t1, ring[1]) -> control_bits
+                }`,
+            test_cases: [
+                    {inputs: ["00000"], outputs: ["0000000000000000"]},
+                ],
+            identifiers:
+                ["ring", "control_signals"],
+            default_code: 
+                "module FetchSignals(ring[5]) -> control_signals[16] { \n    //write your code here\n}",
+            draw_tables: true,
+            description: "",
+            has_clk: false,
         },
     ];
 
