@@ -1465,29 +1465,31 @@
                 "PC",
             builtin_code:
                 ` 
-                module PC(data[8], load, reset, inc) -> out[8] {
+                module PC(reset, inc) -> out[8] {
                     Inc8(reg, inc) -> incout
                     Mux8(incout, 0, reset) -> mux
-                    Mux8(mux, data, load) -> regInput
-                    Register(regInput, 1) -> reg
+                    Register(mux, 1) -> reg
                     reg -> out
                 }`,
             test_cases: [
-                    {inputs: ["00000000", 0, 0, 0], outputs: ["00000000"]},
-                    {inputs: ["00000011", 0, 0, 1], outputs: ["00000001"]},
-                    {inputs: ["10000000", 0, 0, 1], outputs: ["00000001"]},
-                    {inputs: ["11100000", 0, 0, 1], outputs: ["00000010"]},
-                    {inputs: ["00000000", 1, 0, 0], outputs: ["00000010"]},
-                    {inputs: ["00011000", 0, 1, 0], outputs: ["00000000"]},
-                    {inputs: ["10000001", 0, 0, 0], outputs: ["00000000"]},
-                    {inputs: ["00000111", 1, 0, 0], outputs: ["00000111"]},
+                    {inputs: [0, 0], outputs: ["00000000"]},
+                    {inputs: [0, 1], outputs: ["00000001"]},
+
+                    {inputs: [0, 1], outputs: ["00000001"]},
+                    {inputs: [0, 1], outputs: ["00000010"]},
+
+                    {inputs: [0, 0], outputs: ["00000010"]},
+                    {inputs: [1, 0], outputs: ["00000000"]},
+
+                    {inputs: [0, 1], outputs: ["00000000"]},
+                    {inputs: [0, 1], outputs: ["00000001"]},
                 ],
             identifiers:
-                ["in[8]", "load", "reset", "inc", "out[8]"],
+                ["reset", "inc", "out[8]"],
             default_code: 
-                "module PC(in[8], load, reset, inc) -> out[8] { \n    //write your code here\n}",
+                "module PC(reset, inc) -> out[8] { \n    //write your code here\n}",
             draw_tables: true,
-            description: "Stores current instruction address.  When inc is set, PC will increment state by 1.  When reset is set, PC state will reset to 0.  When load is set, state will be set to data[8].  Output the current state.",
+            description: "Stores current instruction address.  When inc is set, PC will increment state by 1.  When reset is set, PC state will reset to 0.  Output the current state.",
             has_clk: true,
         },
         {
