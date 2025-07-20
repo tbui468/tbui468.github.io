@@ -284,7 +284,7 @@
             <option value="advanced">ALU</option>
             <option value="memory">Memory</option>
             <option value="control_unit">Control Unit</option>
-            <option value="computer">Computer</option>
+            <!--<option value="computer">Computer</option>-->
         </select>
     </header>
 
@@ -1549,22 +1549,225 @@
         },
         {
             name: 
-                "FetchSignals",
+                "Decoder",
             builtin_code:
-                ` 
-                module FetchSignals(ring[5]) -> control_bits[16] {
-                    {1, 0, 1, 0,   0, 0, 0, 0,   0, 0, 0, 0,  0, 0, 0, 0} -> t0
-                    {0, 1, 0, 0,   0, 0, 0, 0,   0, 0, 0, 0,  0, 0, 0, 0} -> t1
-
-                    Mux16(t0, t1, ring[1]) -> control_bits
+                `
+                module Decoder(ring[6], t0[8], t1[8],  t2[8], t3[8],  t4[8], t5[8]) -> signals[8] {
+                    Mux8(t0, t1, ring[1]) -> m0
+                    Mux8(m0, t2, ring[2]) -> m1
+                    Mux8(m1, t3, ring[3]) -> m2
+                    Mux8(m2, t4, ring[4]) -> m3
+                    Mux8(m3, t5, ring[5]) -> signals
                 }`,
             test_cases: [
-                    {inputs: ["00000"], outputs: ["0000000000000000"]},
+                        {inputs: ["000001", "00110000", "01100011", "11000110", "00110010", "01100000", "00110000"], outputs: ["00110000"]},
+                        {inputs: ["000001", "11100011", "00000011", "00011000", "00110001", "00001100", "11000000"], outputs: ["11100011"]},
+
+                        {inputs: ["000010", "00110000", "01100011", "11000110", "00110010", "01100000", "00110000"], outputs: ["01100011"]},
+                        {inputs: ["000010", "11100011", "00000011", "00011000", "00110001", "00001100", "11000000"], outputs: ["00000011"]},
+
+                        {inputs: ["000100", "00110000", "01100011", "11000110", "00110010", "01100000", "00110000"], outputs: ["11000110"]},
+                        {inputs: ["000100", "11100011", "00000011", "00011000", "00110001", "00001100", "11000000"], outputs: ["00011000"]},
+
+                        {inputs: ["001000", "00110000", "01100011", "11000110", "00110010", "01100000", "00110000"], outputs: ["00110010"]},
+                        {inputs: ["001000", "11100011", "00000011", "00011000", "00110001", "00001100", "11000000"], outputs: ["00110001"]},
+
+                        {inputs: ["010000", "00110000", "01100011", "11000110", "00110010", "01100000", "00110000"], outputs: ["01100000"]},
+                        {inputs: ["010000", "11100011", "00000011", "00011000", "00110001", "00001100", "11000000"], outputs: ["00001100"]},
+
+                        {inputs: ["100000", "00110000", "01100011", "11000110", "00110010", "01100000", "00110000"], outputs: ["00110000"]},
+                        {inputs: ["100000", "11100011", "00000011", "00011000", "00110001", "00001100", "11000000"], outputs: ["11000000"]},
                 ],
             identifiers:
-                ["ring", "control_signals"],
+                ["sr[6]", "a[8]", "b[8]", "c[8]", "d[8]", "e[8]", "f[8]", "out[8]"],
             default_code: 
-                "module FetchSignals(ring[5]) -> control_signals[16] { \n    //write your code here\n}",
+                "module Decoder(sr[6], a[8], b[8],  c[8], d[8],  e[8], f[8]) -> out[8] { \n    //write your code here\n}",
+            draw_tables: true,
+            description: "",
+            has_clk: false,
+        },
+        {
+            name: 
+                "NOPControlStore",
+            builtin_code:
+                `
+                module NOPControlStore(ring[6]) -> signals[8] {
+                    {0, 0, 1,   0, 0, 1,   0, 0} -> t0 //load MAR with PC, and increment PC
+                    {1, 0, 0,   1, 1, 0,   0, 0} -> t1 //load MDR with RAM[MAR]
+                    {1, 0, 1,   1, 0, 0,   0, 0} -> t2 //load CIR with MDR
+                    {0, 0, 0,   0, 0, 0,   0, 0} -> t3 //NOP
+                    {0, 0, 0,   0, 0, 0,   0, 0} -> t4 //NOP
+                    {0, 0, 0,   0, 0, 0,   0, 0} -> t5 //NOP
+
+                    Decoder(ring, t0, t1, t2, t3, t4, t5) -> signals
+                }`,
+            test_cases: [
+                        {inputs: ["000001"], outputs: ["00100100"]},
+                        {inputs: ["000010"], outputs: ["00011001"]},
+                        {inputs: ["000100"], outputs: ["00001101"]},
+                        {inputs: ["001000"], outputs: ["00000000"]},
+                        {inputs: ["010000"], outputs: ["00000000"]},
+                        {inputs: ["100000"], outputs: ["00000000"]},
+                ],
+            identifiers:
+                ["sr[6]", "out[8]"],
+            default_code: 
+                "module NOPControlStore(sr[6]) -> out[8] { \n    //write your code here\n}",
+            draw_tables: true,
+            description: "",
+            has_clk: false,
+        },
+        {
+            name: 
+                "LDAControlStore",
+            builtin_code:
+                `
+                module LDAControlStore(ring[6]) -> signals[8] {
+                    {0, 0, 1,   0, 0, 1,   0, 0} -> t0 //load MAR with PC, and increment PC
+                    {1, 0, 0,   1, 1, 0,   0, 0} -> t1 //load MDR with RAM[MAR]
+                    {1, 0, 1,   1, 0, 0,   0, 0} -> t2 //load CIR with MDR
+                    {0, 0, 1,   0, 1, 1,   0, 0} -> t3 //load MAR with LDA operand
+                    {1, 0, 0,   1, 1, 0,   0, 0} -> t4 //load MDR with RAM[MAR]
+                    {0, 1, 0,   1, 0, 0,   0, 0} -> t5 //load ACC with MDR
+
+                    Decoder(ring, t0, t1, t2, t3, t4, t5) -> signals
+                }`,
+            test_cases: [
+                        {inputs: ["000001"], outputs: ["00100100"]},
+                        {inputs: ["000010"], outputs: ["00011001"]},
+                        {inputs: ["000100"], outputs: ["00001101"]},
+                        {inputs: ["001000"], outputs: ["00110100"]},
+                        {inputs: ["010000"], outputs: ["00011001"]},
+                        {inputs: ["100000"], outputs: ["00001010"]},
+                ],
+            identifiers:
+                ["sr[6]", "out[8]"],
+            default_code: 
+                "module LDAControlStore(sr[6]) -> out[8] { \n    //write your code here\n}",
+            draw_tables: true,
+            description: "",
+            has_clk: false,
+        },
+        {
+            name: 
+                "ADDControlStore",
+            builtin_code:
+                `
+                module ADDControlStore(ring[6]) -> signals[8] {
+                    {0, 0, 1,   0, 0, 1,   0, 0} -> t0 //load MAR with PC, and increment PC
+                    {1, 0, 0,   1, 1, 0,   0, 0} -> t1 //load MDR with RAM[MAR]
+                    {1, 0, 1,   1, 0, 0,   0, 0} -> t2 //load CIR with MDR
+                    {0, 0, 1,   0, 1, 1,   0, 0} -> t3 //load MAR with operand
+                    {1, 0, 0,   1, 1, 0,   0, 0} -> t4 //load MDR with RAM[MAR]
+                    {0, 1, 0,   1, 0, 1,   0, 0} -> t5 //load ACC with ACC + MDR
+
+                    Decoder(ring, t0, t1, t2, t3, t4, t5) -> signals
+                }`,
+            test_cases: [
+                        {inputs: ["000001"], outputs: ["00100100"]},
+                        {inputs: ["000010"], outputs: ["00011001"]},
+                        {inputs: ["000100"], outputs: ["00001101"]},
+                        {inputs: ["001000"], outputs: ["00110100"]},
+                        {inputs: ["010000"], outputs: ["00011001"]},
+                        {inputs: ["100000"], outputs: ["00101010"]},
+                ],
+            identifiers:
+                ["sr[6]", "out[8]"],
+            default_code: 
+                "module ADDControlStore(sr[6]) -> out[8] { \n    //write your code here\n}",
+            draw_tables: true,
+            description: "",
+            has_clk: false,
+        },
+        {
+            name: 
+                "SUBControlStore",
+            builtin_code:
+                `
+                module SUBControlStore(ring[6]) -> signals[8] {
+                    {0, 0, 1,   0, 0, 1,   0, 0} -> t0 //load MAR with PC, and increment PC
+                    {1, 0, 0,   1, 1, 0,   0, 0} -> t1 //load MDR with RAM[MAR]
+                    {1, 0, 1,   1, 0, 0,   0, 0} -> t2 //load CIR with MDR
+                    {0, 0, 1,   0, 1, 1,   0, 0} -> t3 //load MAR with operand
+                    {1, 0, 0,   1, 1, 0,   0, 0} -> t4 //load MDR with RAM[MAR]
+                    {0, 1, 0,   1, 0, 1,   1, 0} -> t5 //load ACC with ACC - MDR
+
+                    Decoder(ring, t0, t1, t2, t3, t4, t5) -> signals
+                }`,
+            test_cases: [
+                        {inputs: ["000001"], outputs: ["00100100"]},
+                        {inputs: ["000010"], outputs: ["00011001"]},
+                        {inputs: ["000100"], outputs: ["00001101"]},
+                        {inputs: ["001000"], outputs: ["00110100"]},
+                        {inputs: ["010000"], outputs: ["00011001"]},
+                        {inputs: ["100000"], outputs: ["01101010"]},
+                ],
+            identifiers:
+                ["sr[6]", "out[8]"],
+            default_code: 
+                "module SUBControlStore(sr[6]) -> out[8] { \n    //write your code here\n}",
+            draw_tables: true,
+            description: "",
+            has_clk: false,
+        },
+        {
+            name: 
+                "STAControlStore",
+            builtin_code:
+                `
+                module STAControlStore(ring[6]) -> signals[8] {
+                    {0, 0, 1,   0, 0, 1,   0, 0} -> t0 //load MAR with PC, and increment PC
+                    {1, 0, 0,   1, 1, 0,   0, 0} -> t1 //load MDR with RAM[MAR]
+                    {1, 0, 1,   1, 0, 0,   0, 0} -> t2 //load CIR with MDR
+                    {0, 0, 1,   0, 1, 1,   0, 0} -> t3 //load MAR with operand
+                    {1, 0, 0,   0, 1, 0,   0, 0} -> t4 //load MDR with ACC
+                    {1, 1, 0,   1, 0, 0,   0, 0} -> t5 //load RAM[MAR] with MDR
+
+                    Decoder(ring, t0, t1, t2, t3, t4, t5) -> signals
+                }`,
+            test_cases: [
+                        {inputs: ["000001"], outputs: ["00100100"]},
+                        {inputs: ["000010"], outputs: ["00011001"]},
+                        {inputs: ["000100"], outputs: ["00001101"]},
+                        {inputs: ["001000"], outputs: ["00110100"]},
+                        {inputs: ["010000"], outputs: ["00010001"]},
+                        {inputs: ["100000"], outputs: ["00001011"]},
+                ],
+            identifiers:
+                ["sr[6]", "out[8]"],
+            default_code: 
+                "module STAControlStore(sr[6]) -> out[8] { \n    //write your code here\n}",
+            draw_tables: true,
+            description: "",
+            has_clk: false,
+        },
+        {
+            name: 
+                "HLTControlStore",
+            builtin_code:
+                `
+                module HLTControlStore(ring[6]) -> signals[8] {
+                    {0, 0, 1,   0, 0, 1,   0, 0} -> t0 //load MAR with PC, and increment PC
+                    {1, 0, 0,   1, 1, 0,   0, 0} -> t1 //load MDR with RAM[MAR]
+                    {1, 0, 1,   1, 0, 0,   0, 0} -> t2 //load CIR with MDR
+                    {0, 0, 0,   0, 0, 0,   0, 1} -> t3 //halt
+                    {0, 0, 0,   0, 0, 0,   0, 0} -> t4 //NOP
+                    {0, 0, 0,   0, 0, 0,   0, 0} -> t5 //NOP
+
+                    Decoder(ring, t0, t1, t2, t3, t4, t5) -> signals
+                }`,
+            test_cases: [
+                        {inputs: ["000001"], outputs: ["00100100"]},
+                        {inputs: ["000010"], outputs: ["00011001"]},
+                        {inputs: ["000100"], outputs: ["00001101"]},
+                        {inputs: ["001000"], outputs: ["10000000"]},
+                        {inputs: ["010000"], outputs: ["00000000"]},
+                        {inputs: ["100000"], outputs: ["00000000"]},
+                ],
+            identifiers:
+                ["sr[6]", "out[8]"],
+            default_code: 
+                "module HLTControlStore(sr[6]) -> out[8] { \n    //write your code here\n}",
             draw_tables: true,
             description: "",
             has_clk: false,
@@ -1597,6 +1800,7 @@
     let end = -1;
     const ALU_START = 10;
     const MEMORY_START = 21;
+    const CONTROL_UNIT_START = MEMORY_START + 8;
     lessons.addEventListener("change", (event) => {
         switch (event.target.value) {
         case "basic":
@@ -1609,7 +1813,11 @@
             break;
         case "memory":
             start = MEMORY_START;
-            end = modules.length - 2; 
+            end = CONTROL_UNIT_START;
+            break;
+        case "control_unit":
+            start = CONTROL_UNIT_START;
+            end = modules.length - 1;  //ignore CPU for now
             break;
         default:
             break;
