@@ -1734,7 +1734,17 @@ function set_button_color(name, idx, range) {
 }
 
 
-let computer_module = null;
+let grci_instance = {
+    grci: null,
+    module: null,
+    ram: null,
+    pc: null,
+    mar: null,
+    mdr: null,
+    cir: null,
+    acc: null,
+    halt: false
+};
 let start = -1;
 let end = -1;
 const ALU_START = 10;
@@ -1817,20 +1827,88 @@ lessons.addEventListener("change", (event) => {
                 <button id="reset_btn">&#11148;</button>
             `;
 
-            rom_btn.addEventListener("click", () => {
-                //if computer_module is not null, destroy it and remake
-                //init new module and store handle in computer_module.
-                //load ROM to RAM
-                //trigger click event on step button once (steps low and high) to update ram so that first press will 
-                console.log("Init module and store handle somewhere since we need access during step.  Load rom to ram.");
-                console.log("run step button once (steps low and then high) to update ram");
-            });
-
             step_btn.addEventListener("click", () => {
-                //set twice
+                assert(grci_instance.grci !== null);
+                assert(grci_instance.module !== null);
+
+                if (grci_instance.halt) return;
+
+                console.log("stepping");
+                let pc_string = "";
+                for (let i = 0; i < 8; i++) {
+                    pc_string += String(grci_get_state(grci_instance.pc, i));
+                }
+                console.log(pc_string);
+
+                assert(!grci_step_module(grci_instance.module));
+                assert(grci_step_module(grci_instance.module));
+
+                if (grci_get_output(grci_instance.module, 0) == 1) {
+                    grci_instance.halt = true;
+                    console.log("HALT");
+                }
+
+                let byte_string = "";
+                for (let i = 0; i < 8 * 16; i++) {
+                    let value = grci_get_state(grci_instance.ram, i);
+                    byte_string += String(value);
+                    if (byte_string.length == 8) {
+                        let elem = document.getElementById(`ram${Math.floor(i / 8)}`);
+                        elem.innerHTML = byte_string.split('').reverse().join('');
+                        byte_string = "";
+                    }
+                }
+                //set twice to ensure we get on high clock cycle
                 //read state and put into ram0, ram1, etc
                 //if halt or more than allowed steps, don't do anything
-                assert(computer_module !== null);
+                //assert(grci_instance !== null);
+            });
+
+            rom_btn.addEventListener("click", () => {
+                load_grci_module();
+                if (grci_instance.grci !== null) {
+                    assert(grci_instance.module !== null);
+                    grci_destroy_module(grci_instance.module);
+                    grci_cleanup(grci_instance.grci);
+                    grci_instance.halt = false;
+                }
+
+                grci_instance.grci = grci_easy_init();
+                compile_modules_up_to_idx(grci_instance.grci, modules, idx);
+                let code_textarea = document.getElementById("code");
+                let code = new DOMParser().parseFromString(code_textarea.value, "text/html").body.textContent;
+                const name = "Computer";
+                let data = JSON.parse(localStorage.getItem(name));
+                data.code = code;
+                let result = grci_compile_src(grci_instance.grci, code, code.length);
+
+                if (!result) {
+                    grci_cleanup(grci_instance.grci);
+                    return;
+                }
+
+                
+                grci_instance.module = grci_init_module(grci_instance.grci, name, name.length);
+                grci_instance.ram = grci_submodule(grci_instance.module, "ram", 3);
+                assert(grci_instance.ram !== null);
+                grci_instance.pc = grci_submodule(grci_instance.module, "pc", 2);
+                assert(grci_instance.pc !== null);
+
+                let flat_rom = "";
+                rom_data.forEach((s) => {
+                    flat_rom += s.split('').reverse().join('');
+                });
+                for (let i = 0; i < 16 * 8; i++) {
+                    grci_set_state(grci_instance.ram, i, Number(flat_rom[i]));
+                }
+
+                console.log("Init module and store handle somewhere since we need access during step.  Load rom to ram.");
+                console.log("run step button once (steps low and then high) to update ram");
+                //set reset to 1
+                grci_set_input(grci_instance.module, 0, 1);
+                step_btn.click();
+                grci_set_input(grci_instance.module, 0, 0);
+                //set rest to 0
             });
         } else {
             task_action.innerHTML = `

@@ -1,0 +1,2 @@
+emcc grci.c -o grci.html -sEXPORTED_FUNCTIONS=_malloc,_free,_grci_easy_init,_grci_compile_src,_grci_init_module,_grci_step_module,_grci_destroy_module,_grci_cleanup,_grci_set_input,_grci_get_output,_grci_submodule,_grci_set_state,_grci_get_state,_grci_err -sEXPORTED_RUNTIME_METHODS=ccall,cwrap,stringToUTF8 -sALLOW_MEMORY_GROWTH=1 -sSTACK_SIZE=10MB
+
