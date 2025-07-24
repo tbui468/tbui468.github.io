@@ -1468,6 +1468,7 @@ function init_section(name, test_cases, identifiers, draw_tables, description, h
         html += make_html_table(name, test_cases, identifiers, false, has_clk);
     } else {
         html += `
+        <p id="cycle">Clock Cycle: 0</p>
         <div class="container">
             <table>
                 <tr>
@@ -1734,6 +1735,15 @@ function set_button_color(name, idx, range) {
 }
 
 
+function display_register(submodule, element) {
+    let string = "";
+    for (let i = 0; i < 8; i++) {
+        string += String(grci_get_state(submodule, i));
+    }
+    element.innerHTML = string.split("").reverse().join("");
+}
+
+
 let grci_instance = {
     grci: null,
     module: null,
@@ -1743,7 +1753,8 @@ let grci_instance = {
     mdr: null,
     cir: null,
     acc: null,
-    halt: false
+    halt: false,
+    cycle: 0,
 };
 let start = -1;
 let end = -1;
@@ -1823,7 +1834,7 @@ lessons.addEventListener("change", (event) => {
             <textarea id="rom" maxlength="128">${rom_data.join("")}</textarea>`;
             task_action.innerHTML = `
                 <button id="step_btn">&#9654;&#9654;</button>
-                <button id="rom_btn">&#9723;</button>
+                <button id="rom_btn">&#9678;</button>
                 <button id="reset_btn">&#11148;</button>
             `;
 
@@ -1833,15 +1844,18 @@ lessons.addEventListener("change", (event) => {
 
                 if (grci_instance.halt) return;
 
-                console.log("stepping");
-                let pc_string = "";
-                for (let i = 0; i < 8; i++) {
-                    pc_string += String(grci_get_state(grci_instance.pc, i));
-                }
-                console.log(pc_string);
+
+                cycle.innerHTML = `Clock Cycle: ${grci_instance.cycle}`;
+                grci_instance.cycle++;
 
                 assert(!grci_step_module(grci_instance.module));
                 assert(grci_step_module(grci_instance.module));
+
+                display_register(grci_instance.pc, pc);
+                display_register(grci_instance.mar, mar);
+                display_register(grci_instance.mdr, mdr);
+                display_register(grci_instance.acc, acc);
+                display_register(grci_instance.cir, cir);
 
                 if (grci_get_output(grci_instance.module, 0) == 1) {
                     grci_instance.halt = true;
@@ -1858,20 +1872,19 @@ lessons.addEventListener("change", (event) => {
                         byte_string = "";
                     }
                 }
-                //set twice to ensure we get on high clock cycle
-                //read state and put into ram0, ram1, etc
-                //if halt or more than allowed steps, don't do anything
-                //assert(grci_instance !== null);
             });
 
             rom_btn.addEventListener("click", () => {
+                rom_btn.style.backgroundColor = "";
                 load_grci_module();
                 if (grci_instance.grci !== null) {
                     assert(grci_instance.module !== null);
                     grci_destroy_module(grci_instance.module);
                     grci_cleanup(grci_instance.grci);
-                    grci_instance.halt = false;
                 }
+
+                grci_instance.halt = false;
+                grci_instance.cycle = 0;
 
                 grci_instance.grci = grci_easy_init();
                 compile_modules_up_to_idx(grci_instance.grci, modules, idx);
@@ -1884,22 +1897,53 @@ lessons.addEventListener("change", (event) => {
 
                 if (!result) {
                     grci_cleanup(grci_instance.grci);
+                    grci_instance.grci = null;
+                    rom_btn.style.backgroundColor = "red";
                     return;
                 }
 
                 
                 grci_instance.module = grci_init_module(grci_instance.grci, name, name.length);
                 grci_instance.ram = grci_submodule(grci_instance.module, "ram", 3);
-                assert(grci_instance.ram !== null);
                 grci_instance.pc = grci_submodule(grci_instance.module, "pc", 2);
-                assert(grci_instance.pc !== null);
+                grci_instance.mar = grci_submodule(grci_instance.module, "mar", 3);
+                grci_instance.mdr = grci_submodule(grci_instance.module, "mdr", 3);
+                grci_instance.acc = grci_submodule(grci_instance.module, "acc", 3);
+                grci_instance.cir = grci_submodule(grci_instance.module, "cir", 3);
 
-                let flat_rom = "";
-                rom_data.forEach((s) => {
-                    flat_rom += s.split('').reverse().join('');
+                if (grci_instance.ram === null || 
+                    grci_instance.pc === null ||
+                    grci_instance.mar === null ||
+                    grci_instance.mdr === null ||
+                    grci_instance.acc === null ||
+                    grci_instance.cir === null) {
+
+                    grci_cleanup(grci_instance.grci);
+                    rom_btn.style.backgroundColor = "red";
+                    return;
+                }
+
+                statusElement.innerHTML = "";
+
+                let reversed_rom = "";
+                let slice_idx = 0;
+                while (rom.value.length < (16 * 8)) {
+                    rom.value += "0";
+                }
+                let arr = rom.value.split("");
+                arr.forEach((value, idx) => {
+                    if (value !== "0" && value !== "1") {
+                        arr[idx] = "0";
+                    }
                 });
+                rom.value = arr.join("");
+                while (slice_idx < rom.value.length) {
+                    let s = rom.value.slice(slice_idx, slice_idx + 8);
+                    reversed_rom += s.split("").reverse().join("");
+                    slice_idx += 8;
+                }
                 for (let i = 0; i < 16 * 8; i++) {
-                    grci_set_state(grci_instance.ram, i, Number(flat_rom[i]));
+                    grci_set_state(grci_instance.ram, i, Number(reversed_rom[i]));
                 }
 
                 console.log("Init module and store handle somewhere since we need access during step.  Load rom to ram.");
