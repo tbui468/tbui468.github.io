@@ -1,71 +1,23 @@
 <!DOCTYPE html>
 <html>
 <body>
-<h1>Learning Postgres with AdventureWorks 1</h1>
+<h1>Postgres SQL Queries with AdventureWorks Part 1</h1>
 <h2>Motivation</h2>
 <p>This is a series of writeups to help me learn more about Postgres (and SQL by extension).
 I've recently become interested in database internals and want to test my understanding
 of a RDBM system before trying to get too deep into building one. The first few
 posts in this series will focus mainly on querying a database. I've asked an LLM to
 generate a series of increasingly complex tasks to use as a roadmap.  The few sets are
-quite basic, so they will serve more as writing practice than technical.</p>
+quite basic, but it serves as a good warmup since I haven't looked at SQL for a while. After each solution
+is a note on something I found interesting.</p>
 
 <h2>The Database</h2>
 <p>AdventureWorks is a free database created by Microsoft that models a fictional bicycle selling business.
-This github repo has information/scripts to load it into Postgres: https://github.com/lorint/AdventureWorks-for-Postgres
+This github repo has information/scripts to load it into Postgres: https://github.com/lorint/AdventureWorks-for-Postgres.
 </p>
 
-<h2>Simple Selects</h2>
+<h2>Single Table Queries</h2>
 <ol>
-  <li>
-List all products<br>
-   Return:<br>
-   - ProductID<br>
-   - Name<br>
-   - ListPrice<br>
-   Sort by product name.<br>
-    <br>
-    <details>
-    <summary>
-      Solution
-    </summary>
-    <content>
-    <br>
-    <code>SELECT ProductID, Name, ListPrice FROM production.Product ORDER BY Name;<br><br></code>
-
-    The tables are split into different schemas.  In this case the Product table
-    is inside the production schema.  If there isn't any conflicting column names,
-    the table name isn't necessary during projection (after SELECT).
-    </content>
-    </details>
-  </li>
-  <br>
-
-  <li>
-   Expensive products<br>
-   Find products with a list price greater than $1000.<br>
-   Return:<br>
-   - Name<br>
-   - ListPrice<br>
-   Sort by price descending.<br>
-    <br>
-    <details>
-    <summary>
-      Solution
-    </summary>
-    <content>
-    <br>
-    <code>
-    SELECT Name, ListPrice FROM production.Product WHERE ListPrice > 1000 ORDER BY ListPrice DESC;
-    <br><br>
-    </code>
-
-    Nothing of note here.
-    </content>
-    </details>
-  </li>
-  <br>
-
   <li>
    Employees hired after a date<br>
    Find employees hired after January 1, 2010.<br>
@@ -73,6 +25,7 @@ List all products<br>
    - BusinessEntityID<br>
    - JobTitle<br>
    - HireDate<br>
+
     <br>
     <details>
     <summary>
@@ -85,15 +38,21 @@ List all products<br>
     <br><br>
     </code>
 
-    DATE can be used to have Postgres treat the following value as a date literal with the format YYYY-MM-DD.
+    <code>DATE [YYYY-MM-DD]</code> can be used to have Postgres treat the string as a date literal.
+    This also works with other date/time types such as TIME, TIMESTAMP and INTERVAL.  Doesn't generalize to other data types,
+    so you can't write something like this <code>INTEGER '65'</code>
     </content>
     </details>
   </li>
   <br>
 
   <li>
-   Count products<br>
-   How many products exist in the Product table?<br>
+   Average product price by color<br>
+   Return:<br>
+   - Color<br>
+   - AveragePrice<br>
+   Sort by average price descending.<br>
+
     <br>
     <details>
     <summary>
@@ -102,20 +61,24 @@ List all products<br>
     <content>
     <br>
     <code>
-    SELECT COUNT(*) FROM production.Product;
-    <br><br>
-    </code>
+      SELECT Color, AVG(ListPrice) AS AvgPrice FROM production.Product WHERE Color IS NOT NULL GROUP BY Color ORDER BY AvgPrice DESC;
+    <br><br></code>
 
-    Nothing of note here.
+    Checking for equality between a NULL and non-NULL value using = or <> (or its alias !=> will evaluate to a NULL, so need to be careful here.
+    Use IS NULL or IS NOT NULL to check if a value is NULL.
+    Here's a great <a href="https://www.crunchydata.com/blog/postgres-calculations-and-the-ambiguity-of-null">article</a> describing how NULL works in Postgres.
     </content>
     </details>
   </li>
   <br>
 
   <li>
-   Distinct product colors<br>
-   List all unique colors used by products.<br>
-   Exclude NULL values.<br>
+   Sales per customer<br>
+   Using Sales.SalesOrderHeader:<br>
+   Return:<br>
+   - CustomerID<br>
+   - NumberOfOrders<br>
+   Show only customers with more than 5 orders.<br>
     <br>
     <details>
     <summary>
@@ -124,20 +87,148 @@ List all products<br>
     <content>
     <br>
     <code>
-    SELECT DISTINCT Color FROM production.Product WHERE Color IS NOT NULL;
+      SELECT CustomerID, COUNT(*) AS NumberOfOrders FROM sales.SalesOrderHeader GROUP BY CustomerID HAVING COUNT(*) > 5;
     <br><br>
     </code>
 
-    NULL cannot be compared with a value (or another NULL) using = or !=.  Use IS NULL or IS NOT NULL to check if a value is NULL.
+      I initially tried <code>SELECT CustomerID, COUNT(*) AS NumberOfOrders FROM sales.SalesOrderHeader GROUP BY CustomerID HAVING NumberOfOrders > 5;</code>, but
+      this produces an error <i>Column <code>NumberOfOrders</code> does not exit</i>.  The HAVING clause logically comes before SELECT (physically this may not be true), so column aliases in SELECT can only be used by operations that logically come afterwards (ORDER BY).  I suspect this is more of an implementation complexity problem rather than being impossible.  
+    </content>
+    </details>
+  </li>
+  <br>
+
+  <li>
+    Sales by year<br>
+    Return:<br>
+    - Year<br>
+    - NumberOfOrders<br>
+    - TotalRevenue<br>
+
+    <br>
+    <details>
+    <summary>
+      Solution
+    </summary>
+    <content>
+    <pre>
+    <code>
+SELECT EXTRACT(YEAR FROM OrderDate) AS YEAR, COUNT(*) AS NumberOfOrders, SUM(TotalDue) AS TotalRevenue 
+  FROM sales.SalesOrderHeader GROUP BY EXTRACT(YEAR FROM OrderDate);
+    </code></pre>
+
+    EXTRACT allows grabbing a specific field from a TIMESTAMP, DATE, TIME or INTERVAL.  For example <code>EXTRACT(MONTH FROM MyDate)</code>;
     </content>
     </details>
   </li>
   <br>
 </ol>
 
+<h2>Multi-Table Queries</h2>
+<ol>
+  <li>
+    Product names with categories<br>
+    Join:<br>
+    - Product<br>
+    - ProductSubcategory<br>
+    - ProductCategory<br>
+
+    Return:<br>
+    - ProductName<br>
+    - Subcategory<br>
+    - Category<br>
+
+    <br>
+    <details>
+    <summary>
+      Solution
+    </summary>
+    <content>
+    <pre><code>
+SELECT Product.Name AS name, ProductSubcategory.Name AS Subcategory, ProductCategory.Name AS Category
+  FROM production.Product 
+  LEFT JOIN production.ProductSubcategory 
+    ON Product.ProductSubcategoryID = ProductSubcategory.ProductSubcategoryID
+  LEFT JOIN production.ProductCategory 
+    ON ProductSubcategory.ProductCategoryID = ProductCategory.ProductCategoryID;
+    </code></pre>
+
+Using LEFT JOINs since some products don't have a category/subcategory.
+Using an INNER JOIN would result in those products being omitted from the result
+    </content>
+    </details>
+  </li>
+  <br>
+
+  <li>
+Customer names and their sales orders<br>
+
+Join:<br>
+- SalesOrderHeader<br>
+- Customer<br>
+- Person<br>
+
+Return:<br>
+- CustomerID<br>
+- CustomerName<br>
+- SalesOrderID<br>
+- OrderDate<br>
+
+    <br>
+    <details>
+    <summary>
+      Solution
+    </summary>
+    <content>
+    <pre><code>
+SELECT Customer.CustomerID, CONCAT_WS(' ', Person.FirstName, Person.MiddleName, Person.LastName) AS name, SalesOrderHeader.SalesOrderID, SalesOrderHeader.OrderDate
+  FROM sales.SalesOrderHeader
+  JOIN sales.Customer 
+    ON Customer.CustomerID = SalesOrderHeader.CustomerID
+  JOIN person.Person
+    ON Customer.PersonID = Person.BusinessEntityID
+  WHERE person.PersonType = 'IN'
+  ORDER BY Customer.CustomerID, SalesOrderHeader.SalesOrderID;
+    </code></pre>
+
+    CONCAT_WS will concatenate strings separated by the separator specified in the first argument.  CONCAT_WS handles NULL values by replacing them with empty strings.
+    </content>
+    </details>
+  </li>
+  <br>
+
+  <li>
+  Salespeople and their orders<br>
+    Return:<br>
+    - SalesPerson name<br>
+    - Order count<br>
+    <br>
+    <details>
+    <summary>
+      Solution
+    </summary>
+    <content>
+    <pre><code>
+SELECT CONCAT_WS(' ', Person.FirstName, Person.MiddleName, Person.LastName) AS name, COUNT(SalesOrderHeader.SalesOrderID) AS OrderCount
+  FROM person.Person
+  LEFT JOIN sales.SalesOrderHeader
+    ON Person.BusinessEntityID = SalesOrderHeader.SalesPersonID
+  WHERE Person.PersonType = 'SP'
+  GROUP BY Person.BusinessEntityID;
+    </code></pre>
+
+    Using COUNT(SalesOrderHeader.SalesOrderID) rather than COUNT(*) since that would include potential NULL values due to using LEFT JOIN.
+    COUNT(*) includes NULL values, but COUNT([column name]) does not.
+    </content>
+    </details>
+  </li>
+  <br>
+</ol>
+
+
 <h2>Closing Thoughts</h2>
 <p>
-  Nothing really super interesting in this set.  Using EXPLAIN and EXPLAIN ANALYZE to check out the query plan provides some interesting insights, but that's for a different post.
+  See part 2 for more complex queries.
 </p>
 </body>
 </html>
