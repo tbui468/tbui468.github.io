@@ -34,7 +34,7 @@
         <div class="container-fluid">
           <div class="flex-fill text-center">
                 <h5 class="mb-0">
-                  Sandbox
+                  IGCSE CS Pseudocode Sandbox
                 </h5>
           </div>
 
@@ -58,8 +58,217 @@
 
   <div class="row flex-grow-1 overflow-hidden">
 
+
+<div class="col-lg-4 border-end d-flex flex-column">
+
+
+    <!-- Footer Navigation -->
+    <div class="border-top p-3">
+
+        <div class="d-flex justify-content-between align-items-center">
+
+            <button id="prevBtn"
+                    class="btn btn-outline-secondary"
+                    disabled>
+                ← Previous
+            </button>
+
+            <span id="pageIndicator"
+                  class="fw-bold">
+                Page 1 of 3
+            </span>
+
+            <button id="nextBtn"
+                    class="btn btn-primary">
+                Next →
+            </button>
+
+        </div>
+
+    </div>
+
+    <!-- Header -->
+    <div class="p-3 border-bottom">
+        <h3 class="mb-1">Golf Score System</h3>
+        <small class="text-muted">
+        IGCSE Computer Science 0478 - Pre-release Material (March 2022)
+        </small>
+    </div>
+
+    <!-- Wizard Pages -->
+    <div id="wizardContent"
+         class="flex-grow-1 overflow-auto p-4">
+
+        <!-- PAGE 1 -->
+        <div class="wizard-page" data-page="1">
+            <h4>Task 1 - Setting Up the Round</h4>
+
+            <p>Create a program to record and score a round of golf.</p>
+
+            <div class="alert alert-info">
+                A golf course contains either 9 or 18 holes.
+                There may be 2 to 4 players.
+            </div>
+
+            <!-- Task 1 content -->
+
+    <ul>
+        <li>Input the number of players.</li>
+        <li>Input each player's name.</li>
+        <li>Input the number of holes.</li>
+        <li>Input the course par.</li>
+        <li>Display all entered information for checking.</li>
+    </ul>
+
+              <h5 class="mt-4">
+                  Task 1 Example Output
+              </h5>
+
+              <pre class="bg-light p-3 rounded">
+Enter number of players:
+2
+
+Enter player 1 name:
+Tim
+
+Enter player 2 name:
+Sarah
+
+Enter number of holes (9 or 18):
+9
+
+Enter par:
+70
+
+Players:
+Tim
+Sarah
+
+Number of Holes = 3
+Par = 9
+              </pre>
+        </div>
+
+        <!-- PAGE 2 -->
+        <div class="wizard-page d-none" data-page="2">
+            <h4>Task 2 - Scoring the Round</h4>
+
+            <!-- Task 2 content -->
+
+    <ul>
+        <li>For each hole, ask every player for their score.</li>
+        <li>Each score must be entered twice for verification.</li>
+        <li>If the two entries do not match, re-enter the score.</li>
+        <li>
+            Allow the player to optionally view their running total.
+        </li>
+    </ul>
+
+              <h5>
+                  Task 2 Example Output
+              </h5>
+
+              <pre class="bg-light p-3 rounded">
+Hole 1
+
+Tim
+Enter score:
+3
+Re-enter score:
+3
+
+View running total (Y/N)?
+Y
+Running Total = 3
+
+Sarah
+Enter score:
+4
+Re-enter score:
+4
+
+View running total (Y/N)?
+Y
+Running Total = 4
+
+Hole 2
+
+Tim
+Enter score:
+2
+Re-enter score:
+2
+
+View running total (Y/N)?
+Y
+Running Total = 5
+
+Sarah
+Enter score:
+3
+Re-enter score:
+3
+
+View running total (Y/N)?
+Y
+Running Total = 7
+              </pre>
+        </div>
+
+        <!-- PAGE 3 -->
+        <div class="wizard-page d-none" data-page="3">
+            <h4>Task 3 - Determine the Winner</h4>
+
+            <!-- Task 3 content -->
+
+    <ul>
+        <li>Calculate each player's total score.</li>
+        <li>Display the score relative to par.</li>
+        <li>Identify and display the winning player.</li>
+        <li>Display the winning score.</li>
+    </ul>
+
+
+              <h5>
+                  Task 3 Example Output
+              </h5>
+
+              <pre class="bg-light p-3 rounded">
+Results
+
+Tim
+Total Score = 8
+1 under par
+
+Sarah
+Total Score = 10
+1 over par
+
+Winner = Tim
+Winning Score = 8
+              </pre>
+
+
+            <hr>
+
+            <h5>Additional Features</h5>
+
+            <!-- Additional Features -->
+
+    <ul>
+        <li>Display every player's score for every hole.</li>
+        <li>Display all hole-in-ones.</li>
+        <li>Display the average score for the round.</li>
+        <li>Display the average score for each hole.</li>
+    </ul>
+        </div>
+
+    </div>
+
+</div>
+
       <!-- LEFT PROBLEM PANEL -->
-      <div class="col-lg-5 border-end overflow-auto">
+     <!-- <div class="col-lg-5 border-end overflow-auto">
 
 <div class="p-4">
 
@@ -89,7 +298,7 @@
     <h4>Task 1 - Setting Up the Round</h4>
 
     <ul>
-        <li>Input the number of players.</li>
+        <li>Input the number of players (2, 3 or 4).</li>
         <li>Input each player's name.</li>
         <li>Input the number of holes (9 or 18).</li>
         <li>Input the course par.</li>
@@ -223,15 +432,6 @@ Winning Score = 8
         <li>Display the average score for each hole.</li>
     </ul>
 
-    <h4 class="mt-4">Validation Rules</h4>
-
-    <ul>
-        <li>Number of players must be between 2 and 4.</li>
-        <li>Number of holes must be 9 or 18.</li>
-        <li>Scores must be verified by entering them twice.</li>
-        <li>All prompts and error messages must be clear.</li>
-    </ul>
-
 
     <button
         class="btn btn-outline-info mt-3"
@@ -249,10 +449,13 @@ Winning Score = 8
     </div>
 
 </div>
+
+
       </div>
+-->
 
       <!-- RIGHT EDITOR PANEL -->
-      <div class="col-lg-7 d-flex flex-column p-0">
+      <div class="col-lg-8 d-flex flex-column p-0">
 
           <!-- LANGUAGE BAR -->
 
@@ -352,5 +555,60 @@ Winning Score = 8
         crossorigin="anonymous">
     </script>
     <script src="pseudocode.js"></script>
+<script>
+let currentPage = 1;
+const totalPages = 3;
+
+const pages = document.querySelectorAll('.wizard-page');
+const prevBtn = document.getElementById('prevBtn');
+const nextBtn = document.getElementById('nextBtn');
+const indicator = document.getElementById('pageIndicator');
+
+function showPage(page)
+{
+    pages.forEach(p => p.classList.add('d-none'));
+
+    document
+        .querySelector(`[data-page="${page}"]`)
+        .classList.remove('d-none');
+
+    indicator.textContent =
+        `Page ${page} of ${totalPages}`;
+
+    prevBtn.disabled = page === 1;
+
+    if (page === totalPages)
+    {
+        nextBtn.disabled = true;
+        nextBtn.textContent = "Completed";
+    }
+    else
+    {
+        nextBtn.disabled = false;
+        nextBtn.textContent = "Next →";
+    }
+}
+
+prevBtn.addEventListener('click', () =>
+{
+    if (currentPage > 1)
+    {
+        currentPage--;
+        showPage(currentPage);
+    }
+});
+
+nextBtn.addEventListener('click', () =>
+{
+    if (currentPage < totalPages)
+    {
+        currentPage++;
+        showPage(currentPage);
+    }
+});
+
+showPage(1);
+</script>
+
   </body>
 </html>

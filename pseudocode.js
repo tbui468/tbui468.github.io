@@ -151,15 +151,15 @@ class Parser {
       throw new Error("Unexpected end of input");
     }
 
-    if (token.type !== type) {
-      throw new Error(
-          `Expected ${type}, got ${token.type}`
-          );
-    }
-
     if (value !== null && token.value !== value) {
       throw new Error(
           `Expected '${value}', got '${token.value}'`
+          );
+    }
+
+    if (token.type !== type) {
+      throw new Error(
+          `Expected ${type}, got ${token.type}`
           );
     }
 
