@@ -16,7 +16,25 @@ TODO
     Could try the Promise.race example from before (including await until current_program ends before starting new run),
       but also clear terminal during this time.  The uncleared terminal was maybe the reason the inputs didn't work last time!
 
+    Promise.race does not stop main program from running, would need to have the race finisher set
+      some flag that will tell the loop evaluating statements to exit (ie, throw an error)...
+
+    Stopping programming is necessary - this is a major usability issue!!!
+
+  Indent does not work
+    Need to 
+
   Backspace should be possible while typing input into prompt up until the start of prompt location
+    textarea.addEventListener("beforeinput", (e) => {
+    if (e.inputType === "insertText") {
+        console.log("Adding:", e.data);
+    }
+    });
+
+      a       => e.data === "a"
+      b       => e.data === "b"
+      paste   => inputType === "insertFromPaste"
+      delete  => inputType === "deleteContentBackward"
 
 Write tests:
   arithmetic operators
@@ -1213,6 +1231,21 @@ textArea.addEventListener("keydown", (event) => {
     }
 });
 
+
+code.addEventListener("keydown", (e) => {
+    if (e.key === "Tab") {
+        e.preventDefault();
+
+        const ta = e.target;
+        ta.setRangeText(
+            "    ",
+            ta.selectionStart,
+            ta.selectionEnd,
+            "end"
+        );
+    }
+});
+
 moveToEnd();
 
 async function run(code, runtime) {
@@ -1466,6 +1499,9 @@ submitBtn.addEventListener("click", function() {
 
 clearBtn.addEventListener("click", function() {
   userInput.value = "";
+});
+
+textArea.addEventListener("keydown", e => {
 });
 
 /*
