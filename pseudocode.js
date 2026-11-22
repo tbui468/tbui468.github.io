@@ -1,3 +1,76 @@
+/*
+TODO
+  Need to fast-track integrating this into Tusker project - this is the main goal, so need to get there quickly
+    prioritize this - automated tests are the most important right now <---------------focus on this
+
+  Advanced features need to be finished, but not for a week or two.
+     declaring functions/procedures
+     calling functions/procedures
+     files
+     CHAR data type
+
+  Stop button to stop current program - if the program is stopped at a prompt and the user tries to run again, it gives error
+    have a button in terminal(?) kill the current programming
+    this is tricky - should commit progress before trying to implement this in case we mess up
+
+    Could try the Promise.race example from before (including await until current_program ends before starting new run),
+      but also clear terminal during this time.  The uncleared terminal was maybe the reason the inputs didn't work last time!
+
+  Backspace should be possible while typing input into prompt up until the start of prompt location
+
+Write tests:
+  arithmetic operators
+  logical operators
+  primitive types
+  1d array types
+  2d array types
+  string types
+  if
+  case
+  for
+  while
+  repeat
+
+  Tests have a different runtime, ie, input/output are different
+    run simply runs code
+    test will return true/false based on results + expected resutls
+
+  Advanced features
+    Procedures
+      Store in scope
+      insert code at top to declare parameters
+      insert code afterwards to assign parameters to arguments
+
+    Functions
+      Store in scope
+      insert code at top to declare parameters
+      insert code afterwards to assign parameters to arguments
+
+    Files
+      store files in-memory in a dictionary/map
+
+    CHAR data type
+      store internally as a string, but perform type-checking as necessary
+      May want to merge all type checking into the Value class
+        class Value {
+          ...
+          ensure_type(types) { //this throws error if the value type is not in the list of types
+
+          }
+        }
+
+    Constants 
+      CONSTANT HourlyRate <- 6.5
+      Note: type is inferred rather than explicit
+            declaration and assignment are merged
+            value must be a literal
+
+  Errors:
+    index out of range (need to check index of each dimension)
+    unexpected end of input (ie, user types LENGTH("CATS"), which is invalid)
+*/
+
+
 function tokenize(input) {
   const tokens = [];
   let pos = 0;
@@ -1346,18 +1419,19 @@ const runtime = {
   input() {
 
     textArea.focus();
+    textArea.value += "> ";
 
     return new Promise(resolve => {
 
-        const button = document.getElementById("submitBtn");
+        //const button = document.getElementById("submitBtn");
 
         function handler(event) {
           if (event.key === "Enter") {
             event.preventDefault();
-            const idx = textArea.value.lastIndexOf("\n");
+            const idx = textArea.value.lastIndexOf("\n"); //TODO this will give -1 if first line - bug
             resolve(textArea.value.substring(idx + 3));
             textArea.removeEventListener("keydown", handler);
-            textArea.value += "\n> ";
+            textArea.value += "\n";
             textArea.scrollTop = textArea.scrollHeight;
           }
         }
@@ -1366,7 +1440,7 @@ const runtime = {
     });
   },
 
-  output(value, eol="\n> ") {
+  output(value, eol="\n") {
     textArea.focus();
     if (value.value === true) {
       textArea.value += "TRUE" + eol;
@@ -1382,16 +1456,7 @@ const runtime = {
 
   }
 };
-/*
-  OUTPUT MOD(9, 2)
-  OUTPUT ROUND(2.2242, 3)
-  OUTPUT LENGTH("cats")
-  OUTPUT SUBSTRING("turtle", 2, 3)
-  OUTPUT DIV(9, 2)
-  OUTPUT UCASE("Cats")
-  OUTPUT LCASE("Cats")
-  OUTPUT RANDOM()
-*/
+
 submitBtn.addEventListener("click", function() {
   run(code.value + " ", runtime).catch(err => {
       runtime.output(new Value("[ERROR]: " + err.message, "STRING"));
@@ -1400,9 +1465,11 @@ submitBtn.addEventListener("click", function() {
 });
 
 clearBtn.addEventListener("click", function() {
-  userInput.value = "> ";
+  userInput.value = "";
 });
 
+/*
 resetBtn.addEventListener("click", function() {
   code.value = "";
 });
+*/

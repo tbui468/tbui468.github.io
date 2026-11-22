@@ -469,10 +469,11 @@ Winning Score = 8
                       <button id="submitBtn" class="btn btn-success">
                           Run
                       </button>
-
+                    <!--
                       <button id="resetBtn" class="btn btn-outline-secondary">
                           Reset
                       </button>
+                    -->
 
                   </div>
 
@@ -493,7 +494,15 @@ Winning Score = 8
                   style="
                       font-family: monospace;
                       resize:none;
-                  " spellcheck="false"></textarea>
+                  " spellcheck="false"
+                  placeholder="Enter pseudocode">
+DECLARE x: INTEGER
+DECLARE y: INTEGER
+
+INPUT x
+INPUT y
+OUTPUT x + y
+              </textarea>
 
           </div>
 
@@ -529,7 +538,7 @@ Winning Score = 8
                           id="userInput"
                           class="form-control h-50"
                           rows="5"
-                          placeholder="Enter pseudocode">> </textarea>
+                          placeholder=""></textarea>
 
                   </div>
 
