@@ -1,0 +1,650 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+        integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN"
+        crossorigin="anonymous">
+
+    <style>
+   .site-navbar {
+    background-color: #1f2937;
+}
+
+.site-navbar .navbar-brand,
+.site-navbar .nav-link {
+    color: #fff !important;
+}
+
+.site-navbar .nav-link:hover {
+    color: #93c5fd !important;
+} 
+    </style>
+  </head>
+  <body>
+<div class="container-fluid d-flex flex-column">
+
+    <!-- TOP NAVBAR -->
+
+    <nav class="navbar navbar-light bg-light border-bottom">
+
+        <div class="container-fluid">
+          <div class="flex-fill text-center">
+                <h5 class="mb-0">
+                  IGCSE CS Pseudocode
+                </h5>
+          </div>
+
+      </div>
+
+  </nav>
+
+  <!-- PROGRESS -->
+
+  <div class="progress rounded-0" style="height:8px;">
+
+      <div
+          class="progress-bar"
+          role="progressbar"
+          style="width:0%;">
+      </div>
+
+  </div>
+
+  <!-- MAIN CONTENT -->
+
+  <div class="row flex-grow-1 overflow-hidden">
+
+
+<div class="col-lg-4 border-end d-flex flex-column">
+
+<!-- Footer Navigation -->
+<div class="border-top p-3">
+
+    <div class="d-flex justify-content-between align-items-center">
+
+        <button id="prevBtn"
+                class="btn btn-outline-secondary"
+                disabled>
+            ← Previous
+        </button>
+
+        <span id="pageIndicator"
+              class="fw-bold">
+            Page 1 of 3
+        </span>
+
+        <button id="nextBtn"
+                class="btn btn-primary">
+            Next →
+        </button>
+
+    </div>
+
+</div>
+
+<!-- Header -->
+<div class="p-3 border-bottom">
+    <h3 class="mb-1">Friends of Seaview Pier</h3>
+    <small class="text-muted">
+        IGCSE Computer Science 0478 - Pre-release Material
+    </small>
+</div>
+
+<!-- Wizard Pages -->
+<div id="wizardContent"
+     class="flex-grow-1 overflow-auto p-4">
+
+    <!-- PAGE 1 -->
+    <div class="wizard-page" data-page="1">
+
+        <h4>Task 1 - Becoming a Member</h4>
+
+        <p>
+            Create a system to record new members of
+            Friends of Seaview Pier.
+        </p>
+
+        <div class="alert alert-info">
+            Validation requirements
+	    <ul>
+		<li>Presence check on first name</li>
+		<li>Presence check on last name</li>
+		<li>Format check join date to match format DD/MM/YYYY</li>
+	    </ul>
+        </div>
+
+        <ul>
+            <li>Input the member's first name.</li>
+            <li>Input the member's last name.</li>
+            <li>Input whether the member wishes to volunteer.</li>
+            <li>
+                If volunteering, select one area:
+                <ul>
+                    <li>Pier entrance gate</li>
+                    <li>Gift shop</li>
+                    <li>Painting and decorating</li>
+                </ul>
+            </li>
+            <li>Input the date of joining.</li>
+            <li>Input whether the $75 membership fee has been paid.</li>
+            <li>Store all information using suitable data structures.</li>
+        </ul>
+
+        <h5 class="mt-4">
+            Task 1 Example Output
+        </h5>
+
+        <pre class="bg-light p-3 rounded">
+Enter first name:
+Sarah
+
+Enter last name:
+Brown
+
+Would you like to volunteer? (Y/N):
+Y
+
+Select volunteer area:
+1. Pier entrance gate
+2. Gift shop
+3. Painting and decorating
+
+Choice:
+2
+
+Enter date joined:
+15/03/2026
+
+Has the $75 fee been paid? (Y/N):
+Y
+
+Member Details
+
+Name: Sarah Brown
+Volunteer: Yes
+Area: Gift Shop
+Date Joined: 15/03/2026
+Fee Paid: Yes
+        </pre>
+
+    </div>
+
+    <!-- PAGE 2 -->
+    <div class="wizard-page d-none" data-page="2">
+
+        <h4>Task 2 - Using Membership Data</h4>
+
+        <p>
+            Extend the program so members can be listed
+            according to different categories.
+        </p>
+
+        <ul>
+            <li>Display all members who volunteer.</li>
+            <li>Display volunteers at the pier entrance gate.</li>
+            <li>Display volunteers in the gift shop.</li>
+            <li>Display volunteers helping with painting and decorating.</li>
+            <li>Display members whose membership has expired.</li>
+            <li>Display members who have not paid their $75 fee.</li>
+        </ul>
+
+        <h5>
+            Task 2 Example Output
+        </h5>
+
+        <pre class="bg-light p-3 rounded">
+Membership Reports
+
+1. Volunteers
+2. Gate Volunteers
+3. Gift Shop Volunteers
+4. Painting & Decorating
+5. Expired Memberships
+6. Unpaid Memberships
+
+Select report:
+2
+
+Gate Volunteers
+
+John Smith
+Emma Davis
+
+
+Select report:
+6
+
+Members With Unpaid Fees
+
+Mark Wilson
+Helen White
+        </pre>
+
+    </div>
+
+    <!-- PAGE 3 -->
+    <div class="wizard-page d-none" data-page="3">
+
+        <h4>Task 3 - Sponsoring a Wooden Plank</h4>
+
+        <p>
+            Add an option to allow sponsors to purchase
+            a commemorative brass plaque for a wooden plank.
+        </p>
+
+        <ul>
+            <li>Input the sponsor's name.</li>
+            <li>Input the short plaque message.</li>
+            <li>Store sponsor names separately from plaque messages.</li>
+            <li>Display all entered information for confirmation.</li>
+            <li>Allow incorrect data to be re-entered.</li>
+            <li>Store the completed sponsorship details.</li>
+            <li>Charge the sponsor $200.</li>
+        </ul>
+
+        <h5>
+            Task 3 Example Output
+        </h5>
+
+        <pre class="bg-light p-3 rounded">
+Wooden Plank Sponsorship
+
+Enter sponsor name:
+David Harper
+
+Enter plaque message:
+In Memory of George Harper
+
+Please Confirm
+
+Sponsor Name:
+David Harper
+
+Plaque Message:
+In Memory of George Harper
+
+Is this information correct? (Y/N):
+Y
+
+Sponsorship Stored
+
+Amount Charged = $200
+        </pre>
+
+        <hr>
+
+        <h5>Additional Features</h5>
+
+        <ul>
+            <li>Display the total income from membership fees.</li>
+            <li>Display the total income from plank sponsorships.</li>
+            <li>Display the number of volunteers in each area.</li>
+            <li>Search for a member by surname.</li>
+            <li>Display all active members alphabetically.</li>
+        </ul>
+
+    </div>
+
+</div>
+
+
+</div>
+
+      <!-- LEFT PROBLEM PANEL -->
+     <!-- <div class="col-lg-5 border-end overflow-auto">
+
+<div class="p-4">
+
+    <h2>Golf Score System</h2>
+    <p class="text-muted">
+        IGCSE Computer Science 0478 - Pre-release Material (March 2022)
+    </p>
+
+    <hr>
+
+    <p>
+        Create a program to record and score a round of golf.
+    </p>
+
+    <p>
+        A score in golf is the number of strokes needed to get the ball
+        into a hole. The player with the lowest total number of strokes
+        wins the round.
+    </p>
+
+    <div class="alert alert-info">
+        A golf course contains either <strong>9</strong> or
+        <strong>18 holes</strong>. There may be
+        <strong>2 to 4 players</strong>.
+    </div>
+
+    <h4>Task 1 - Setting Up the Round</h4>
+
+    <ul>
+        <li>Input the number of players (2, 3 or 4).</li>
+        <li>Input each player's name.</li>
+        <li>Input the number of holes (9 or 18).</li>
+        <li>Input the course par.</li>
+        <li>Display all entered information for checking.</li>
+    </ul>
+
+              <h5 class="mt-4">
+                  Task 1 Example Output
+              </h5>
+
+              <pre class="bg-light p-3 rounded">
+Enter number of players:
+2
+
+Enter player 1 name:
+Tim
+
+Enter player 2 name:
+Sarah
+
+Enter number of holes (3 or 6):
+3
+
+Enter par:
+9
+
+Players:
+Tim
+Sarah
+
+Number of Holes = 3
+Par = 9
+              </pre>
+
+    <h4 class="mt-4">Task 2 - Scoring the Round</h4>
+
+    <ul>
+        <li>For each hole, ask every player for their score.</li>
+        <li>Each score must be entered twice for verification.</li>
+        <li>If the two entries do not match, re-enter the score.</li>
+        <li>
+            Allow the player to optionally view their running total.
+        </li>
+    </ul>
+
+              <h5>
+                  Task 2 Example Output
+              </h5>
+
+              <pre class="bg-light p-3 rounded">
+Hole 1
+
+Tim
+Enter score:
+3
+Re-enter score:
+3
+
+View running total (Y/N)?
+Y
+Running Total = 3
+
+Sarah
+Enter score:
+4
+Re-enter score:
+4
+
+View running total (Y/N)?
+Y
+Running Total = 4
+
+Hole 2
+
+Tim
+Enter score:
+2
+Re-enter score:
+2
+
+View running total (Y/N)?
+Y
+Running Total = 5
+
+Sarah
+Enter score:
+3
+Re-enter score:
+3
+
+View running total (Y/N)?
+Y
+Running Total = 7
+              </pre>
+
+    <h4 class="mt-4">Task 3 - Determine the Winner</h4>
+
+    <ul>
+        <li>Calculate each player's total score.</li>
+        <li>Display the score relative to par.</li>
+        <li>Identify and display the winning player.</li>
+        <li>Display the winning score.</li>
+    </ul>
+
+
+              <h5>
+                  Task 3 Example Output
+              </h5>
+
+              <pre class="bg-light p-3 rounded">
+Results
+
+Tim
+Total Score = 8
+1 under par
+
+Sarah
+Total Score = 10
+1 over par
+
+Winner = Tim
+Winning Score = 8
+              </pre>
+
+    <h4 class="mt-4">Additional Features</h4>
+
+    <ul>
+        <li>Display every player's score for every hole.</li>
+        <li>Display all hole-in-ones.</li>
+        <li>Display the average score for the round.</li>
+        <li>Display the average score for each hole.</li>
+    </ul>
+
+
+    <button
+        class="btn btn-outline-info mt-3"
+        data-bs-toggle="collapse"
+        data-bs-target="#hintSection">
+        Show Hint
+    </button>
+
+    <div class="collapse mt-3" id="hintSection">
+        <div class="alert alert-info">
+            Consider using a 2D array:
+            <code>Score[Player, Hole]</code>
+            to store each player's score for every hole.
+        </div>
+    </div>
+
+</div>
+
+
+      </div>
+-->
+
+      <!-- RIGHT EDITOR PANEL -->
+      <div class="col-lg-8 d-flex flex-column p-0">
+
+          <!-- LANGUAGE BAR -->
+
+          <div class="border-bottom bg-light p-2">
+
+              <div class="row">
+
+
+                  <div class="col text-end">
+
+                      <button id="submitBtn" class="btn btn-success">
+                          Run
+                      </button>
+                    <!--
+                      <button id="resetBtn" class="btn btn-outline-secondary">
+                          Reset
+                      </button>
+                    -->
+
+                  </div>
+
+              </div>
+
+          </div>
+
+          <!-- EDITOR -->
+
+          <div
+              class="flex-grow-1 border-bottom"
+              style="min-height:400px;">
+
+              <!-- Replace with Monaco Editor -->
+
+              <textarea id="code"
+                  class="form-control h-100 border-0 rounded-0"
+                  style="
+                      font-family: monospace;
+                      resize:none;
+                  " spellcheck="false"
+                  placeholder="Enter pseudocode">
+DECLARE x: INTEGER
+DECLARE y: INTEGER
+
+INPUT x
+INPUT y
+OUTPUT x + y
+              </textarea>
+
+          </div>
+
+          <!-- OUTPUT AREA -->
+
+          <div style="height:400px;">
+
+<ul class="nav nav-tabs">
+    <li class="nav-item d-flex align-items-center">
+        <button
+            class="nav-link active"
+            data-bs-toggle="tab"
+            data-bs-target="#output">
+            Terminal
+        </button>
+
+        <button id="clearBtn" class="btn btn-outline-secondary">
+            Clear
+        </button>
+    </li>
+</ul>
+
+              <div class="tab-content h-100">
+
+                  <!-- OUTPUT -->
+
+                  <div
+                      class="tab-pane fade show active p-3 h-100 overflow-auto"
+                      id="output">
+
+
+                      <textarea
+                          id="userInput"
+                          class="form-control h-50"
+                          rows="5"
+                          placeholder=""></textarea>
+
+                  </div>
+
+
+              </div>
+
+          </div>
+
+      </div>
+
+  </div>
+
+</div>
+
+
+
+
+
+
+    <script
+        src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+        crossorigin="anonymous">
+    </script>
+    <script src="pseudocode.js"></script>
+<script>
+let currentPage = 1;
+const totalPages = 3;
+
+const pages = document.querySelectorAll('.wizard-page');
+const prevBtn = document.getElementById('prevBtn');
+const nextBtn = document.getElementById('nextBtn');
+const indicator = document.getElementById('pageIndicator');
+
+function showPage(page)
+{
+    pages.forEach(p => p.classList.add('d-none'));
+
+    document
+        .querySelector(`[data-page="${page}"]`)
+        .classList.remove('d-none');
+
+    indicator.textContent =
+        `Page ${page} of ${totalPages}`;
+
+    prevBtn.disabled = page === 1;
+
+    if (page === totalPages)
+    {
+        nextBtn.disabled = true;
+        nextBtn.textContent = "Completed";
+    }
+    else
+    {
+        nextBtn.disabled = false;
+        nextBtn.textContent = "Next →";
+    }
+}
+
+prevBtn.addEventListener('click', () =>
+{
+    if (currentPage > 1)
+    {
+        currentPage--;
+        showPage(currentPage);
+    }
+});
+
+nextBtn.addEventListener('click', () =>
+{
+    if (currentPage < totalPages)
+    {
+        currentPage++;
+        showPage(currentPage);
+    }
+});
+
+showPage(1);
+</script>
+
+  </body>
+</html>

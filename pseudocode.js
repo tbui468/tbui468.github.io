@@ -1,13 +1,32 @@
 /*
 TODO
-  Need to fast-track integrating this into Tusker project - this is the main goal, so need to get there quickly
-    prioritize this - automated tests are the most important right now <---------------focus on this
+  Automated Tests
 
-  Advanced features need to be finished, but not for a week or two.
-     declaring functions/procedures
-     calling functions/procedures
-     files
-     CHAR data type
+      Test 1: Passed
+      Test 2: Passed
+      Test 3: Pailed
+        Your output:
+          Enter an integer:
+          3
+          Enter an integer:
+          4
+          x + y = 6
+        Expected output:
+          Enter an integer:
+          3
+          Enter an integer:
+          4
+          x + y = 7
+      Test 4: Passed
+      Test 5: Passed
+
+    Need to make a function that generates expected test
+      this will be used to dynamically generated the expected results directly in browser on page load using solution
+      then the solution will be cleared to an empty string
+
+    make a test_runtime that will output expected text, with all text lowercased and whitespace stripped 
+
+    test will output a diff so user knows what went wrong
 
   Stop button to stop current program - if the program is stopped at a prompt and the user tries to run again, it gives error
     have a button in terminal(?) kill the current programming
@@ -18,23 +37,20 @@ TODO
 
     Promise.race does not stop main program from running, would need to have the race finisher set
       some flag that will tell the loop evaluating statements to exit (ie, throw an error)...
+      but also need to use Promise.race in Input to ensure program stops when waiting for user input
 
     Stopping programming is necessary - this is a major usability issue!!!
 
-  Indent does not work
-    Need to 
+  Multiline indent when multiple lines are selected is disabled
+    should enable this
+    should enable multiline unindent
+    should also ensure undo works
 
-  Backspace should be possible while typing input into prompt up until the start of prompt location
-    textarea.addEventListener("beforeinput", (e) => {
-    if (e.inputType === "insertText") {
-        console.log("Adding:", e.data);
-    }
-    });
-
-      a       => e.data === "a"
-      b       => e.data === "b"
-      paste   => inputType === "insertFromPaste"
-      delete  => inputType === "deleteContentBackward"
+  Advanced features need to be finished, but not for a week or two (when students start function/procedure/file unit)
+     declaring functions/procedures
+     calling functions/procedures
+     files
+     CHAR data type
 
 Write tests:
   arithmetic operators
@@ -1213,6 +1229,9 @@ async function evaluate(node, scope, runtime) {
 }
 
 const textArea = document.getElementById("userInput");
+const codeEditor = document.getElementById("code");
+const runBtn = document.getElementById("submitBtn");
+const resetBtn = document.getElementById("resetBtn");
 
 function moveToEnd() {
     requestAnimationFrame(() => {
@@ -1224,25 +1243,38 @@ function moveToEnd() {
 textArea.addEventListener("click", moveToEnd);
 textArea.addEventListener("keydown", moveToEnd);
 textArea.addEventListener("mouseup", moveToEnd);
-
+let cursor_start_idx = 0;
 textArea.addEventListener("keydown", (event) => {
-    if (event.key === "Backspace") {
+    if (event.key === "Backspace" && textArea.selectionStart <= cursor_start_idx) {
         event.preventDefault();
     }
 });
 
 
-code.addEventListener("keydown", (e) => {
-    if (e.key === "Tab") {
-        e.preventDefault();
+codeEditor.addEventListener("keydown", (e) => {
+    if (e.key !== "Tab") return;
 
-        const ta = e.target;
-        ta.setRangeText(
-            "    ",
-            ta.selectionStart,
-            ta.selectionEnd,
-            "end"
-        );
+    e.preventDefault();
+
+    const start = codeEditor.selectionStart;
+    const end = codeEditor.selectionEnd;
+
+    if (start === end) {
+      document.execCommand("insertText", false, "    ");
+
+      /*
+      //this code doesn't insert history, preventing undoing
+      //exeCommand is apparently deprecated, but it still works in may browsers
+      const ta = e.target;
+      ta.setRangeText(
+          "    ",
+          ta.selectionStart,
+          ta.selectionEnd,
+          "end"
+      );*/
+
+    } else {
+      //TODO handle multiline indent here
     }
 });
 
@@ -1453,13 +1485,13 @@ const runtime = {
 
     textArea.focus();
     textArea.value += "> ";
+    cursor_start_idx = textArea.selectionStart;
 
     return new Promise(resolve => {
 
-        //const button = document.getElementById("submitBtn");
-
         function handler(event) {
           if (event.key === "Enter") {
+            cursor_start_idx = textArea.selectionStart;
             event.preventDefault();
             const idx = textArea.value.lastIndexOf("\n"); //TODO this will give -1 if first line - bug
             resolve(textArea.value.substring(idx + 3));
@@ -1487,22 +1519,107 @@ const runtime = {
 
     textArea.scrollTop = textArea.scrollHeight;
 
+    cursor_start_idx = textArea.selectionStart;
   }
 };
 
-submitBtn.addEventListener("click", function() {
-  run(code.value + " ", runtime).catch(err => {
+let tests = {
+  "ref_solution": `
+DECLARE x: INTEGER
+DECLARE y: INTEGER
+DECLARE z: INTEGER
+
+OUTPUT "Enter x:"
+INPUT x
+OUTPUT "Enter y:"
+INPUT y
+OUTPUT "Enter z:"
+INPUT z
+OUTPUT "x + y - z = ", x + y - z
+  `,
+  "test_idx": 0,  //which test runtime is testing
+  "input_idx": 0, //next input to grab
+  "tests": [ {"inputs": ["5", "3", "2"] },
+             {"inputs": ["1", "2", "3"] },
+             {"inputs": ["2", "1", "5"] }
+           ],
+  "result": ""
+};
+
+function create_test_runtime(test_idx, inputs) {
+
+  return {
+    test_idx,
+    inputs,
+    input_idx: 0, 
+    result: "",
+    input() {
+      let value = String(inputs[this.input_idx]);
+      if (this.input_idx >= this.inputs.length) {
+        value = "0";
+      }
+      this.result += value + "\n";
+      this.input_idx++;
+      return Promise.resolve(value);
+    },
+
+    output(value, eol="\n") {
+      let as_string = "";
+      if (value.value === true) {
+        as_string= "TRUE" + eol;
+      } else if (value.value === false) {
+        as_string= "FALSE" + eol;
+      } else if (value.type.type === "REAL") {
+        as_string = String(value.value) + eol;
+      } else {
+        as_string = String(value.value) + eol;
+      }
+
+      this.result += as_string;
+    }
+  };
+
+}
+
+//TODO: get rid of this later
+const test_runtime = {
+  input() {
+    const test = tests.tests[tests.test_idx];
+    let value = String(test.inputs[tests.input_idx]);
+    if (tests.input_idx >= test.inputs.length) {
+      value = "0";
+    }
+    tests.result += value + "\n";
+    tests.input_idx++;
+    return Promise.resolve(value);
+  },
+
+  output(value, eol="\n") {
+    let as_string = "";
+    if (value.value === true) {
+      as_string= "TRUE" + eol;
+    } else if (value.value === false) {
+      as_string= "FALSE" + eol;
+    } else if (value.type.type === "REAL") {
+      as_string = String(value.value) + eol;
+    } else {
+      as_string = String(value.value) + eol;
+    }
+
+    tests.result += as_string;
+  }
+};
+
+
+runBtn.addEventListener("click", function() {
+  run(codeEditor.value + " ", runtime).catch(err => {
       runtime.output(new Value("[ERROR]: " + err.message, "STRING"));
       console.error(err);
   });
 });
 
-clearBtn.addEventListener("click", function() {
-  userInput.value = "";
-});
 
-textArea.addEventListener("keydown", e => {
-});
+
 
 /*
 resetBtn.addEventListener("click", function() {
